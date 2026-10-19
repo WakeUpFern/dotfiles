@@ -51,7 +51,7 @@ docs/                           notas
 | `Mod+T` | terminal (alacritty) |
 | hover en el notch | se expande: título, volumen, luz y batería |
 | click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
-| click en el logo de Debian (o en otra zona del notch) | launcher, con botones de energía abajo |
+| click en el notch | launcher, con botones de energía abajo |
 | `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
 | scroll sobre el notch | volumen |
 | teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |

@@ -27,7 +27,7 @@ PanelWindow {
     // --- Geometria ----------------------------------------------------------
     // Ancho en reposo: workspaces | icono | reloj. En hover se suma el bloque
     // extra (titulo, volumen, bateria) en el centro.
-    readonly property real collapsedWidth: 44 + wsRow.implicitWidth + 18 + 22 + 18 + clockText.implicitWidth + 18
+    readonly property real collapsedWidth: 18 + wsRow.implicitWidth + 18 + 22 + 18 + clockText.implicitWidth + 18
     readonly property real peekExtra: extraRow.implicitWidth + 14
 
     readonly property real targetWidth: {
@@ -136,36 +136,11 @@ PanelWindow {
             visible: opacity > 0.01
             Behavior on opacity { NumberAnimation { duration: 160 } }
 
-            // Extremo izquierdo: logo = "inicio". Click abre el launcher (que trae
-            // las opciones de energia); Mod+Shift+E abre el menu de apagado.
-            Image {
-                id: logo
-                anchors.left: parent.left
-                anchors.leftMargin: 14
-                anchors.verticalCenter: parent.verticalCenter
-                width: 18
-                height: 18
-                sourceSize: Qt.size(36, 36)
-                source: Quickshell.iconPath("start-here-debian", "debian-swirl")
-                scale: logoArea.pressed ? 0.8 : (logoArea.containsMouse ? 1.18 : 1)
-                rotation: logoArea.containsMouse ? 12 : 0
-                Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutBack; easing.overshoot: 3 } }
-                Behavior on rotation { NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 2 } }
-                MouseArea {
-                    id: logoArea
-                    anchors.fill: parent
-                    anchors.margins: -6
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: win.modeRequested("launcher")
-                }
-            }
-
             // Izquierda: workspaces (la pastilla activa se estira).
             Row {
                 id: wsRow
                 anchors.left: parent.left
-                anchors.leftMargin: 44
+                anchors.leftMargin: 18
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 6
                 Repeater {
