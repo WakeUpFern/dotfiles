@@ -25,7 +25,7 @@ Singleton {
 
     // Bloqueo de pantalla: false = swaylock (probado), true = el bloqueo propio del notch
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
-    readonly property bool nativeLock: false
+    readonly property bool nativeLock: true
 
     // --- Fondo de pantalla ---------------------------------------------------
     // Una sola fuente para el fondo (Wallpaper.qml) y el fondo desenfocado del

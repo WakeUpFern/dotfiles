@@ -4,8 +4,8 @@ Hay dos lockers. Se elige con `nativeLock` en `config/quickshell/pill/Theme.qml`
 
 | `nativeLock` | Locker | Estado |
 |---|---|---|
-| `false` (por defecto) | `swaylock`, con `config/swaylock/config` | probado |
-| `true` | bloqueo propio del notch (`LockScreen.qml`) | probado con contraseña simulada; falta probar tu teclado |
+| `false` | `swaylock`, con `config/swaylock/config` | probado |
+| `true` (por defecto) | bloqueo propio del notch (`LockScreen.qml`) | probado con contraseña simulada y con la real (`lock-test.sh`) |
 
 Se bloquea desde el menú de apagado (`Mod+Shift+E` → Bloquear), desde los botones del launcher o
 con `Super+Alt+L`. Las tres rutas usan el locker elegido. `Super+Alt+Shift+L` abre siempre `swaylock`.
