@@ -92,6 +92,13 @@ ShellRoot {
     Wallpaper {}
     Backdrop {}
 
+    // Bloqueo propio (solo se usa si Theme.nativeLock; si no, swaylock).
+    LockScreen { id: lockScreen }
+    Connections {
+        target: PowerActions
+        function onLockRequested() { lockScreen.lockNow(); }
+    }
+
     Pill {
         mode: root.mode
         controlsFocus: root.controlsFocus

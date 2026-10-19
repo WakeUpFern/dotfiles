@@ -15,6 +15,9 @@ Singleton {
         { id: "logout",   label: "Cerrar sesión", glyph: "", key: "e", confirm: true  }
     ]
 
+    // Pide al shell abrir el bloqueo propio (lo atiende shell.qml).
+    signal lockRequested()
+
     // Accion "armada" esperando confirmacion ("" = ninguna).
     property string armedId: ""
 
@@ -38,7 +41,10 @@ Singleton {
     function run(id) {
         switch (id) {
         // Colores y opciones en config/swaylock/config (daemonize ya va incluido).
-        case "lock":     Quickshell.execDetached(["swaylock", "-i", Theme.wallpaperPath]); break;
+        case "lock":
+            if (Theme.nativeLock) lockRequested();
+            else Quickshell.execDetached(["swaylock", "-i", Theme.wallpaperPath]);
+            break;
         case "suspend":  Quickshell.execDetached(["systemctl", "suspend"]); break;
         case "reboot":   Quickshell.execDetached(["systemctl", "reboot"]); break;
         case "poweroff": Quickshell.execDetached(["systemctl", "poweroff"]); break;

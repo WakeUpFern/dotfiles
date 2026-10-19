@@ -23,6 +23,10 @@ Singleton {
     readonly property int notchPeekHeight: 40
     readonly property int animMs: 420
 
+    // Bloqueo de pantalla: false = swaylock (probado), true = el bloqueo propio del notch
+    // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
+    readonly property bool nativeLock: false
+
     // --- Fondo de pantalla ---------------------------------------------------
     // Una sola fuente para el fondo (Wallpaper.qml) y el fondo desenfocado del
     // overview (Backdrop.qml). Prioridad: archivo de estado > PILL_WALLPAPER > default.

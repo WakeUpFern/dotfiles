@@ -36,6 +36,8 @@ config/quickshell/pill/         la píldora (QML)
   Backdrop.qml                  mismo fondo, desenfocado, para el overview (Mod+O)
   Launcher.qml                  buscador de apps + fila de energia
   PowerMenu.qml / PowerButton.qml / PowerActions.qml   menu de apagado (apagar, reiniciar, suspender, bloquear, cerrar sesion)
+  LockScreen.qml / LockView.qml / ShapeGlyph.qml   bloqueo propio (contraseña como figuras animadas)
+  lock-test.qml                 instancia de prueba del bloqueo (scripts/lock-test.sh)
   Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
   Slider.qml                    slider reutilizable (perilla con rebote)
   Brightness.qml                brillo via brightnessctl (con throttle)

@@ -1,34 +1,58 @@
 # Pantalla de bloqueo
 
-Usa `swaylock` (config en `config/swaylock/config`, enlazada a `~/.config/swaylock/config`).
-Se abre desde el menú de apagado (`Mod+Shift+E` → Bloquear), desde los botones del launcher
-o con `Super+Alt+L`. Las tres rutas ejecutan el mismo comando.
+Hay dos lockers. Se elige con `nativeLock` en `config/quickshell/pill/Theme.qml`:
 
-- El **anillo** del centro está siempre visible: es donde se "escribe". No hay campo de texto;
-  teclea la contraseña a ciegas (cada tecla ilumina un segmento del anillo) y pulsa **Enter**.
-- Anillo **azul** = verificando, **rojo** = contraseña incorrecta, **naranja** = borrando.
-- Con Bloq Mayús activo el anillo lo indica.
-- Las contraseñas vacías se ignoran.
+| `nativeLock` | Locker | Estado |
+|---|---|---|
+| `false` (por defecto) | `swaylock`, con `config/swaylock/config` | probado |
+| `true` | bloqueo propio del notch (`LockScreen.qml`) | probado con contraseña simulada; falta probar tu teclado |
+
+Se bloquea desde el menú de apagado (`Mod+Shift+E` → Bloquear), desde los botones del launcher o
+con `Super+Alt+L`. Las tres rutas usan el locker elegido. `Super+Alt+Shift+L` abre siempre `swaylock`.
+
+## Bloqueo propio
+
+Reloj grande, fondo = tu wallpaper desenfocado y la contraseña como **figuras** (círculo, cuadrado,
+triángulo, estrella, rombo) que saltan al teclear. Backspace las encoge, `Esc` o `Ctrl+U` borran todo.
+Si la contraseña es incorrecta la caja se sacude, las figuras se ponen rojas y se desvanecen en cascada.
+Si es correcta se ponen verdes y se desbloquea. Usa ext-session-lock + PAM (servicio `login`).
+
+### Probarlo antes de activarlo
+
+```bash
+./scripts/lock-test.sh
+```
+
+Bloquea la pantalla con tu contraseña real y **se desbloquea sola a los 45 s** pase lo que pase.
+Escribe tu contraseña y pulsa Enter: si las figuras aparecen al teclear y desbloquea, el teclado
+llega bien y puedes activarlo con `nativeLock: true`. Si no escribe nada, espera los 45 s.
+
+### Activarlo
+En `Theme.qml`: `readonly property bool nativeLock: true` (Quickshell recarga solo).
 
 ## Salida de emergencia (si no puedes desbloquear)
 
-No hace falta apagar el equipo. Desde un TTY se le envía la señal de desbloqueo a swaylock:
+No hace falta apagar el equipo. Desde un TTY:
 
-1. `Ctrl+Alt+F3` → inicia sesión con tu usuario en el TTY.
-2. `pkill -USR1 swaylock`
+1. `Ctrl+Alt+F3` → inicia sesión con tu usuario.
+2. Lanza un locker nuevo y desbloquéalo con la señal:
+   ```bash
+   export WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/$(id -u)
+   pkill -x qs            # solo si el bloqueo propio sigue colgado
+   swaylock -f
+   pkill -USR1 swaylock
+   ```
 3. Vuelve a la sesión con `Ctrl+Alt+F2` (o `F1` si no aparece).
 
-Si el bloqueo quedó como una pantalla de color liso sin anillo, el locker murió y niri mantiene
-la sesión bloqueada por seguridad. Desde el TTY se arregla lanzando uno nuevo y desbloqueándolo:
+Si el bloqueo es una pantalla de color liso sin reloj ni anillo, el locker murió y niri mantiene la
+sesión bloqueada por seguridad; el paso 2 la libera igual.
 
-```bash
-WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/$(id -u) swaylock -f
-pkill -USR1 swaylock
-```
+## swaylock
 
-## Probarlo sin riesgo
+Config en `config/swaylock/config` (anillo siempre visible, colores del tema). Escribe la contraseña
+a ciegas y Enter. Anillo azul = verificando, rojo = incorrecta, naranja = borrando.
 
-Lanza el bloqueo con un desbloqueo automático por si algo falla:
+Probarlo sin riesgo:
 
 ```bash
 ( sleep 10; pkill -USR1 swaylock ) & swaylock -i ~/Pictures/foto.png
