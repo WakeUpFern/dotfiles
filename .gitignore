@@ -1,0 +1,7 @@
+*.swp
+*~
+.DS_Store
+# secretos: nunca versionar
+*.key
+*.pem
+.env
