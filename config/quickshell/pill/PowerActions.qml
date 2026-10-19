@@ -37,7 +37,8 @@ Singleton {
 
     function run(id) {
         switch (id) {
-        case "lock":     Quickshell.execDetached(["swaylock", "-f", "-s", "fill", "-i", Theme.wallpaperPath]); break;
+        // Colores y opciones en config/swaylock/config (daemonize ya va incluido).
+        case "lock":     Quickshell.execDetached(["swaylock", "-i", Theme.wallpaperPath]); break;
         case "suspend":  Quickshell.execDetached(["systemctl", "suspend"]); break;
         case "reboot":   Quickshell.execDetached(["systemctl", "reboot"]); break;
         case "poweroff": Quickshell.execDetached(["systemctl", "poweroff"]); break;

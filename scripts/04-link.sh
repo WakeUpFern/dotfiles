@@ -10,6 +10,7 @@ BACKUP="$HOME/.config/dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 LINKS=(
   "niri:niri"
   "quickshell/pill:quickshell/pill"
+  "swaylock:swaylock"
 )
 
 for entry in "${LINKS[@]}"; do

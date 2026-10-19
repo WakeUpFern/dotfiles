@@ -1,0 +1,44 @@
+# swaylock: pantalla de bloqueo. Colores del tema del notch (Theme.qml).
+# Formato: rrggbb[aa], sin '#'. Salida de emergencia: ver docs/lockscreen.md
+daemonize
+ignore-empty-password
+show-failed-attempts
+scaling=fill
+color=0b0f0c
+
+# Anillo siempre visible: asi se ve que la pantalla esta viva y que se puede escribir.
+indicator-idle-visible
+indicator-radius=90
+indicator-thickness=8
+indicator-caps-lock
+
+font=Inter
+font-size=22
+
+# reposo
+inside-color=0b0f0c99
+ring-color=ffffff55
+line-color=00000000
+separator-color=00000000
+text-color=f2f2f7
+
+# mientras escribes
+key-hl-color=8ab4ff
+bs-hl-color=ff9f6e
+caps-lock-key-hl-color=ffd479
+caps-lock-bs-hl-color=ff9f6e
+
+# borrando todo
+inside-clear-color=0b0f0c99
+ring-clear-color=ff9f6e
+text-clear-color=f2f2f7
+
+# verificando
+inside-ver-color=0b0f0c99
+ring-ver-color=8ab4ff
+text-ver-color=f2f2f7
+
+# contrasena incorrecta
+inside-wrong-color=0b0f0c99
+ring-wrong-color=ff5f6d
+text-wrong-color=ff5f6d

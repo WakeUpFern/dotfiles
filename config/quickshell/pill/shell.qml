@@ -73,6 +73,7 @@ ShellRoot {
         function toggle(): void { root.mode = root.mode === "power" ? "idle" : "power"; }
         function open(): void   { root.mode = "power"; }
         function close(): void  { root.mode = "idle"; }
+        function lock(): void   { root.mode = "idle"; PowerActions.run("lock"); }
     }
 
     // Cambiar el fondo (y el del overview) en vivo:

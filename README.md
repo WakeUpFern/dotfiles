@@ -4,6 +4,8 @@ Rice para Debian 13 (trixie). Un solo compositor (**niri**) y un solo shell
 (**Quickshell**): un *notch* pegado al borde superior (estilo Mac) que hace de barra,
 launcher, centro de notificaciones, HUD de volumen y panel de estado, con animaciones de resorte. Estética inicial: vidrio esmerilado (blur nativo de niri).
 
+**¿Bloqueaste la pantalla y no puedes entrar?** Mira [docs/lockscreen.md](docs/lockscreen.md): hay salida desde un TTY sin apagar el equipo.
+
 GNOME se queda instalado como sesión de respaldo (ver [docs/gnome-fallback.md](docs/gnome-fallback.md)).
 
 ## Instalar
