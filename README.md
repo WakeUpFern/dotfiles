@@ -1,8 +1,8 @@
 # dotfiles - niri + Quickshell en Debian 13
 
 Rice para Debian 13 (trixie). Un solo compositor (**niri**) y un solo shell
-(**Quickshell**): una *píldora* flotante que hace de barra, launcher, centro de
-notificaciones y panel de estado. Estética inicial: vidrio esmerilado (blur nativo de niri).
+(**Quickshell**): un *notch* pegado al borde superior (estilo Mac) que hace de barra,
+launcher, centro de notificaciones, HUD de volumen y panel de estado, con animaciones de resorte. Estética inicial: vidrio esmerilado (blur nativo de niri).
 
 GNOME se queda instalado como sesión de respaldo (ver [docs/gnome-fallback.md](docs/gnome-fallback.md)).
 
@@ -29,7 +29,8 @@ Después: cerrar sesión → engranaje de GDM → **niri**.
 config/niri/config.kdl          compositor: layout, binds, blur, reglas de ventana
 config/quickshell/pill/         la píldora (QML)
   shell.qml                     entrada: notificaciones, IPC, modo actual
-  Pill.qml                      ventana + animaciones + estado (workspaces, volumen, batería, reloj)
+  Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
+  Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
   Launcher.qml                  buscador de apps
   NiriState.qml                 workspaces y ventana enfocada vía `niri msg --json`
   Theme.qml                     colores, fuentes, tiempos de animación
@@ -43,6 +44,7 @@ docs/                           notas
 |-------|--------|
 | `Mod+D` | abrir/cerrar el launcher de la píldora |
 | `Mod+T` | terminal (alacritty) |
+| hover / click en el notch | hover: expande con título, volumen y batería; click: launcher |
 | `Mod+Shift+/` | lista de atajos de niri |
 
 (`Mod` = Super en una sesión real, Alt si niri corre anidado.)

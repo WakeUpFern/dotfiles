@@ -154,62 +154,17 @@ layout {
     // `draw-border-with-background`.
 
     // You can change how the focus ring looks.
+    // El focus-ring se dibuja debajo de la ventana y tapa el blur de las
+    // ventanas translucidas, asi que se apaga y se usa un borde fino.
     focus-ring {
-        // Uncomment this line to disable the focus ring.
-        // off
-
-        // How many logical pixels the ring extends out from the windows.
-        width 4
-
-        // Colors can be set in a variety of ways:
-        // - CSS named colors: "red"
-        // - RGB hex: "#rgb", "#rgba", "#rrggbb", "#rrggbbaa"
-        // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
-
-        // Color of the ring on the active monitor.
-        active-color "#7fc8ff"
-
-        // Color of the ring on inactive monitors.
-        //
-        // The focus ring only draws around the active window, so the only place
-        // where you can see its inactive-color is on other monitors.
-        inactive-color "#505050"
-
-        // You can also use gradients. They take precedence over solid colors.
-        // Gradients are rendered the same as CSS linear-gradient(angle, from, to).
-        // The angle is the same as in linear-gradient, and is optional,
-        // defaulting to 180 (top-to-bottom gradient).
-        // You can use any CSS linear-gradient tool on the web to set these up.
-        // Changing the color space is also supported, check the wiki for more info.
-        //
-        // active-gradient from="#80c8ff" to="#c7ff7f" angle=45
-
-        // You can also color the gradient relative to the entire view
-        // of the workspace, rather than relative to just the window itself.
-        // To do that, set relative-to="workspace-view".
-        //
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+        off
     }
 
-    // You can also add a border. It's similar to the focus ring, but always visible.
     border {
-        // The settings are the same as for the focus ring.
-        // If you enable the border, you probably want to disable the focus ring.
-        off
-
-        width 4
-        active-color "#ffc87f"
-        inactive-color "#505050"
-
-        // Color of the border around windows that request your attention.
-        urgent-color "#9b0000"
-
-        // Gradients can use a few different interpolation color spaces.
-        // For example, this is a pastel rainbow gradient via in="oklch longer hue".
-        //
-        // active-gradient from="#e5989b" to="#ffb4a2" angle=45 relative-to="workspace-view" in="oklch longer hue"
-
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+        width 2
+        active-color "#8ab4ffcc"
+        inactive-color "#ffffff1f"
+        urgent-color "#ff5f6d"
     }
 
     // You can enable drop shadows for windows.
@@ -346,23 +301,21 @@ blur {
     saturation 1.4
 }
 
-// Todas las ventanas: esquinas redondeadas, semitransparentes y con blur.
+// Todas las ventanas: esquinas redondeadas.
 window-rule {
     geometry-corner-radius 14
     clip-to-geometry true
-    opacity 0.88
-    background-effect {
-        blur true
-    }
 }
 
-// Contenido que no debe verse translucido (video, navegadores, imagen).
+// Frosted glass: de momento solo terminales. Para sumar mas apps, agrega
+// otro `match app-id=...` (ver `niri msg windows` para el app-id).
+// El blur desenfoca el fondo de pantalla (capa Background), que dibuja
+// Quickshell (Wallpaper.qml); sin fondo no hay nada que desenfocar.
 window-rule {
-    match app-id=r#"^(vlc|mpv|org\.gnome\.Totem)$"#
-    match app-id=r#"(?i)(chrome|chromium|brave|firefox|vivaldi|opera)"#
-    opacity 1.0
+    match app-id=r#"^(Alacritty|foot|kitty|org\.wezfurlong\.wezterm|com\.mitchellh\.ghostty)$"#
+    opacity 0.80
     background-effect {
-        blur false
+        blur true
     }
 }
 

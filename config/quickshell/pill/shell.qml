@@ -9,7 +9,7 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco de la pildora: "idle" | "launcher" | "notification"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "notification" | "osd"
     property string mode: "idle"
 
     NotificationServer {
@@ -22,7 +22,7 @@ ShellRoot {
 
         onNotification: n => {
             n.tracked = true;
-            if (root.mode === "idle") {
+            if (root.mode === "idle" || root.mode === "osd") {
                 root.mode = "notification";
                 notifTimer.restart();
             }
@@ -36,6 +36,13 @@ ShellRoot {
         onTriggered: if (root.mode === "notification") root.mode = "idle"
     }
 
+    // HUD de volumen: aparece un momento y vuelve a reposo.
+    Timer {
+        id: osdTimer
+        interval: 1600
+        onTriggered: if (root.mode === "osd") root.mode = "idle"
+    }
+
     // Control desde fuera:  qs -c pill ipc call launcher toggle
     IpcHandler {
         target: "launcher"
@@ -44,9 +51,17 @@ ShellRoot {
         function close(): void  { root.mode = "idle"; }
     }
 
+    Wallpaper {}
+
     Pill {
         mode: root.mode
         notifications: notifications
         onModeRequested: m => root.mode = m
+        onVolumeActivity: {
+            if (root.mode === "idle" || root.mode === "osd") {
+                root.mode = "osd";
+                osdTimer.restart();
+            }
+        }
     }
 }

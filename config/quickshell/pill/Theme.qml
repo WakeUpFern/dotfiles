@@ -17,7 +17,13 @@ Singleton {
     readonly property string fontMono: "JetBrains Mono"
     readonly property int fontSize: 13
 
-    readonly property int barHeight: 40
-    readonly property int margin: 10     // separacion al borde superior de la pantalla
-    readonly property int animMs: 320
+    // Notch: pegado al borde superior (sin margen), esquinas redondas abajo.
+    readonly property int notchHeight: 34
+    readonly property int notchPeekHeight: 40
+    readonly property int animMs: 420
+
+    // Fondo de pantalla. Se puede cambiar sin editar el repo:
+    //   PILL_WALLPAPER=/ruta/imagen.png qs -c pill
+    readonly property string wallpaper: "file://" + (Quickshell.env("PILL_WALLPAPER")
+        || (Quickshell.env("HOME") + "/Pictures/wallhaven-ogj1gl_1920x1080.png"))
 }
