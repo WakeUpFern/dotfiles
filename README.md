@@ -31,6 +31,7 @@ config/quickshell/pill/         la píldora (QML)
   shell.qml                     entrada: notificaciones, IPC, modo actual
   Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
   Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
+  Backdrop.qml                  mismo fondo, desenfocado, para el overview (Mod+O)
   Launcher.qml                  buscador de apps
   Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
   Slider.qml                    slider reutilizable (perilla con rebote)

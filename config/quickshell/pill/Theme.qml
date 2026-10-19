@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 
 // Tokens visuales. Cambia aqui y se actualiza toda la pildora.
 Singleton {
@@ -22,8 +23,33 @@ Singleton {
     readonly property int notchPeekHeight: 40
     readonly property int animMs: 420
 
-    // Fondo de pantalla. Se puede cambiar sin editar el repo:
-    //   PILL_WALLPAPER=/ruta/imagen.png qs -c pill
-    readonly property string wallpaper: "file://" + (Quickshell.env("PILL_WALLPAPER")
-        || (Quickshell.env("HOME") + "/Pictures/wallhaven-ogj1gl_1920x1080.png"))
+    // --- Fondo de pantalla ---------------------------------------------------
+    // Una sola fuente para el fondo (Wallpaper.qml) y el fondo desenfocado del
+    // overview (Backdrop.qml). Prioridad: archivo de estado > PILL_WALLPAPER > default.
+    //   cambiar en vivo:  qs -c pill ipc call wallpaper set ~/Pictures/foto.png
+    readonly property string stateFile: Quickshell.env("HOME") + "/.local/state/pill/wallpaper"
+    property string wallpaperPath: Quickshell.env("PILL_WALLPAPER")
+        || (Quickshell.env("HOME") + "/Pictures/wallhaven-ogj1gl_1920x1080.png")
+    readonly property string wallpaper: "file://" + wallpaperPath
+
+    function setWallpaper(path) {
+        writeState.command = ["sh", "-c",
+            'f=$(readlink -f -- "$1") && [ -f "$f" ] && mkdir -p "$(dirname -- "$2")" && printf "%s" "$f" > "$2"',
+            "_", path, stateFile];
+        writeState.running = true;
+    }
+
+    Process {
+        id: writeState
+        onExited: code => { if (code === 0) loader.reload(); else console.warn("wallpaper: ruta invalida"); }
+    }
+
+    FileView {
+        id: loader
+        path: Theme.stateFile
+        printErrors: false      // el archivo no existe hasta el primer cambio
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: { const p = text().trim(); if (p !== "") Theme.wallpaperPath = p; }
+    }
 }

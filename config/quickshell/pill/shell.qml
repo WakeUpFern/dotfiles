@@ -67,6 +67,13 @@ ShellRoot {
         function down(): void { Brightness.step(-0.05); root.showOsd("brightness"); }
     }
 
+    // Cambiar el fondo (y el del overview) en vivo:
+    //   qs -c pill ipc call wallpaper set ~/Pictures/foto.png
+    IpcHandler {
+        target: "wallpaper"
+        function set(path: string): void { Theme.setWallpaper(path); }
+    }
+
     // Abrir el panel de controles:  qs -c pill ipc call controls toggle
     IpcHandler {
         target: "controls"
@@ -74,6 +81,7 @@ ShellRoot {
     }
 
     Wallpaper {}
+    Backdrop {}
 
     Pill {
         mode: root.mode
