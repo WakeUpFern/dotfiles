@@ -97,4 +97,33 @@ ColumnLayout {
             }
         }
     }
+
+    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+
+    // Energia: bloquear, suspender, reiniciar, apagar, cerrar sesion.
+    // Las destructivas piden un segundo click para confirmar.
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: 8
+
+        Text {
+            Layout.fillWidth: true
+            readonly property var armed: PowerActions.byId(PowerActions.armedId)
+            text: armed ? armed.label + ": click otra vez para confirmar" : "Mod+Shift+E  menú de apagado"
+            color: armed ? Theme.urgent : Theme.textDim
+            font.family: Theme.fontSans
+            font.pixelSize: Theme.fontSize - 2
+            elide: Text.ElideRight
+        }
+
+        Repeater {
+            model: PowerActions.actions
+            delegate: PowerButton {
+                required property var modelData
+                action: modelData
+                compact: true
+                onDone: launcher.closeRequested()
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@
 - [x] Panel de controles: volumen, salida de audio, brillo, bateria y perfil de energia
 - [ ] Red y bluetooth dentro del panel de controles
 - [ ] Centro de notificaciones con historial y acciones
+- [x] Menu de apagado (usa swaylock para bloquear)
 - [ ] Bloqueo de pantalla propio (`Quickshell.Wayland.WlSessionLock`) para reemplazar swaylock
 - [ ] Agente polkit (módulo `Quickshell.Services.Polkit`)
 - [ ] Idle/suspensión (`swayidle` o `Quickshell.Wayland.IdleMonitor`)

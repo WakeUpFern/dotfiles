@@ -13,7 +13,7 @@ import Quickshell.Services.Notifications
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | controls | notification | osd
+    property string mode: "idle"      // idle | launcher | power | controls | notification | osd
     property string controlsFocus: "" // seccion resaltada en "controls"
     property string osdKind: "volume" // "volume" | "brightness" en modo osd
     property NotificationServer notifications
@@ -27,13 +27,14 @@ PanelWindow {
     // --- Geometria ----------------------------------------------------------
     // Ancho en reposo: workspaces | icono | reloj. En hover se suma el bloque
     // extra (titulo, volumen, bateria) en el centro.
-    readonly property real collapsedWidth: 18 + wsRow.implicitWidth + 18 + 22 + 18 + clockText.implicitWidth + 18
+    readonly property real collapsedWidth: 44 + wsRow.implicitWidth + 18 + 22 + 18 + clockText.implicitWidth + 18
     readonly property real peekExtra: extraRow.implicitWidth + 14
 
     readonly property real targetWidth: {
         let w;
         switch (mode) {
         case "launcher":     w = 560; break;
+        case "power":        w = 500; break;
         case "controls":     w = 420; break;
         case "notification": w = 440; break;
         case "osd":          w = 300; break;
@@ -43,7 +44,8 @@ PanelWindow {
     }
     readonly property real targetHeight: {
         switch (mode) {
-        case "launcher":     return 400;
+        case "launcher":     return 450;
+        case "power":        return 168;
         case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
         case "notification": return 84;
         case "osd":          return 52;
@@ -53,7 +55,7 @@ PanelWindow {
 
     anchors.top: true
     implicitWidth: 700                        // superficie fija, mayor que el notch
-    implicitHeight: 460
+    implicitHeight: 500
     color: "transparent"
 
     // Reserva solo la franja del notch en reposo; el resto no empuja ventanas.
@@ -62,7 +64,7 @@ PanelWindow {
 
     WlrLayershell.namespace: "pill"
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: launcherOpen ? WlrKeyboardFocus.Exclusive
+    WlrLayershell.keyboardFocus: (launcherOpen || mode === "power") ? WlrKeyboardFocus.Exclusive
         : mode === "controls" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
@@ -134,11 +136,36 @@ PanelWindow {
             visible: opacity > 0.01
             Behavior on opacity { NumberAnimation { duration: 160 } }
 
+            // Extremo izquierdo: logo = "inicio". Click abre el launcher (que trae
+            // las opciones de energia); Mod+Shift+E abre el menu de apagado.
+            Image {
+                id: logo
+                anchors.left: parent.left
+                anchors.leftMargin: 14
+                anchors.verticalCenter: parent.verticalCenter
+                width: 18
+                height: 18
+                sourceSize: Qt.size(36, 36)
+                source: Quickshell.iconPath("start-here-debian", "debian-swirl")
+                scale: logoArea.pressed ? 0.8 : (logoArea.containsMouse ? 1.18 : 1)
+                rotation: logoArea.containsMouse ? 12 : 0
+                Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutBack; easing.overshoot: 3 } }
+                Behavior on rotation { NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 2 } }
+                MouseArea {
+                    id: logoArea
+                    anchors.fill: parent
+                    anchors.margins: -6
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: win.modeRequested("launcher")
+                }
+            }
+
             // Izquierda: workspaces (la pastilla activa se estira).
             Row {
                 id: wsRow
                 anchors.left: parent.left
-                anchors.leftMargin: 18
+                anchors.leftMargin: 44
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 6
                 Repeater {
@@ -363,6 +390,19 @@ PanelWindow {
             }
         }
 
+        // --- Menu de apagado ----------------------------------------------------
+        Loader {
+            anchors.fill: parent
+            anchors.margins: 18
+            anchors.topMargin: 20
+            active: win.mode === "power"
+            opacity: active ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            sourceComponent: PowerMenu {
+                onCloseRequested: win.modeRequested("idle")
+            }
+        }
+
         // --- Modo launcher -----------------------------------------------------
         Loader {
             anchors.fill: parent
@@ -383,6 +423,8 @@ PanelWindow {
     readonly property string iconSource: {
         const id = NiriState.focusedAppId;
         if (id === "") return "";
+        // Depende de la lista de apps para recalcularse cuando termina de cargar.
+        if (DesktopEntries.applications.values.length === 0) return "";
         const entry = DesktopEntries.heuristicLookup(id);
         return Quickshell.iconPath(entry ? entry.icon : id.toLowerCase(), "application-x-executable");
     }

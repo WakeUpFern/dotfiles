@@ -32,7 +32,8 @@ config/quickshell/pill/         la píldora (QML)
   Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
   Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
   Backdrop.qml                  mismo fondo, desenfocado, para el overview (Mod+O)
-  Launcher.qml                  buscador de apps
+  Launcher.qml                  buscador de apps + fila de energia
+  PowerMenu.qml / PowerButton.qml / PowerActions.qml   menu de apagado (apagar, reiniciar, suspender, bloquear, cerrar sesion)
   Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
   Slider.qml                    slider reutilizable (perilla con rebote)
   Brightness.qml                brillo via brightnessctl (con throttle)
@@ -50,10 +51,13 @@ docs/                           notas
 | `Mod+T` | terminal (alacritty) |
 | hover en el notch | se expande: título, volumen, luz y batería |
 | click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
-| click en otra zona del notch | launcher |
+| click en el logo de Debian (o en otra zona del notch) | launcher, con botones de energía abajo |
+| `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
 | scroll sobre el notch | volumen |
 | teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |
 | `Mod+Shift+/` | lista de atajos de niri |
+
+Reiniciar, apagar y cerrar sesión piden confirmación: segundo click o segundo Enter dentro de 3 s.
 
 (`Mod` = Super en una sesión real, Alt si niri corre anidado.)
 

@@ -9,7 +9,7 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "controls" | "notification" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "power" | "controls" | "notification" | "osd"
     property string mode: "idle"
     property string controlsFocus: ""
     property string osdKind: "volume"
@@ -65,6 +65,14 @@ ShellRoot {
         target: "brightness"
         function up(): void   { Brightness.step(0.05);  root.showOsd("brightness"); }
         function down(): void { Brightness.step(-0.05); root.showOsd("brightness"); }
+    }
+
+    // Menu de apagado:  qs -c pill ipc call power toggle   (niri: Mod+Shift+E)
+    IpcHandler {
+        target: "power"
+        function toggle(): void { root.mode = root.mode === "power" ? "idle" : "power"; }
+        function open(): void   { root.mode = "power"; }
+        function close(): void  { root.mode = "idle"; }
     }
 
     // Cambiar el fondo (y el del overview) en vivo:
