@@ -246,15 +246,101 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 // You can also set this to null to disable saving screenshots to disk.
 // screenshot-path null
 
-// Animation settings.
-// The wiki explains how to configure individual animations:
+// --- Animaciones ------------------------------------------------------------
+// Resortes con un poco de rebote (damping-ratio < 1) para que todo se sienta
+// "vivo", en la misma linea que el notch. Ver docs/theming.md.
 // https://niri-wm.github.io/niri/Configuration:-Animations
 animations {
-    // Uncomment to turn off all animations.
-    // off
+    // slowdown 2.0   // descomenta para ver las animaciones en camara lenta
 
-    // Slow down all animations by this factor. Values below 1 speed them up instead.
-    // slowdown 3.0
+    workspace-switch {
+        spring damping-ratio=0.85 stiffness=900 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.9 stiffness=700 epsilon=0.0001
+    }
+    window-movement {
+        spring damping-ratio=0.85 stiffness=750 epsilon=0.0001
+    }
+    window-resize {
+        spring damping-ratio=0.9 stiffness=750 epsilon=0.0001
+    }
+    overview-open-close {
+        spring damping-ratio=0.8 stiffness=650 epsilon=0.0001
+    }
+    recent-windows-close {
+        spring damping-ratio=0.8 stiffness=700 epsilon=0.001
+    }
+
+    // Abrir: la ventana "salta" desde 80% con un pequeno rebote (curva easeOutBack
+    // => niri_progress pasa de 1 y vuelve) y sube unos pixeles mientras aparece.
+    window-open {
+        duration-ms 320
+        curve "cubic-bezier" 0.34 1.56 0.64 1
+
+        custom-shader r"
+            vec4 open_color(vec3 coords_geo, vec3 size_geo) {
+                float scale = max(0.0, 0.8 + 0.2 * niri_progress);
+                vec2 c = (coords_geo.xy - vec2(0.5)) / scale + vec2(0.5);
+                c.y += (1.0 - niri_clamped_progress) * 0.05;
+
+                vec3 coords_tex = niri_geo_to_tex * vec3(c, 1.0);
+                vec4 color = texture2D(niri_tex, coords_tex.st);
+
+                // Fuera de la geometria (sombras CSD) no se pinta nada.
+                if (c.x < 0.0 || c.x > 1.0 || c.y < 0.0 || c.y > 1.0)
+                    color = vec4(0.0);
+
+                return color * niri_clamped_progress;
+            }
+        "
+    }
+
+    // Cerrar: se encoge a 92% y se desvanece.
+    window-close {
+        duration-ms 200
+        curve "ease-out-cubic"
+
+        custom-shader r"
+            vec4 close_color(vec3 coords_geo, vec3 size_geo) {
+                float scale = 1.0 - 0.08 * niri_clamped_progress;
+                vec2 c = (coords_geo.xy - vec2(0.5)) / scale + vec2(0.5);
+
+                vec3 coords_tex = niri_geo_to_tex * vec3(c, 1.0);
+                vec4 color = texture2D(niri_tex, coords_tex.st);
+
+                if (c.x < 0.0 || c.x > 1.0 || c.y < 0.0 || c.y > 1.0)
+                    color = vec4(0.0);
+
+                return color * (1.0 - niri_clamped_progress);
+            }
+        "
+    }
+}
+
+// Overview (Mod+O): workspaces mas pequenos sobre un fondo del color del wallpaper.
+overview {
+    zoom 0.42
+    backdrop-color "#0b0f0c"
+}
+
+// Alt+Tab. Los previews son las ventanas reales; el resaltado es un vidrio
+// con esquinas redondas del color de acento (el mismo que el notch).
+recent-windows {
+    debounce-ms 400
+    open-delay-ms 60
+
+    highlight {
+        active-color "#8ab4ff66"
+        urgent-color "#ff5f6dcc"
+        padding 22
+        corner-radius 22
+    }
+
+    previews {
+        max-height 420
+        max-scale 0.55
+    }
 }
 
 // Window rules let you adjust behavior for individual windows.

@@ -23,3 +23,12 @@ la imagen se cambia en `Theme.qml` (`wallpaper`) o al vuelo con `PILL_WALLPAPER=
 
 > Al **agregar un archivo QML nuevo** hay que reiniciar Quickshell (`qs -c pill kill && qs -c pill -d`);
 > la recarga en caliente solo cubre cambios en archivos ya cargados.
+
+## Animaciones, Alt+Tab y Overview
+
+En `config/niri/config.kdl`:
+
+- **Resortes con rebote** (`damping-ratio` < 1) en cambio de workspace, scroll horizontal, mover/redimensionar ventanas y overview. Para verlos en cámara lenta: `slowdown 2.0`.
+- **Abrir ventana:** shader propio, curva easeOutBack (`cubic-bezier 0.34 1.56 0.64 1`): crece desde 80 %, rebota y sube unos píxeles. **Cerrar:** se encoge a 92 % y se desvanece. Si un shader falla, niri lo avisa en `journalctl --user -u niri` y usa el de por defecto.
+- **Alt+Tab** (`recent-windows`): previews de las ventanas reales con resaltado redondeado en el color de acento. `Alt+Tab` todas las ventanas, `Alt+\`` solo las de la misma app.
+- **Overview** (`Mod+O`): zoom 0.42 y fondo del color del wallpaper.
