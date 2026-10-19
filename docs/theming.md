@@ -32,3 +32,14 @@ En `config/niri/config.kdl`:
 - **Abrir ventana:** shader propio, curva easeOutBack (`cubic-bezier 0.34 1.56 0.64 1`): crece desde 80 %, rebota y sube unos píxeles. **Cerrar:** se encoge a 92 % y se desvanece. Si un shader falla, niri lo avisa en `journalctl --user -u niri` y usa el de por defecto.
 - **Alt+Tab** (`recent-windows`): previews de las ventanas reales con resaltado redondeado en el color de acento. `Alt+Tab` todas las ventanas, `Alt+\`` solo las de la misma app.
 - **Overview** (`Mod+O`): zoom 0.42 y fondo del color del wallpaper.
+
+## Blur xray vs. real
+
+- **xray** (por defecto en niri): desenfoca solo el fondo de pantalla; barato, pero una ventana translúcida
+  encima de otra *no* muestra a la de abajo, solo el wallpaper.
+- **real** (`xray false`): desenfoca lo que de verdad hay debajo (apps, otras ventanas) en tiempo real.
+  Cuesta más y en niri 26.04 es experimental: el blur desaparece durante las animaciones de abrir/cerrar
+  ventana y al arrastrar una ventana en mosaico.
+
+El notch usa el modo real (`layer-rule` en `config.kdl`). Las terminales siguen en xray; para que una
+terminal flotante también desenfoque lo que tiene debajo, agrega `xray false` en su `background-effect`.
