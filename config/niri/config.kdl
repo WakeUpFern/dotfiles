@@ -450,6 +450,8 @@ binds {
     Mod+T hotkey-overlay-title="Open a Terminal: alacritty" { spawn "alacritty"; }
     Mod+D hotkey-overlay-title="Run an Application: pill launcher" { spawn-sh "qs -c pill ipc call launcher toggle"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn-sh "qs -c pill ipc call power lock || swaylock -i \"$(cat ~/.local/state/pill/wallpaper)\""; }
+    // Respaldo: siempre abre swaylock, aunque el bloqueo propio este activado.
+    Super+Alt+Shift+L hotkey-overlay-title=null { spawn-sh "swaylock -i \"$(cat ~/.local/state/pill/wallpaper)\""; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
