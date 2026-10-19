@@ -32,6 +32,9 @@ config/quickshell/pill/         la píldora (QML)
   Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
   Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
   Launcher.qml                  buscador de apps
+  Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
+  Slider.qml                    slider reutilizable (perilla con rebote)
+  Brightness.qml                brillo via brightnessctl (con throttle)
   NiriState.qml                 workspaces y ventana enfocada vía `niri msg --json`
   Theme.qml                     colores, fuentes, tiempos de animación
 scripts/                        pasos del instalador
@@ -44,7 +47,11 @@ docs/                           notas
 |-------|--------|
 | `Mod+D` | abrir/cerrar el launcher de la píldora |
 | `Mod+T` | terminal (alacritty) |
-| hover / click en el notch | hover: expande con título, volumen y batería; click: launcher |
+| hover en el notch | se expande: título, volumen, luz y batería |
+| click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
+| click en otra zona del notch | launcher |
+| scroll sobre el notch | volumen |
+| teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |
 | `Mod+Shift+/` | lista de atajos de niri |
 
 (`Mod` = Super en una sesión real, Alt si niri corre anidado.)

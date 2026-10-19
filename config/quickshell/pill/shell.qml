@@ -9,8 +9,18 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "notification" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "controls" | "notification" | "osd"
     property string mode: "idle"
+    property string controlsFocus: ""
+    property string osdKind: "volume"
+
+    // HUD de volumen/brillo: aparece un momento y vuelve a reposo.
+    function showOsd(kind) {
+        if (mode !== "idle" && mode !== "osd") return;
+        osdKind = kind;
+        mode = "osd";
+        osdTimer.restart();
+    }
 
     NotificationServer {
         id: notifications
@@ -36,7 +46,6 @@ ShellRoot {
         onTriggered: if (root.mode === "notification") root.mode = "idle"
     }
 
-    // HUD de volumen: aparece un momento y vuelve a reposo.
     Timer {
         id: osdTimer
         interval: 1600
@@ -51,17 +60,28 @@ ShellRoot {
         function close(): void  { root.mode = "idle"; }
     }
 
+    // Teclas de brillo (niri las manda aqui):  qs -c pill ipc call brightness up
+    IpcHandler {
+        target: "brightness"
+        function up(): void   { Brightness.step(0.05);  root.showOsd("brightness"); }
+        function down(): void { Brightness.step(-0.05); root.showOsd("brightness"); }
+    }
+
+    // Abrir el panel de controles:  qs -c pill ipc call controls toggle
+    IpcHandler {
+        target: "controls"
+        function toggle(): void { root.controlsFocus = ""; root.mode = root.mode === "controls" ? "idle" : "controls"; }
+    }
+
     Wallpaper {}
 
     Pill {
         mode: root.mode
+        controlsFocus: root.controlsFocus
+        osdKind: root.osdKind
         notifications: notifications
         onModeRequested: m => root.mode = m
-        onVolumeActivity: {
-            if (root.mode === "idle" || root.mode === "osd") {
-                root.mode = "osd";
-                osdTimer.restart();
-            }
-        }
+        onControlsRequested: t => { root.controlsFocus = t; root.mode = "controls"; }
+        onVolumeActivity: root.showOsd("volume")
     }
 }

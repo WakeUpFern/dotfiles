@@ -13,9 +13,12 @@ import Quickshell.Services.Notifications
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | notification | osd
+    property string mode: "idle"      // idle | launcher | controls | notification | osd
+    property string controlsFocus: "" // seccion resaltada en "controls"
+    property string osdKind: "volume" // "volume" | "brightness" en modo osd
     property NotificationServer notifications
     signal modeRequested(string mode)
+    signal controlsRequested(string target)
     signal volumeActivity()
 
     readonly property bool launcherOpen: mode === "launcher"
@@ -31,6 +34,7 @@ PanelWindow {
         let w;
         switch (mode) {
         case "launcher":     w = 560; break;
+        case "controls":     w = 420; break;
         case "notification": w = 440; break;
         case "osd":          w = 300; break;
         default:             w = collapsedWidth + (peek ? peekExtra : 0);
@@ -40,6 +44,7 @@ PanelWindow {
     readonly property real targetHeight: {
         switch (mode) {
         case "launcher":     return 400;
+        case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
         case "notification": return 84;
         case "osd":          return 52;
         default:             return peek ? Theme.notchPeekHeight : Theme.notchHeight;
@@ -57,7 +62,8 @@ PanelWindow {
 
     WlrLayershell.namespace: "pill"
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: launcherOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: launcherOpen ? WlrKeyboardFocus.Exclusive
+        : mode === "controls" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
     mask: Region { item: pill }
@@ -93,6 +99,25 @@ PanelWindow {
         Behavior on color  { ColorAnimation  { duration: 200 } }
 
         HoverHandler { id: hover }
+
+        // Scroll sobre el notch en reposo = volumen.
+        WheelHandler {
+            enabled: win.mode === "idle"
+            onWheel: event => {
+                const sink = audio.sink;
+                if (!sink || !sink.audio) return;
+                const d = event.angleDelta.y > 0 ? 0.03 : -0.03;
+                sink.audio.muted = false;
+                sink.audio.volume = Math.max(0, Math.min(1, sink.audio.volume + d));
+            }
+        }
+
+        // El panel de controles se cierra solo cuando el raton se va.
+        Timer {
+            interval: 900
+            running: win.mode === "controls" && !hover.hovered
+            onTriggered: win.modeRequested("idle")
+        }
 
         // Click en el notch en reposo = abrir launcher.
         TapHandler {
@@ -200,6 +225,25 @@ PanelWindow {
                             color: Theme.text
                             font.family: Theme.fontSans
                             font.pixelSize: Theme.fontSize
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.controlsRequested("volume")
+                            }
+                        }
+                        Text {
+                            visible: Brightness.available
+                            text: "luz " + Math.round(Brightness.level * 100) + "%"
+                            color: Theme.text
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontSize
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.controlsRequested("brightness")
+                            }
                         }
                         Text {
                             visible: UPower.displayDevice.isPresent
@@ -207,6 +251,12 @@ PanelWindow {
                             color: UPower.displayDevice.percentage < 0.2 ? Theme.urgent : Theme.text
                             font.family: Theme.fontSans
                             font.pixelSize: Theme.fontSize
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.controlsRequested("battery")
+                            }
                         }
                     }
                 }
@@ -266,7 +316,7 @@ PanelWindow {
                 anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: audio.muted ? "mute" : "vol"
+                    text: win.osdKind === "brightness" ? "luz" : (audio.muted ? "mute" : "vol")
                     color: Theme.textDim
                     font.family: Theme.fontSans
                     font.pixelSize: Theme.fontSize
@@ -281,20 +331,35 @@ PanelWindow {
                     Rectangle {
                         height: parent.height
                         radius: 3
-                        color: audio.muted ? Theme.textDim : Theme.accent
-                        width: parent.width * Math.min(1, audio.volume)
+                        color: win.osdKind === "volume" && audio.muted ? Theme.textDim : Theme.accent
+                        width: parent.width * Math.min(1, win.osdValue)
                         Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
                     }
                 }
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: Math.round(audio.volume * 100)
+                    text: Math.round(win.osdValue * 100)
                     color: Theme.text
                     font.family: Theme.fontSans
                     font.pixelSize: Theme.fontSize
                     width: 40
                     horizontalAlignment: Text.AlignRight
                 }
+            }
+        }
+
+        // --- Panel de controles (volumen, brillo, bateria) ---------------------
+        Loader {
+            id: controlsLoader
+            anchors.fill: parent
+            anchors.margins: 16
+            anchors.topMargin: 14
+            active: win.mode === "controls"
+            opacity: active ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 220 } }
+            sourceComponent: Controls {
+                focusTarget: win.controlsFocus
+                onCloseRequested: win.modeRequested("idle")
             }
         }
 
@@ -313,6 +378,8 @@ PanelWindow {
     }
 
     // --- Datos ---------------------------------------------------------------
+    readonly property real osdValue: osdKind === "brightness" ? Brightness.level : audio.volume
+
     readonly property string iconSource: {
         const id = NiriState.focusedAppId;
         if (id === "") return "";
