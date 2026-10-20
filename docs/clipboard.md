@@ -21,8 +21,7 @@ demanda a `$XDG_RUNTIME_DIR/pill-clip/` (se borra al cerrar sesión).
 
 ## Privacidad
 
-cliphist guarda **todo lo que copias**, incluidas contraseñas copiadas desde un gestor. Mantén el historial
-corto (por defecto 750 entradas), usa "Borrar todo" cuando quieras, y si usas un gestor de contraseñas
-revisa que marque sus copias como sensibles (muchos lo hacen con el tipo MIME
-`x-kde-passwordManagerHint`, que cliphist respeta con `wl-paste --watch` en versiones recientes; la 0.5.0
-de Debian 13 **no**: considera el riesgo).
+cliphist guarda **todo lo que copias**, y eso incluye contraseñas copiadas desde un gestor. No he
+comprobado si la versión de Debian 13 (0.5.0) ignora las copias que los gestores marcan como sensibles,
+así que asume que **no** lo hace: usa "Borrar todo" después de copiar secretos, o borra la entrada con
+Supr. El historial queda en `~/.cache/cliphist/db` (sin cifrar), con un máximo de 750 entradas.
