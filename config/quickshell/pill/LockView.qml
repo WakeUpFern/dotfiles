@@ -36,25 +36,42 @@ FocusScope {
     }
 
     // --- Fondo -------------------------------------------------------------------
-    Image {
-        id: wall
+    // El primer fotograma es solo un color liso: es lo que niri espera para quitar su
+    // pantalla roja de seguridad, asi que cuanto mas barato, menos dura el destello.
+    // El wallpaper desenfocado (shader + imagen) se carga justo despues, con fundido.
+    Rectangle { anchors.fill: parent; color: "#0b0f0c" }
+
+    Timer { id: bgDelay; interval: 40; running: true; onTriggered: bg.active = true }
+
+    Loader {
+        id: bg
         anchors.fill: parent
-        visible: false
-        source: Theme.wallpaper
-        fillMode: Image.PreserveAspectCrop
-        sourceSize: Qt.size(1280, 720)
-        asynchronous: true
+        active: false
+        opacity: status === Loader.Ready ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.OutCubic } }
+
+        sourceComponent: Item {
+            Image {
+                id: wall
+                anchors.fill: parent
+                visible: false
+                source: Theme.wallpaper
+                fillMode: Image.PreserveAspectCrop
+                sourceSize: Qt.size(1280, 720)
+                asynchronous: true
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: wall
+                blurEnabled: true
+                blur: 1.0
+                blurMax: 64
+                brightness: -0.04
+                saturation: 0.10
+            }
+            Rectangle { anchors.fill: parent; color: Qt.rgba(0.03, 0.04, 0.05, 0.16) }
+        }
     }
-    MultiEffect {
-        anchors.fill: parent
-        source: wall
-        blurEnabled: true
-        blur: 1.0
-        blurMax: 64
-        brightness: -0.04
-        saturation: 0.10
-    }
-    Rectangle { anchors.fill: parent; color: Qt.rgba(0.03, 0.04, 0.05, 0.16) }
 
     // --- Entrada animada ---------------------------------------------------------
     property real appear: 0

@@ -57,3 +57,13 @@ Probarlo sin riesgo:
 ```bash
 ( sleep 10; pkill -USR1 swaylock ) & swaylock -i ~/Pictures/foto.png
 ```
+
+## ¿Por qué se ve rojo un instante al bloquear?
+
+No es un error. Al pedir el bloqueo, niri pinta la pantalla de **rojo** (su "fondo de sesión bloqueada") hasta
+que el locker dibuja su primer fotograma; es lo que mantiene la sesión protegida si el locker muere.
+Medido con capturas: con el bloqueo propio dura ~30 ms (2–3 fotogramas), porque el primer fotograma es un
+color liso y el wallpaper desenfocado se carga después con fundido. No se elimina del todo: el mínimo
+lo marca el tiempo que tarda Qt en crear la ventana de bloqueo.
+
+Si el rojo **no se va**, el locker murió: ver "Salida de emergencia".

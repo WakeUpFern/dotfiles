@@ -24,13 +24,15 @@ ShellRoot {
         onTriggered: ls.release()
     }
 
-    Component.onCompleted: { started = true; ls.lockNow(); }
+    // PILL_TEST_NOLOCK=1: no bloquear al arrancar (se bloquea por IPC; sirve para medir).
+    Component.onCompleted: { started = true; if (Quickshell.env("PILL_TEST_NOLOCK") !== "1") ls.lockNow(); }
 
     // Solo para pruebas automaticas (teclado virtual por IPC).
     IpcHandler {
         enabled: Quickshell.env("PILL_TEST_IPC") === "1"
         target: "locktest"
         function type(s: string): void { for (const c of s) ls.type(c); }
+        function lock(): void { ls.lockNow(); }
         function backspace(): void { ls.backspace(); }
         function submit(): void { ls.submit(); }
         function state(): string { return ls.state + "|" + ls.message + "|" + ls.shapes.count; }
