@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
-import Quickshell.Services.Notifications
 
 // El notch: pegado al borde superior, esquinas redondas solo abajo.
 // Una sola ventana layer-shell; el rectangulo interior cambia de tamano con
@@ -13,13 +12,16 @@ import Quickshell.Services.Notifications
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | power | controls | notification | osd
+    property string mode: "idle"      // idle | launcher | power | controls | osd
     property string controlsFocus: "" // seccion resaltada en "controls"
     property string osdKind: "volume" // "volume" | "brightness" en modo osd
-    property NotificationServer notifications
     signal modeRequested(string mode)
     signal controlsRequested(string target)
     signal volumeActivity()
+
+    // Tamano actual del notch (lo usa Dismiss para dejarlo fuera de su region de clicks).
+    readonly property real pillWidth: pill.width
+    readonly property real pillHeight: pill.height
 
     readonly property bool launcherOpen: mode === "launcher"
     readonly property bool peek: mode === "idle" && hover.hovered
@@ -36,7 +38,6 @@ PanelWindow {
         case "launcher":     w = 560; break;
         case "power":        w = 500; break;
         case "controls":     w = 420; break;
-        case "notification": w = 440; break;
         case "osd":          w = 300; break;
         default:             w = collapsedWidth + (peek ? peekExtra : 0);
         }
@@ -47,7 +48,6 @@ PanelWindow {
         case "launcher":     return 450;
         case "power":        return 168;
         case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
-        case "notification": return 84;
         case "osd":          return 52;
         default:             return peek ? Theme.notchPeekHeight : Theme.notchHeight;
         }
@@ -262,46 +262,6 @@ PanelWindow {
                         }
                     }
                 }
-            }
-        }
-
-        // --- Modo notificacion -------------------------------------------------
-        Loader {
-            anchors.fill: parent
-            anchors.margins: 14
-            anchors.topMargin: 10
-            active: win.mode === "notification"
-            opacity: active ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: 220 } }
-            sourceComponent: Column {
-                spacing: 2
-                readonly property var n: {
-                    const list = win.notifications ? win.notifications.trackedNotifications.values : [];
-                    return list.length > 0 ? list[list.length - 1] : null;
-                }
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                Text {
-                    width: parent.width
-                    text: n ? n.summary : ""
-                    color: Theme.text
-                    font.family: Theme.fontSans
-                    font.pixelSize: Theme.fontSize + 1
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
-                }
-                Text {
-                    width: parent.width
-                    text: n ? n.body : ""
-                    color: Theme.textDim
-                    font.family: Theme.fontSans
-                    font.pixelSize: Theme.fontSize
-                    elide: Text.ElideRight
-                }
-            }
-            // Click en el aviso lo descarta.
-            MouseArea {
-                anchors.fill: parent
-                onClicked: win.modeRequested("idle")
             }
         }
 

@@ -55,3 +55,11 @@ En `config/niri/config.kdl`:
 
 El notch usa el modo real (`layer-rule` en `config.kdl`). Las terminales siguen en xray; para que una
 terminal flotante también desenfoque lo que tiene debajo, agrega `xray false` en su `background-effect`.
+
+## Notificaciones
+
+`Toast.qml`: una ventana layer-shell por tarjeta (capa Overlay, namespace `pill-toast`), para que el blur
+real siga la forma de cada una (`layer-rule` en `config.kdl`). Entran desde la derecha con rebote
+(`Easing.OutBack`, `overshoot` 2.2), salen con anticipación y las de abajo suben con resorte. Las críticas
+llevan borde rojo y no se cierran solas. Pasar el ratón pausa el autocierre; click la descarta.
+Tiempo por defecto: 6,5 s (o el que pida la app). Máximo 5 visibles.

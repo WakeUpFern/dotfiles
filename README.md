@@ -2,7 +2,7 @@
 
 Rice para Debian 13 (trixie). Un solo compositor (**niri**) y un solo shell
 (**Quickshell**): un *notch* pegado al borde superior (estilo Mac) que hace de barra,
-launcher, centro de notificaciones, HUD de volumen y panel de estado, con animaciones de resorte. Estética inicial: vidrio esmerilado (blur nativo de niri).
+launcher, HUD de volumen y panel de estado, con animaciones de resorte. Estética inicial: vidrio esmerilado (blur nativo de niri).
 
 **¿Bloqueaste la pantalla y no puedes entrar?** Mira [docs/lockscreen.md](docs/lockscreen.md): hay salida desde un TTY sin apagar el equipo.
 
@@ -39,6 +39,8 @@ config/quickshell/pill/         la píldora (QML)
   LockScreen.qml / LockView.qml / ShapeGlyph.qml   bloqueo propio (contraseña como figuras animadas)
   lock-test.qml                 instancia de prueba del bloqueo (scripts/lock-test.sh)
   Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
+  Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote
+  Dismiss.qml                   capa transparente: click fuera del notch cierra el menu abierto
   Slider.qml                    slider reutilizable (perilla con rebote)
   Brightness.qml                brillo via brightnessctl (con throttle)
   NiriState.qml                 workspaces y ventana enfocada vía `niri msg --json`
@@ -57,6 +59,7 @@ docs/                           notas
 | click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
 | click en el notch | launcher, con botones de energía abajo |
 | `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
+| click fuera del notch | cierra el launcher, el panel de controles o el menú de apagado |
 | scroll sobre el notch | volumen |
 | teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |
 | `Mod+Shift+/` | lista de atajos de niri |

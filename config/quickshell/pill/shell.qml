@@ -9,7 +9,7 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "power" | "controls" | "notification" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "power" | "controls" | "osd"
     property string mode: "idle"
     property string controlsFocus: ""
     property string osdKind: "volume"
@@ -22,8 +22,8 @@ ShellRoot {
         osdTimer.restart();
     }
 
+    // Notificaciones: tarjetas de vidrio arriba a la derecha (Toasts.qml).
     NotificationServer {
-        id: notifications
         bodySupported: true
         bodyMarkupSupported: false
         imageSupported: true
@@ -32,19 +32,10 @@ ShellRoot {
 
         onNotification: n => {
             n.tracked = true;
-            if (root.mode === "idle" || root.mode === "osd") {
-                root.mode = "notification";
-                notifTimer.restart();
-            }
+            toasts.add(n);
         }
     }
-
-    // Vuelve a "idle" cuando termina el aviso.
-    Timer {
-        id: notifTimer
-        interval: 5000
-        onTriggered: if (root.mode === "notification") root.mode = "idle"
-    }
+    Toasts { id: toasts }
 
     Timer {
         id: osdTimer
@@ -99,11 +90,19 @@ ShellRoot {
         function onLockRequested() { lockScreen.lockNow(); }
     }
 
+    // Click en cualquier parte fuera del notch cierra el menu abierto.
+    Dismiss {
+        active: root.mode === "launcher" || root.mode === "power" || root.mode === "controls"
+        pillWidth: pill.pillWidth
+        pillHeight: pill.pillHeight
+        onDismissed: root.mode = "idle"
+    }
+
     Pill {
+        id: pill
         mode: root.mode
         controlsFocus: root.controlsFocus
         osdKind: root.osdKind
-        notifications: notifications
         onModeRequested: m => root.mode = m
         onControlsRequested: t => { root.controlsFocus = t; root.mode = "controls"; }
         onVolumeActivity: root.showOsd("volume")

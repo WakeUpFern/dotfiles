@@ -418,6 +418,7 @@ window-rule {
 // las animaciones de abrir/cerrar ventana. Para volver al modo barato: `xray true`.
 layer-rule {
     match namespace="^pill$"
+    match namespace="^pill-toast$"
 
     background-effect {
         xray false

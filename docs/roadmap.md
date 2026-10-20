@@ -5,7 +5,8 @@
 - [ ] Bandeja del sistema (`Quickshell.Services.SystemTray`) dentro de la píldora
 - [x] Panel de controles: volumen, salida de audio, brillo, bateria y perfil de energia
 - [ ] Red y bluetooth dentro del panel de controles
-- [ ] Centro de notificaciones con historial y acciones
+- [x] Notificaciones emergentes (tarjetas de vidrio arriba a la derecha)
+- [ ] Centro de notificaciones con historial, acciones y "no molestar"
 - [x] Menu de apagado (usa swaylock para bloquear)
 - [ ] Bloqueo de pantalla propio (`Quickshell.Wayland.WlSessionLock`) para reemplazar swaylock
 - [ ] Agente polkit (módulo `Quickshell.Services.Polkit`)
