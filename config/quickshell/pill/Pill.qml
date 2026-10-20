@@ -275,17 +275,38 @@ PanelWindow {
             }
         }
 
-        // --- Modo volumen (OSD) -----------------------------------------------
-        Loader {
-            anchors.fill: parent
-            anchors.margins: 16
-            anchors.topMargin: 10
-            active: win.mode === "osd"
-            opacity: active ? 1 : 0
+        // --- Modo volumen / brillo (OSD) ---------------------------------------
+        // Persistente (no un Loader): la barra recuerda su ultimo valor, asi al volver a
+        // aparecer solo desliza de lo que habia a lo nuevo (40 -> 50 %), en vez de crecer
+        // desde cero cada vez.
+        Item {
+            id: osdView
+            // Tamano FIJO (el final del notch en este modo, menos margenes) y centrado: si
+            // siguiera al ancho animado del notch, la pista de la barra creceria con el y el
+            // relleno parecería salir desde cero cada vez. Asi el notch solo lo "revela".
+            width: 300 - 32
+            height: 52
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            opacity: win.mode === "osd" ? 1 : 0
+            visible: opacity > 0.01
             Behavior on opacity { NumberAnimation { duration: 180 } }
-            sourceComponent: Row {
+
+            // Al cambiar de volumen a brillo (o al reves) la barra salta sin animar:
+            // son escalas distintas y deslizar de una a otra no significa nada.
+            property bool animateBar: true
+            Connections {
+                target: win
+                function onOsdKindChanged() {
+                    osdView.animateBar = false;
+                    Qt.callLater(() => osdView.animateBar = true);
+                }
+            }
+
+            Row {
                 spacing: 14
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                width: parent.width
+                anchors.verticalCenter: parent.verticalCenter
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: win.osdKind === "brightness" ? "luz" : (audio.muted ? "mute" : "vol")
@@ -304,8 +325,12 @@ PanelWindow {
                         height: parent.height
                         radius: 3
                         color: win.osdKind === "volume" && audio.muted ? Theme.textDim : Theme.accent
-                        width: parent.width * Math.min(1, win.osdValue)
-                        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+                        width: parent.width * Math.max(0, Math.min(1, win.osdValue))
+                        Behavior on width {
+                            enabled: osdView.animateBar
+                            NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+                        }
+                        Behavior on color { ColorAnimation { duration: 150 } }
                     }
                 }
                 Text {
