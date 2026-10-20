@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
+import Quickshell.Bluetooth
 
 // Panel que se despliega desde el notch: volumen (+ salida de audio),
 // brillo y bateria (+ perfil de energia). `focusTarget` resalta la seccion
@@ -10,7 +11,7 @@ import Quickshell.Services.UPower
 ColumnLayout {
     id: root
 
-    property string focusTarget: ""      // "volume" | "brightness" | "battery"
+    property string focusTarget: ""      // "volume" | "bluetooth" | "brightness" | "battery"
     signal closeRequested()
 
     spacing: 16
@@ -23,6 +24,24 @@ ColumnLayout {
     readonly property var battery: UPower.displayDevice
 
     PwObjectTracker { objects: root.sinks }
+
+    // --- Bluetooth -----------------------------------------------------------
+    readonly property var bt: Bluetooth.defaultAdapter
+    // Conectados y emparejados primero; mientras se busca, tambien los nuevos con nombre.
+    readonly property var btDevices: {
+        const a = bt;
+        if (!a || !a.enabled) return [];
+        const list = Bluetooth.devices.values.filter(d => d.name !== "" && (d.paired || d.connected || a.discovering));
+        list.sort((x, y) => (y.connected - x.connected) || (y.paired - x.paired) || x.name.localeCompare(y.name));
+        return list.slice(0, 4);
+    }
+    readonly property var btConnected: Bluetooth.devices.values.filter(d => d.connected)
+    readonly property string btSummary: {
+        if (!bt) return "";
+        if (!bt.enabled) return "Apagado";
+        if (btConnected.length === 0) return bt.discovering ? "Buscando dispositivos…" : "Sin conexiones";
+        return btConnected.map(d => d.name + (d.batteryAvailable ? "  " + Math.round(d.battery * 100) + "%" : "")).join("  ·  ");
+    }
 
     // --- helpers -------------------------------------------------------------
     function sectionColor(name) { return focusTarget === name ? Theme.accent : Theme.textDim; }
@@ -45,6 +64,36 @@ ColumnLayout {
     }
     readonly property string batteryTime: battery.state === UPowerDeviceState.Charging
         ? formatTime(battery.timeToFull) : formatTime(battery.timeToEmpty)
+
+    // Interruptor con rebote.
+    component ToggleSwitch: Rectangle {
+        id: sw
+        property bool checked: false
+        signal toggled()
+        implicitWidth: 46
+        implicitHeight: 26
+        radius: 13
+        color: checked ? Theme.accent : Qt.rgba(1, 1, 1, 0.18)
+        Behavior on color { ColorAnimation { duration: 180 } }
+        Rectangle {
+            width: swArea.pressed ? 24 : 20
+            height: 20
+            radius: 10
+            y: 3
+            x: sw.checked ? sw.width - width - 3 : 3
+            color: "white"
+            Behavior on x { NumberAnimation { duration: 340; easing.type: Easing.OutBack; easing.overshoot: 2.4 } }
+            Behavior on width { NumberAnimation { duration: 160 } }
+        }
+        MouseArea { id: swArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: sw.toggled() }
+    }
+
+    component Glyph: Text {
+        color: Theme.text
+        font.family: "FontAwesome"
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+    }
 
     component Label: Text {
         color: Theme.text
@@ -114,6 +163,126 @@ ColumnLayout {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: Pipewire.preferredDefaultAudioSink = row.modelData
+                }
+            }
+        }
+    }
+
+    // --- Bluetooth -----------------------------------------------------------
+    ColumnLayout {
+        Layout.fillWidth: true
+        visible: root.bt !== null
+        spacing: 8
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            Label {
+                text: "bt"
+                color: root.sectionColor("bluetooth")
+                Layout.preferredWidth: 34
+                Behavior on color { ColorAnimation { duration: 200 } }
+            }
+            Label {
+                Layout.fillWidth: true
+                text: root.btSummary
+                color: root.btConnected.length > 0 ? Theme.text : Theme.textDim
+                elide: Text.ElideRight
+            }
+            // Buscar dispositivos nuevos
+            Rectangle {
+                visible: root.bt && root.bt.enabled
+                Layout.preferredHeight: 26
+                Layout.preferredWidth: scanText.implicitWidth + 24
+                radius: 13
+                color: root.bt && root.bt.discovering ? Theme.accent : (scanArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
+                Behavior on color { ColorAnimation { duration: 150 } }
+                Label {
+                    id: scanText
+                    anchors.centerIn: parent
+                    text: root.bt && root.bt.discovering ? "Buscando" : "Buscar"
+                    color: root.bt && root.bt.discovering ? "#0b1020" : Theme.text
+                    font.pixelSize: Theme.fontSize - 1
+                }
+                MouseArea {
+                    id: scanArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.bt.discovering = !root.bt.discovering
+                }
+            }
+            ToggleSwitch {
+                checked: root.bt && root.bt.enabled
+                onToggled: root.bt.enabled = !root.bt.enabled
+            }
+        }
+
+        Repeater {
+            model: root.btDevices
+            delegate: Rectangle {
+                id: dev
+                required property var modelData
+                readonly property var d: modelData
+                readonly property bool busy: d.state === BluetoothDeviceState.Connecting || d.state === BluetoothDeviceState.Disconnecting || d.pairing
+                property bool connectAfterPair: false
+
+                Layout.fillWidth: true
+                Layout.preferredHeight: 38
+                radius: 12
+                color: d.connected ? Qt.rgba(0.54, 0.71, 1, 0.16) : (devArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
+                Behavior on color { ColorAnimation { duration: 150 } }
+
+                function act() {
+                    if (busy) return;
+                    if (d.connected) d.disconnect();
+                    else if (d.paired) d.connect();
+                    else { connectAfterPair = true; d.pair(); }
+                }
+                Connections {
+                    target: dev.d
+                    function onPairedChanged() {
+                        if (dev.d.paired && dev.connectAfterPair) { dev.connectAfterPair = false; dev.d.trusted = true; dev.d.connect(); }
+                    }
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 12
+                    spacing: 10
+                    Glyph {
+                        Layout.preferredWidth: 22
+                        font.pixelSize: 15
+                        color: dev.d.connected ? Theme.accent : Theme.textDim
+                        text: dev.d.icon.indexOf("audio") === 0 ? "\uf025"
+                            : dev.d.icon.indexOf("keyboard") >= 0 ? "\uf11c"
+                            : dev.d.icon.indexOf("phone") >= 0 ? "\uf10b"
+                            : dev.d.icon.indexOf("mouse") >= 0 ? "\uf245" : "\uf294"
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        text: dev.d.name
+                        color: dev.d.connected ? Theme.text : Theme.textDim
+                        elide: Text.ElideRight
+                    }
+                    Label {
+                        text: dev.d.state === BluetoothDeviceState.Connecting ? "Conectando…"
+                            : dev.d.state === BluetoothDeviceState.Disconnecting ? "Desconectando…"
+                            : dev.d.pairing ? "Emparejando…"
+                            : dev.d.connected ? (dev.d.batteryAvailable ? Math.round(dev.d.battery * 100) + "%" : "Conectado")
+                            : dev.d.paired ? "" : "Nuevo"
+                        color: dev.busy ? Theme.accent : Theme.textDim
+                        font.pixelSize: Theme.fontSize - 1
+                        opacity: dev.busy ? 0.55 + 0.45 * Math.abs(Math.sin(Date.now() / 300)) : 1
+                    }
+                }
+                MouseArea {
+                    id: devArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: dev.act()
                 }
             }
         }

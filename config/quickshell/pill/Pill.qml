@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
+import Quickshell.Bluetooth
 
 // El notch: pegado al borde superior, esquinas redondas solo abajo.
 // Una sola ventana layer-shell; el rectangulo interior cambia de tamano con
@@ -18,6 +19,8 @@ PanelWindow {
     signal modeRequested(string mode)
     signal controlsRequested(string target)
     signal volumeActivity()
+
+    readonly property var btConnected: Bluetooth.devices.values.filter(d => d.connected)
 
     // Tamano actual del notch (lo usa Dismiss para dejarlo fuera de su region de clicks).
     readonly property real pillWidth: pill.width
@@ -67,7 +70,7 @@ PanelWindow {
 
     anchors.top: true
     implicitWidth: 700                        // superficie fija, mayor que el notch
-    implicitHeight: Math.max(500, clipboardHeight + 50)
+    implicitHeight: Math.max(620, clipboardHeight + 50)
     color: "transparent"
 
     // Reserva solo la franja del notch en reposo; el resto no empuja ventanas.
@@ -270,6 +273,21 @@ PanelWindow {
                                 anchors.margins: -6
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: win.controlsRequested("volume")
+                            }
+                        }
+                        Text {
+                            visible: win.btConnected.length > 0
+                            width: Math.min(implicitWidth, 150)
+                            text: "bt " + (win.btConnected.length > 0 ? win.btConnected[0].name : "")
+                            color: Theme.text
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontSize
+                            elide: Text.ElideRight
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.controlsRequested("bluetooth")
                             }
                         }
                         Text {

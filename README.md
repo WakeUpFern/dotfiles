@@ -40,7 +40,7 @@ config/quickshell/pill/         la píldora (QML)
   lock-test.qml                 instancia de prueba del bloqueo (scripts/lock-test.sh)
   ClipboardPanel.qml            historial del portapapeles (cliphist): panel grande con busqueda, imagenes y borrado
   MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
-  Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
+  Controls.qml                  panel desplegable: volumen + salida, bluetooth, brillo, bateria + perfil de energia
   Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote
   Dismiss.qml                   capa transparente: click fuera del notch cierra el menu abierto
   Slider.qml                    slider reutilizable (perilla con rebote)

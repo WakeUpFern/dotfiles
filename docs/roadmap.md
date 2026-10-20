@@ -4,7 +4,8 @@
 - [ ] Fondo de pantalla (Quickshell `WlrLayershell` en capa Background)
 - [ ] Bandeja del sistema (`Quickshell.Services.SystemTray`) dentro de la píldora
 - [x] Panel de controles: volumen, salida de audio, brillo, bateria y perfil de energia
-- [ ] Red y bluetooth dentro del panel de controles
+- [x] Bluetooth en el panel de controles
+- [ ] Red (Wi-Fi) dentro del panel de controles
 - [x] Notificaciones emergentes (tarjetas de vidrio arriba a la derecha)
 - [ ] Centro de notificaciones con historial, acciones y "no molestar"
 - [x] Menu de apagado (usa swaylock para bloquear)
