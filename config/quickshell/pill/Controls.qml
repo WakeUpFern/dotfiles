@@ -17,7 +17,7 @@ ColumnLayout {
     spacing: 16
     focus: true
     Keys.onEscapePressed: root.closeRequested()
-    Component.onCompleted: forceActiveFocus()
+    Component.onCompleted: { forceActiveFocus(); BluetoothAudio.refresh(btAudio ? btAudio.name : ""); }
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var sinks: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream)
@@ -25,17 +25,33 @@ ColumnLayout {
 
     PwObjectTracker { objects: root.sinks }
 
+    // La busqueda de dispositivos gasta bateria: se apaga al cerrar el panel o a los 30 s.
+    Timer { interval: 30000; running: root.bt !== null && root.bt.discovering; onTriggered: root.bt.discovering = false }
+    Component.onDestruction: if (bt && bt.discovering) bt.discovering = false
+
     // --- Bluetooth -----------------------------------------------------------
     readonly property var bt: Bluetooth.defaultAdapter
     // Conectados y emparejados primero; mientras se busca, tambien los nuevos con nombre.
     readonly property var btDevices: {
         const a = bt;
         if (!a || !a.enabled) return [];
-        const list = Bluetooth.devices.values.filter(d => d.name !== "" && (d.paired || d.connected || a.discovering));
+        // BlueZ pone la direccion MAC como nombre a los dispositivos anonimos: esos no se muestran.
+        const isMac = n => /^([0-9A-F]{2}[-:]){5}[0-9A-F]{2}$/i.test(n);
+        const list = Bluetooth.devices.values.filter(d => d.name !== "" && !isMac(d.name) && (d.paired || d.connected || a.discovering));
         list.sort((x, y) => (y.connected - x.connected) || (y.paired - x.paired) || x.name.localeCompare(y.name));
         return list.slice(0, 4);
     }
     readonly property var btConnected: Bluetooth.devices.values.filter(d => d.connected)
+    // Audifonos / altavoz conectado: sus perfiles (calidad / llamadas) se muestran debajo.
+    readonly property var btAudio: btConnected.find(d => (d.icon || "").indexOf("audio") === 0) || null
+    onBtAudioChanged: BluetoothAudio.refresh(btAudio ? btAudio.name : "")
+
+    function profileLabel(desc) {
+        const codec = (desc.match(/codec ([^)]+)\)/) || [])[1] || "";
+        if (desc.indexOf("A2DP") >= 0) return "Música · " + codec;
+        if (desc.indexOf("HSP/HFP") >= 0) return "Llamadas · " + codec;
+        return desc;
+    }
     readonly property string btSummary: {
         if (!bt) return "";
         if (!bt.enabled) return "Apagado";
@@ -283,6 +299,53 @@ ColumnLayout {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: dev.act()
+                }
+            }
+        }
+    }
+
+    // --- Perfil del audio Bluetooth ----------------------------------------------
+    // "Musica" = A2DP (alta fidelidad, sin microfono); "Llamadas" = HSP/HFP (con microfono, suena peor).
+    // SBC-XQ es el A2DP de mayor calidad que ofrece este dispositivo.
+    ColumnLayout {
+        Layout.fillWidth: true
+        visible: root.btAudio !== null && BluetoothAudio.profiles.length > 1
+        spacing: 6
+        Label {
+            text: "Calidad del audio"
+            color: Theme.textDim
+            font.pixelSize: Theme.fontSize - 2
+        }
+        Flow {
+            Layout.fillWidth: true
+            spacing: 6
+            Repeater {
+                model: BluetoothAudio.profiles.filter(p => p.name !== "off" && p.available)
+                delegate: Rectangle {
+                    id: chip
+                    required property var modelData
+                    readonly property bool active: modelData.index === BluetoothAudio.activeIndex
+                    height: 28
+                    width: chipLabel.implicitWidth + 24
+                    radius: 14
+                    color: active ? Theme.accent : (chipArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    scale: chipArea.pressed ? 0.93 : 1
+                    Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutBack; easing.overshoot: 2.5 } }
+                    Label {
+                        id: chipLabel
+                        anchors.centerIn: parent
+                        text: root.profileLabel(chip.modelData.description)
+                        color: chip.active ? "#0b1020" : Theme.text
+                        font.pixelSize: Theme.fontSize - 1
+                    }
+                    MouseArea {
+                        id: chipArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: BluetoothAudio.setProfile(chip.modelData.index)
+                    }
                 }
             }
         }

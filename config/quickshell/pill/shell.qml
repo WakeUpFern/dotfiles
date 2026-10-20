@@ -11,6 +11,8 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "controls" | "osd"
     property string mode: "idle"
+    Component.onCompleted: BluetoothAudio.start()
+
     property string controlsFocus: ""
     property string osdKind: "volume"
 

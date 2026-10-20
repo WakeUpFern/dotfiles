@@ -27,6 +27,11 @@ Singleton {
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
     readonly property bool nativeLock: true
 
+    // Bluetooth: al conectar unos audifonos pasa la salida de audio a ellos y elige el mejor perfil
+    // A2DP (ver BluetoothAudio.qml). Pon false para desactivar cada comportamiento.
+    readonly property bool btAutoSwitchOutput: true
+    readonly property bool btPreferHighQuality: true
+
     // --- Fondo de pantalla ---------------------------------------------------
     // Una sola fuente para el fondo (Wallpaper.qml) y el fondo desenfocado del
     // overview (Backdrop.qml). Prioridad: archivo de estado > PILL_WALLPAPER > default.
