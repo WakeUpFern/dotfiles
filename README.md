@@ -39,6 +39,7 @@ config/quickshell/pill/         la píldora (QML)
   LockScreen.qml / LockView.qml / ShapeGlyph.qml   bloqueo propio (contraseña como figuras animadas)
   lock-test.qml                 instancia de prueba del bloqueo (scripts/lock-test.sh)
   ClipboardPanel.qml            historial del portapapeles (cliphist): panel grande con busqueda, imagenes y borrado
+  MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
   Controls.qml                  panel desplegable: volumen + salida, brillo, bateria + perfil de energia
   Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote
   Dismiss.qml                   capa transparente: click fuera del notch cierra el menu abierto
@@ -60,8 +61,9 @@ docs/                           notas
 | click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
 | click en el notch | launcher, con botones de energía abajo |
 | `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
+| `Mod+M` | reproductor multimedia (maximizar a los bordes pasa a `Mod+Alt+M`) |
 | `Mod+V` | portapapeles (como Win+V); la ventana flotante pasa a `Mod+Alt+V` |
-| `Esc` | cierra cualquier menú del notch (launcher, portapapeles, controles, apagado) |
+| `Esc` | cierra cualquier menú del notch (launcher, portapapeles, multimedia, controles, apagado) |
 | click fuera del notch | cierra el launcher, el panel de controles o el menú de apagado |
 | scroll sobre el notch | volumen |
 | teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |

@@ -12,9 +12,9 @@ import Quickshell.Services.UPower
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | clipboard | power | controls | osd
+    property string mode: "idle"      // idle | launcher | clipboard | media | power | controls | osd
     property string controlsFocus: "" // seccion resaltada en "controls"
-    property string osdKind: "volume" // "volume" | "brightness" en modo osd
+    property string osdKind: "volume" // "volume" | "brightness" | "track" en modo osd
     signal modeRequested(string mode)
     signal controlsRequested(string target)
     signal volumeActivity()
@@ -37,9 +37,10 @@ PanelWindow {
         switch (mode) {
         case "launcher":     w = 560; break;
         case "clipboard":    w = 640; break;
+        case "media":        w = 560; break;
         case "power":        w = 500; break;
         case "controls":     w = 420; break;
-        case "osd":          w = 300; break;
+        case "osd":          w = osdWidth; break;
         default:             w = collapsedWidth + (peek ? peekExtra : 0);
         }
         return tap.pressed ? w - 10 : w;      // "squish" al presionar
@@ -47,10 +48,16 @@ PanelWindow {
     // El portapapeles es el panel grande: hasta ~55 % de la altura de la pantalla.
     readonly property real clipboardHeight: Math.min(win.screen.height * 0.55, 560)
 
+    // Panel multimedia: mas alto si hay varios reproductores (aparece el selector).
+    readonly property real mediaHeight: MediaState.players.length > 1 ? 372 : 330
+    // El HUD de pista es mas ancho (caratula + titulo) que el de volumen/brillo.
+    readonly property real osdWidth: osdKind === "track" ? 400 : 300
+
     readonly property real targetHeight: {
         switch (mode) {
         case "launcher":     return 450;
         case "clipboard":    return clipboardHeight;
+        case "media":        return mediaHeight;
         case "power":        return 168;
         case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
         case "osd":          return 52;
@@ -78,7 +85,7 @@ PanelWindow {
                                            && NiriState.focusedHeight >= win.screen.height
     readonly property bool tucked: fullscreenFocused && mode === "idle"
     // Todos los menus capturan el teclado para que Esc los cierre (como los menus de escritorio).
-    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "power" || mode === "controls")
+    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "media" || mode === "power" || mode === "controls")
         ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
@@ -239,6 +246,21 @@ PanelWindow {
                             elide: Text.ElideRight
                         }
                         Text {
+                            visible: MediaState.playing
+                            width: Math.min(implicitWidth, 190)
+                            text: "♪ " + MediaState.line
+                            color: Theme.accent
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontSize
+                            elide: Text.ElideRight
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.modeRequested("media")
+                            }
+                        }
+                        Text {
                             text: audio.volumeText
                             color: Theme.text
                             font.family: Theme.fontSans
@@ -290,7 +312,7 @@ PanelWindow {
             // Tamano FIJO (el final del notch en este modo, menos margenes) y centrado: si
             // siguiera al ancho animado del notch, la pista de la barra creceria con el y el
             // relleno parecería salir desde cero cada vez. Asi el notch solo lo "revela".
-            width: 300 - 32
+            width: win.osdWidth - 32
             height: 52
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
@@ -309,7 +331,59 @@ PanelWindow {
                 }
             }
 
+            // HUD de pista (teclas multimedia): caratula + titulo/artista + estado.
             Row {
+                visible: win.osdKind === "track"
+                spacing: 12
+                width: parent.width
+                anchors.verticalCenter: parent.verticalCenter
+                Rectangle {
+                    width: 36; height: 36; radius: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Qt.rgba(1, 1, 1, 0.10)
+                    clip: true
+                    Image {
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        sourceSize: Qt.size(72, 72)
+                        source: MediaState.active ? MediaState.active.trackArtUrl : ""
+                    }
+                }
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - 36 - 28 - parent.spacing * 2
+                    Text {
+                        width: parent.width
+                        text: MediaState.active && MediaState.active.trackTitle !== "" ? MediaState.active.trackTitle : "Sin reproducción"
+                        color: Theme.text
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontSize
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+                    Text {
+                        width: parent.width
+                        text: MediaState.active ? MediaState.active.trackArtist : ""
+                        color: Theme.textDim
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontSize - 2
+                        elide: Text.ElideRight
+                    }
+                }
+                Text {
+                    width: 28
+                    anchors.verticalCenter: parent.verticalCenter
+                    horizontalAlignment: Text.AlignRight
+                    text: MediaState.playing ? "\uf04b" : "\uf04c"
+                    color: Theme.accent
+                    font.family: "FontAwesome"
+                    font.pixelSize: 14
+                }
+            }
+
+            Row {
+                visible: win.osdKind !== "track"
                 spacing: 14
                 width: parent.width
                 anchors.verticalCenter: parent.verticalCenter
@@ -362,6 +436,22 @@ PanelWindow {
             Behavior on opacity { NumberAnimation { duration: 220 } }
             sourceComponent: Controls {
                 focusTarget: win.controlsFocus
+                onCloseRequested: win.modeRequested("idle")
+            }
+        }
+
+        // --- Multimedia -------------------------------------------------------------
+        // Tamano fijo (el final), centrado: el notch solo lo "revela" al crecer.
+        Loader {
+            width: 560 - 40
+            height: win.mediaHeight - 40
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            active: win.mode === "media"
+            opacity: active ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 220 } }
+            sourceComponent: MediaPanel {
                 onCloseRequested: win.modeRequested("idle")
             }
         }

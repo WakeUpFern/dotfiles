@@ -474,10 +474,10 @@ binds {
 
     // Example media keys mapping using playerctl.
     // This will work with any MPRIS-enabled media player.
-    XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPlay        allow-when-locked=true { spawn-sh "qs -c pill ipc call media playpause || playerctl play-pause"; }
     XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
-    XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
-    XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
+    XF86AudioPrev        allow-when-locked=true { spawn-sh "qs -c pill ipc call media previous || playerctl previous"; }
+    XF86AudioNext        allow-when-locked=true { spawn-sh "qs -c pill ipc call media next || playerctl next"; }
 
     // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
@@ -657,7 +657,8 @@ binds {
     // maximize-window-to-edges doesn't: the window expands to the edges of the screen.
     // This bind corresponds to normal window maximizing,
     // e.g. by double-clicking on the titlebar.
-    Mod+M { maximize-window-to-edges; }
+    // Mod+M abre el reproductor multimedia del notch; maximizar a los bordes pasa a Mod+Alt+M.
+    Mod+Alt+M { maximize-window-to-edges; }
 
     // Expand the focused column to space not taken up by other fully visible columns.
     // Makes the column "fill the rest of the space".
@@ -685,6 +686,7 @@ binds {
 
     // Move the focused window between the floating and the tiling layout.
     // Mod+V abre el portapapeles del notch (como Win+V); flotante pasa a Mod+Alt+V.
+    Mod+M hotkey-overlay-title="Media player" { spawn-sh "qs -c pill ipc call media toggle"; }
     Mod+V hotkey-overlay-title="Clipboard history" { spawn-sh "qs -c pill ipc call clipboard toggle"; }
     Mod+Alt+V   { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
