@@ -63,7 +63,18 @@ PanelWindow {
     exclusiveZone: Theme.notchHeight
 
     WlrLayershell.namespace: "pill"
-    WlrLayershell.layer: WlrLayer.Top
+    // Las ventanas en pantalla completa se dibujan por encima de la capa Top, asi que el
+    // notch en reposo queda oculto (esta bien). Cuando aparece algo (HUD de volumen/brillo,
+    // launcher, menus) sube a Overlay para verse sobre el video, y baja otra vez cuando
+    // termina su animacion de salida.
+    property bool elevated: false
+    onModeChanged: {
+        if (mode !== "idle") { demote.stop(); elevated = true; }
+        else demote.restart();
+    }
+    Timer { id: demote; interval: 700; onTriggered: win.elevated = false }
+
+    WlrLayershell.layer: elevated ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: (launcherOpen || mode === "power") ? WlrKeyboardFocus.Exclusive
         : mode === "controls" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 

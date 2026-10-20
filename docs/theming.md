@@ -63,3 +63,11 @@ real siga la forma de cada una (`layer-rule` en `config.kdl`). Entran desde la d
 (`Easing.OutBack`, `overshoot` 2.2), salen con anticipación y las de abajo suben con resorte. Las críticas
 llevan borde rojo y no se cierran solas. Pasar el ratón pausa el autocierre; click la descarta.
 Tiempo por defecto: 6,5 s (o el que pida la app). Máximo 5 visibles.
+
+## Pantalla completa
+
+niri dibuja las ventanas en pantalla completa por encima de la capa `Top`, donde vive el notch en reposo,
+así que ahí queda oculto. Cuando aparece algo (HUD de volumen/brillo, launcher, panel de controles, menú de
+apagado) el notch sube a la capa `Overlay` (y `Dismiss` también) para verse sobre el video; baja a `Top`
+700 ms después de volver a reposo, para que se vea su animación de salida. La ventana en pantalla completa
+no cambia de tamaño. Las notificaciones y el bloqueo ya iban por encima.
