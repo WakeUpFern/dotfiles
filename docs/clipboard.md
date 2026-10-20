@@ -1,6 +1,6 @@
 # Portapapeles
 
-`Mod+V` (o el icono de portapapeles al pasar el ratón por el notch) abre el historial: un panel grande
+`Mod+V` abre el historial: un panel grande
 (hasta ~55 % de la altura de la pantalla) que baja del notch con rebote.
 
 | Acción | Cómo |

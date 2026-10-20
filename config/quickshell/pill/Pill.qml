@@ -251,18 +251,6 @@ PanelWindow {
                             }
                         }
                         Text {
-                            text: "\uf0ea"
-                            color: Theme.text
-                            font.family: "FontAwesome"
-                            font.pixelSize: Theme.fontSize + 1
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -6
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.modeRequested("clipboard")
-                            }
-                        }
-                        Text {
                             visible: Brightness.available
                             text: "luz " + Math.round(Brightness.level * 100) + "%"
                             color: Theme.text
