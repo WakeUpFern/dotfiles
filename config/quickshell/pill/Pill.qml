@@ -12,7 +12,7 @@ import Quickshell.Services.UPower
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | power | controls | osd
+    property string mode: "idle"      // idle | launcher | clipboard | power | controls | osd
     property string controlsFocus: "" // seccion resaltada en "controls"
     property string osdKind: "volume" // "volume" | "brightness" en modo osd
     signal modeRequested(string mode)
@@ -36,6 +36,7 @@ PanelWindow {
         let w;
         switch (mode) {
         case "launcher":     w = 560; break;
+        case "clipboard":    w = 640; break;
         case "power":        w = 500; break;
         case "controls":     w = 420; break;
         case "osd":          w = 300; break;
@@ -43,9 +44,13 @@ PanelWindow {
         }
         return tap.pressed ? w - 10 : w;      // "squish" al presionar
     }
+    // El portapapeles es el panel grande: hasta ~55 % de la altura de la pantalla.
+    readonly property real clipboardHeight: Math.min(win.screen.height * 0.55, 560)
+
     readonly property real targetHeight: {
         switch (mode) {
         case "launcher":     return 450;
+        case "clipboard":    return clipboardHeight;
         case "power":        return 168;
         case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
         case "osd":          return 52;
@@ -55,7 +60,7 @@ PanelWindow {
 
     anchors.top: true
     implicitWidth: 700                        // superficie fija, mayor que el notch
-    implicitHeight: 500
+    implicitHeight: Math.max(500, clipboardHeight + 50)
     color: "transparent"
 
     // Reserva solo la franja del notch en reposo; el resto no empuja ventanas.
@@ -72,8 +77,9 @@ PanelWindow {
     readonly property bool fullscreenFocused: NiriState.focusedWidth >= win.screen.width
                                            && NiriState.focusedHeight >= win.screen.height
     readonly property bool tucked: fullscreenFocused && mode === "idle"
-    WlrLayershell.keyboardFocus: (launcherOpen || mode === "power") ? WlrKeyboardFocus.Exclusive
-        : mode === "controls" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+    // Todos los menus capturan el teclado para que Esc los cierre (como los menus de escritorio).
+    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "power" || mode === "controls")
+        ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
     mask: Region { item: pill }
@@ -245,6 +251,18 @@ PanelWindow {
                             }
                         }
                         Text {
+                            text: "\uf0ea"
+                            color: Theme.text
+                            font.family: "FontAwesome"
+                            font.pixelSize: Theme.fontSize + 1
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: win.modeRequested("clipboard")
+                            }
+                        }
+                        Text {
                             visible: Brightness.available
                             text: "luz " + Math.round(Brightness.level * 100) + "%"
                             color: Theme.text
@@ -356,6 +374,22 @@ PanelWindow {
             Behavior on opacity { NumberAnimation { duration: 220 } }
             sourceComponent: Controls {
                 focusTarget: win.controlsFocus
+                onCloseRequested: win.modeRequested("idle")
+            }
+        }
+
+        // --- Portapapeles ---------------------------------------------------------
+        // Tamano fijo (el final), centrado: el notch solo lo "revela" al crecer.
+        Loader {
+            width: 640 - 36
+            height: win.clipboardHeight - 36
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 18
+            active: win.mode === "clipboard"
+            opacity: active ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 220 } }
+            sourceComponent: ClipboardPanel {
                 onCloseRequested: win.modeRequested("idle")
             }
         }

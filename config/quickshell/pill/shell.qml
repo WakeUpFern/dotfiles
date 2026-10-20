@@ -9,7 +9,7 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "power" | "controls" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "power" | "controls" | "osd"
     property string mode: "idle"
     property string controlsFocus: ""
     property string osdKind: "volume"
@@ -58,6 +58,14 @@ ShellRoot {
         function down(): void { Brightness.step(-0.05); root.showOsd("brightness"); }
     }
 
+    // Portapapeles:  qs -c pill ipc call clipboard toggle   (niri: Mod+V)
+    IpcHandler {
+        target: "clipboard"
+        function toggle(): void { root.mode = root.mode === "clipboard" ? "idle" : "clipboard"; }
+        function open(): void   { root.mode = "clipboard"; }
+        function close(): void  { root.mode = "idle"; }
+    }
+
     // Menu de apagado:  qs -c pill ipc call power toggle   (niri: Mod+Shift+E)
     IpcHandler {
         target: "power"
@@ -92,7 +100,7 @@ ShellRoot {
 
     // Click en cualquier parte fuera del notch cierra el menu abierto.
     Dismiss {
-        active: root.mode === "launcher" || root.mode === "power" || root.mode === "controls"
+        active: root.mode === "launcher" || root.mode === "clipboard" || root.mode === "power" || root.mode === "controls"
         pillWidth: pill.pillWidth
         pillHeight: pill.pillHeight
         onDismissed: root.mode = "idle"

@@ -232,6 +232,10 @@ environment {
 // ~/.config/quickshell/pill, enlazada desde config/quickshell/pill de este repo.
 spawn-sh-at-startup "qs -c pill"
 
+// Historial del portapapeles (cliphist): guarda cada texto e imagen que copies.
+spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
+spawn-sh-at-startup "wl-paste --type image --watch cliphist store"
+
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
     // skip-at-startup
@@ -680,7 +684,9 @@ binds {
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
-    Mod+V       { toggle-window-floating; }
+    // Mod+V abre el portapapeles del notch (como Win+V); flotante pasa a Mod+Alt+V.
+    Mod+V hotkey-overlay-title="Clipboard history" { spawn-sh "qs -c pill ipc call clipboard toggle"; }
+    Mod+Alt+V   { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
     // Toggle tabbed column display mode.
