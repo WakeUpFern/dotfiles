@@ -8,7 +8,7 @@ HUD de volumen/brillo, launcher, portapapeles, reproductor).
 | Icono | Menú |
 |---|---|
 | Bluetooth | interruptor, buscar, dispositivos, calidad del audio ([bluetooth.md](bluetooth.md)) |
-| Volumen | deslizador, salidas de audio y brillo de pantalla |
+| Volumen | mezclador: volumen general, salidas, **volumen por aplicación**, **micrófono** y brillo ([audio.md](audio.md)) |
 | Batería | nivel, estado, tiempo restante y perfil de energía |
 | Campana | historial de notificaciones, "No molestar" y borrar todo |
 | Reloj | fecha y hora |

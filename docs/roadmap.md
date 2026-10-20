@@ -8,6 +8,8 @@
 - [ ] Icono y menú de Wi-Fi en la barra derecha
 - [x] Campana de notificaciones con historial y "No molestar"
 - [x] Bandeja del sistema en la barra derecha
+- [x] Mezclador de audio: volumen por aplicación y micrófono
+- [ ] Mover una app a otra salida de audio (hoy solo se ajusta su volumen)
 - [ ] Persistir el historial de notificaciones y "No molestar" entre reinicios
 - [x] Notificaciones emergentes (tarjetas de vidrio arriba a la derecha)
 - [ ] Centro de notificaciones con historial, acciones y "no molestar"

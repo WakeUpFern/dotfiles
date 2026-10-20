@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 
-// Menu de volumen: deslizador, salidas de audio y brillo de pantalla.
+// Menu de volumen: deslizador, salidas, volumen por aplicacion, microfono y brillo de pantalla.
 ColumnLayout {
     id: root
     spacing: 16
@@ -79,6 +79,10 @@ ColumnLayout {
         }
     }
 
+
+    // --- Aplicaciones (volumen por app) y microfono ---------------------------
+    AppMixer { Layout.fillWidth: true }
+    MicControl { Layout.fillWidth: true }
 
     // --- Brillo --------------------------------------------------------------
     RowLayout {

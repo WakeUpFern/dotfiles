@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
 import Quickshell.Services.SystemTray
+import Quickshell.Services.Pipewire
 
 // Punto de entrada. Arrancar con:  qs -c pill
 // La pildora es el unico "widget": barra, launcher, notificaciones y estado.
@@ -12,7 +13,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: BluetoothAudio.start()
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); }
 
     // Menu abierto de la barra derecha: "" | "bluetooth" | "volume" | "battery" | "clock".
     // Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -126,6 +127,24 @@ ShellRoot {
         function dnd(): string { NotificationCenter.toggleDnd(); return NotificationCenter.dnd ? "No molestar: activado" : "No molestar: desactivado"; }
         function clear(): void { NotificationCenter.clear(); toasts.dismissAll(); }
         function unread(): int { return NotificationCenter.unread; }
+    }
+
+    // Audio por aplicacion:  qs -c pill ipc call audio apps | setapp <nombre> <0..1.5> | mic
+    IpcHandler {
+        target: "audio"
+        function apps(): string {
+            return AudioStreams.apps.map(g => g.name + ": " + Math.round(AudioStreams.groupVolume(g) * 100) + "%" + (AudioStreams.groupMuted(g) ? " (silenciada)" : "") + " [" + g.nodes.length + " flujo(s)]").join("\n");
+        }
+        function setapp(name: string, v: string): string {
+            const g = AudioStreams.apps.find(x => x.name.toLowerCase().indexOf(name.toLowerCase()) >= 0);
+            if (!g) return "no encontrada";
+            AudioStreams.setGroupVolume(g, Number(v));
+            return g.name + " -> " + v;
+        }
+        function dump(): string {
+            return Pipewire.nodes.values.map(n => n.id + " | stream=" + n.isStream + " sink=" + n.isSink + " | " + n.name + " | clase=" + JSON.stringify((n.properties || {})["media.class"]) + " | app=" + JSON.stringify((n.properties || {})["application.name"])).join("\n");
+        }
+        function mic(): string { return AudioStreams.micInUse ? "en uso: " + AudioStreams.micUsers : "libre"; }
     }
 
     // Bandeja:  qs -c pill ipc call tray list | menu <n>   (n empieza en 0)

@@ -58,6 +58,8 @@ PanelWindow {
         readonly property bool open: win.active === name
         default property alias content: row.data
         signal clicked()
+        signal middleClicked()
+        signal scrolled(int delta)
         implicitWidth: row.implicitWidth + 16
         implicitHeight: 26
 
@@ -76,8 +78,10 @@ PanelWindow {
             id: area
             anchors.fill: parent
             hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: btn.clicked()
+            onClicked: mouse => { if (mouse.button === Qt.MiddleButton) btn.middleClicked(); else btn.clicked(); }
+            onWheel: wheel => btn.scrolled(wheel.angleDelta.y)
         }
     }
 
@@ -175,9 +179,25 @@ PanelWindow {
             BarButton {
                 name: "volume"
                 onClicked: win.toggled(name)
+                // Rueda = volumen, clic central = silenciar (como en macOS y KDE).
+                onScrolled: delta => {
+                    if (!win.sink || !win.sink.audio) return;
+                    win.sink.audio.muted = false;
+                    win.sink.audio.volume = Math.max(0, Math.min(1, win.sink.audio.volume + (delta > 0 ? 0.03 : -0.03)));
+                }
+                onMiddleClicked: if (win.sink && win.sink.audio) win.sink.audio.muted = !win.sink.audio.muted
                 BarGlyph {
                     text: win.muted || win.volume <= 0.001 ? "" : (win.volume < 0.5 ? "" : "")
                     color: win.muted ? Theme.textDim : Theme.text
+                }
+                // Punto naranja: alguna app tiene el micrófono abierto.
+                Rectangle {
+                    visible: AudioStreams.micInUse
+                    width: 7; height: 7; radius: 3.5
+                    color: Theme.warn
+                    anchors.verticalCenter: parent.verticalCenter
+                    scale: AudioStreams.micInUse ? 1 : 0
+                    Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: 3 } }
                 }
             }
             BarButton {
