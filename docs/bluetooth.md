@@ -1,7 +1,6 @@
 # Bluetooth
 
-Sección `bt` del **panel de controles** (click en el notch → volumen/luz/batería, o click en `bt …` en la
-fila que aparece al pasar el ratón cuando hay algo conectado).
+Menú del icono de Bluetooth en la **barra derecha** (azul si hay algo conectado, gris si está apagado).
 
 | Elemento | Qué hace |
 |---|---|

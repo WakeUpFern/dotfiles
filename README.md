@@ -41,7 +41,9 @@ config/quickshell/pill/         la píldora (QML)
   ClipboardPanel.qml            historial del portapapeles (cliphist): panel grande con busqueda, imagenes y borrado
   MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
   BluetoothAudio.qml / bt-profile.py   al conectar audifonos: salida de audio a ellos + mejor perfil A2DP
-  Controls.qml                  panel desplegable: volumen + salida, bluetooth, brillo, bateria + perfil de energia
+  StatusBar.qml                 barra derecha: iconos sin fondo (bluetooth, volumen, bateria) + reloj
+  PopoverHost.qml               tarjeta de vidrio que se abre bajo la barra con el menu pulsado
+  VolumePopover.qml / BluetoothPopover.qml / BatteryPopover.qml   los menus
   Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote
   Dismiss.qml                   capa transparente: click fuera del notch cierra el menu abierto
   Slider.qml                    slider reutilizable (perilla con rebote)
@@ -59,13 +61,13 @@ docs/                           notas
 | `Mod+D` | abrir/cerrar el launcher de la píldora |
 | `Mod+T` | terminal (alacritty) |
 | hover en el notch | se expande: título, volumen, luz y batería |
-| click en vol / luz / bat | abre el panel de controles (se cierra al sacar el ratón o con `Esc`) |
+| click en un icono de la barra derecha | abre su menú (Bluetooth, volumen+brillo, batería, reloj); con uno abierto, otro icono cambia directo |
 | click en el notch | launcher, con botones de energía abajo |
 | `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
 | `Mod+M` | reproductor multimedia (maximizar a los bordes pasa a `Mod+Alt+M`) |
 | `Mod+V` | portapapeles (como Win+V); la ventana flotante pasa a `Mod+Alt+V` |
 | `Esc` | cierra cualquier menú del notch (launcher, portapapeles, multimedia, controles, apagado) |
-| click fuera del notch | cierra el launcher, el panel de controles o el menú de apagado |
+| click fuera | cierra el launcher, el portapapeles, el reproductor, el menú de apagado o el menú de la barra derecha |
 | scroll sobre el notch | volumen |
 | teclas de brillo | suben/bajan brillo y muestran el HUD (van por `qs ipc call brightness up\|down`) |
 | `Mod+Shift+/` | lista de atajos de niri |

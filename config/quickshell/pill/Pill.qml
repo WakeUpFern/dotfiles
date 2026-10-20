@@ -3,8 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
-import Quickshell.Services.UPower
-import Quickshell.Bluetooth
 
 // El notch: pegado al borde superior, esquinas redondas solo abajo.
 // Una sola ventana layer-shell; el rectangulo interior cambia de tamano con
@@ -13,14 +11,10 @@ import Quickshell.Bluetooth
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | clipboard | media | power | controls | osd
-    property string controlsFocus: "" // seccion resaltada en "controls"
+    property string mode: "idle"      // idle | launcher | clipboard | media | power | osd
     property string osdKind: "volume" // "volume" | "brightness" | "track" en modo osd
     signal modeRequested(string mode)
-    signal controlsRequested(string target)
     signal volumeActivity()
-
-    readonly property var btConnected: Bluetooth.devices.values.filter(d => d.connected)
 
     // Tamano actual del notch (lo usa Dismiss para dejarlo fuera de su region de clicks).
     readonly property real pillWidth: pill.width
@@ -32,7 +26,8 @@ PanelWindow {
     // --- Geometria ----------------------------------------------------------
     // Ancho en reposo: workspaces | icono | reloj. En hover se suma el bloque
     // extra (titulo, volumen, bateria) en el centro.
-    readonly property real collapsedWidth: 18 + wsRow.implicitWidth + 18 + 22 + 18 + clockText.implicitWidth + 18
+    // Simetrico: espacios de trabajo a la izquierda, icono de la app en el centro.
+    readonly property real collapsedWidth: 2 * (18 + wsRow.implicitWidth + 14) + 22
     readonly property real peekExtra: extraRow.implicitWidth + 14
 
     readonly property real targetWidth: {
@@ -42,7 +37,6 @@ PanelWindow {
         case "clipboard":    w = 640; break;
         case "media":        w = 560; break;
         case "power":        w = 500; break;
-        case "controls":     w = 420; break;
         case "osd":          w = osdWidth; break;
         default:             w = collapsedWidth + (peek ? peekExtra : 0);
         }
@@ -62,7 +56,6 @@ PanelWindow {
         case "clipboard":    return clipboardHeight;
         case "media":        return mediaHeight;
         case "power":        return 168;
-        case "controls":     return controlsLoader.item ? controlsLoader.item.implicitHeight + 34 : 300;
         case "osd":          return 52;
         default:             return peek ? Theme.notchPeekHeight : Theme.notchHeight;
         }
@@ -88,7 +81,7 @@ PanelWindow {
                                            && NiriState.focusedHeight >= win.screen.height
     readonly property bool tucked: fullscreenFocused && mode === "idle"
     // Todos los menus capturan el teclado para que Esc los cierre (como los menus de escritorio).
-    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "media" || mode === "power" || mode === "controls")
+    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "media" || mode === "power")
         ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
@@ -140,13 +133,6 @@ PanelWindow {
             }
         }
 
-        // El panel de controles se cierra solo cuando el raton se va.
-        Timer {
-            interval: 900
-            running: win.mode === "controls" && !hover.hovered
-            onTriggered: win.modeRequested("idle")
-        }
-
         // Click en el notch en reposo = abrir launcher.
         TapHandler {
             id: tap
@@ -186,19 +172,6 @@ PanelWindow {
                         }
                     }
                 }
-            }
-
-            // Derecha: reloj.
-            Text {
-                id: clockText
-                anchors.right: parent.right
-                anchors.rightMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: Qt.formatDateTime(clock.date, "HH:mm")
-                color: Theme.text
-                font.family: Theme.fontSans
-                font.pixelSize: Theme.fontSize
-                font.weight: Font.Medium
             }
 
             // Centro: icono de la app activa; en hover se despliega el resto.
@@ -261,59 +234,6 @@ PanelWindow {
                                 anchors.margins: -6
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: win.modeRequested("media")
-                            }
-                        }
-                        Text {
-                            text: audio.volumeText
-                            color: Theme.text
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontSize
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -6
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.controlsRequested("volume")
-                            }
-                        }
-                        Text {
-                            visible: win.btConnected.length > 0
-                            width: Math.min(implicitWidth, 150)
-                            text: "bt " + (win.btConnected.length > 0 ? win.btConnected[0].name : "")
-                            color: Theme.text
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontSize
-                            elide: Text.ElideRight
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -6
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.controlsRequested("bluetooth")
-                            }
-                        }
-                        Text {
-                            visible: Brightness.available
-                            text: "luz " + Math.round(Brightness.level * 100) + "%"
-                            color: Theme.text
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontSize
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -6
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.controlsRequested("brightness")
-                            }
-                        }
-                        Text {
-                            visible: UPower.displayDevice.isPresent
-                            text: Math.round(UPower.displayDevice.percentage * 100) + "%"
-                            color: UPower.displayDevice.percentage < 0.2 ? Theme.urgent : Theme.text
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontSize
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -6
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.controlsRequested("battery")
                             }
                         }
                     }
@@ -443,21 +363,6 @@ PanelWindow {
             }
         }
 
-        // --- Panel de controles (volumen, brillo, bateria) ---------------------
-        Loader {
-            id: controlsLoader
-            anchors.fill: parent
-            anchors.margins: 16
-            anchors.topMargin: 14
-            active: win.mode === "controls"
-            opacity: active ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: 220 } }
-            sourceComponent: Controls {
-                focusTarget: win.controlsFocus
-                onCloseRequested: win.modeRequested("idle")
-            }
-        }
-
         // --- Multimedia -------------------------------------------------------------
         // Tamano fijo (el final), centrado: el notch solo lo "revela" al crecer.
         Loader {
@@ -529,7 +434,6 @@ PanelWindow {
         return Quickshell.iconPath(entry ? entry.icon : id.toLowerCase(), "application-x-executable");
     }
 
-    SystemClock { id: clock; precision: SystemClock.Minutes }
 
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
 

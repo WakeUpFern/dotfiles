@@ -9,7 +9,12 @@ Scope {
     id: root
 
     property var entries: []
-    readonly property int maxVisible: 5
+    // Altura (px) que ocupa por debajo el menu abierto (0 = ninguno); las tarjetas bajan para no tapar nada.
+    property real popoverBottom: 0
+    readonly property real baseTop: Math.max(Theme.notchHeight + 12, popoverBottom)
+    readonly property real screenHeight: Quickshell.screens.length > 0 ? Quickshell.screens[0].height : 864
+    // Solo las que caben bajo `baseTop` (al menos una); el resto espera su turno.
+    readonly property int maxVisible: Math.max(1, Math.min(5, Math.floor((screenHeight - baseTop - 12) / 100)))
     readonly property var visibleEntries: entries.slice(0, maxVisible)
 
     // Una copia estable de los datos de cada notificacion: el objeto original puede
@@ -53,6 +58,7 @@ Scope {
             required property var modelData
             entry: modelData
             slot: root.visibleEntries.indexOf(modelData)
+            baseTop: root.baseTop
             onFinished: root.remove(modelData)
         }
     }

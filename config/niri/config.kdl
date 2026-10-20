@@ -423,6 +423,7 @@ window-rule {
 layer-rule {
     match namespace="^pill$"
     match namespace="^pill-toast$"
+    match namespace="^pill-popover$"
 
     background-effect {
         xray false

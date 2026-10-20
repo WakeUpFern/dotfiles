@@ -12,6 +12,13 @@ PanelWindow {
     property bool active: false
     property real pillWidth: 0
     property real pillHeight: 0
+    // Barra derecha y tarjeta del menu abierto (tambien quedan fuera de la zona de "click fuera").
+    property real barWidth: 0
+    property real barHeight: 0
+    property real cardWidth: 0
+    property real cardHeight: 0
+    property real cardTop: 0
+    property real cardRight: 0
     signal dismissed()
 
     visible: active
@@ -29,6 +36,20 @@ PanelWindow {
                 y: 0
                 width: win.pillWidth + 4
                 height: win.pillHeight + 2
+                intersection: Intersection.Subtract
+            },
+            Region {
+                x: win.width - win.barWidth
+                y: 0
+                width: win.barWidth
+                height: win.barHeight
+                intersection: Intersection.Subtract
+            },
+            Region {
+                x: win.width - win.cardRight - win.cardWidth
+                y: win.cardTop
+                width: win.cardWidth
+                height: win.cardHeight
                 intersection: Intersection.Subtract
             }
         ]

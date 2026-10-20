@@ -9,11 +9,16 @@ import Quickshell.Services.Notifications
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "controls" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
     Component.onCompleted: BluetoothAudio.start()
 
-    property string controlsFocus: ""
+    // Menu abierto de la barra derecha: "" | "bluetooth" | "volume" | "battery" | "clock".
+    // Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
+    property string popover: ""
+    onPopoverChanged: if (popover !== "" && mode !== "idle" && mode !== "osd") mode = "idle"
+    onModeChanged: if (mode !== "idle" && mode !== "osd" && popover !== "") popover = ""
+
     property string osdKind: "volume"
 
     // HUD de volumen/brillo: aparece un momento y vuelve a reposo.
@@ -37,7 +42,11 @@ ShellRoot {
             toasts.add(n);
         }
     }
-    Toasts { id: toasts }
+    // Las tarjetas se colocan bajo la barra derecha y, con un menu abierto, bajo el menu.
+    Toasts {
+        id: toasts
+        popoverBottom: popoverHost.open ? popoverHost.targetBottom + 10 : 0
+    }
 
     Timer {
         id: osdTimer
@@ -101,11 +110,14 @@ ShellRoot {
         function set(path: string): void { Theme.setWallpaper(path); }
     }
 
-    // Abrir el panel de controles:  qs -c pill ipc call controls toggle
+    // Menus de la barra derecha:  qs -c pill ipc call popover toggle bluetooth|volume|battery|clock
     IpcHandler {
-        target: "controls"
-        function toggle(): void { root.controlsFocus = ""; root.mode = root.mode === "controls" ? "idle" : "controls"; }
+        target: "popover"
+        function toggle(name: string): void { root.popover = root.popover === name ? "" : name; }
+        function open(name: string): void   { root.popover = name; }
+        function close(): void              { root.popover = ""; }
     }
+
 
     Wallpaper {}
     Backdrop {}
@@ -117,21 +129,37 @@ ShellRoot {
         function onLockRequested() { lockScreen.lockNow(); }
     }
 
-    // Click en cualquier parte fuera del notch cierra el menu abierto.
+    // Click en cualquier parte fuera del notch / la barra / el menu abierto lo cierra.
     Dismiss {
-        active: root.mode === "launcher" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.mode === "controls"
+        active: root.mode === "launcher" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.popover !== ""
         pillWidth: pill.pillWidth
         pillHeight: pill.pillHeight
-        onDismissed: root.mode = "idle"
+        barWidth: statusBar.barWidth + 16
+        barHeight: statusBar.barHeight + 4
+        cardWidth: popoverHost.cardWidth
+        cardHeight: popoverHost.cardHeight
+        cardTop: popoverHost.topGap
+        cardRight: popoverHost.rightGap
+        onDismissed: { root.mode = "idle"; root.popover = ""; }
+    }
+
+    // Barra derecha (iconos + reloj) y su menu desplegable.
+    StatusBar {
+        id: statusBar
+        active: root.popover
+        onToggled: name => root.popover = root.popover === name ? "" : name
+    }
+    PopoverHost {
+        id: popoverHost
+        name: root.popover
+        onCloseRequested: root.popover = ""
     }
 
     Pill {
         id: pill
         mode: root.mode
-        controlsFocus: root.controlsFocus
         osdKind: root.osdKind
         onModeRequested: m => root.mode = m
-        onControlsRequested: t => { root.controlsFocus = t; root.mode = "controls"; }
         onVolumeActivity: root.showOsd("volume")
     }
 }

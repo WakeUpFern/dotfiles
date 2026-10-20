@@ -11,6 +11,7 @@ PanelWindow {
 
     required property var entry                 // ver Toasts.qml (copia de los datos)
     required property int slot                  // posicion en la pila (0 = arriba)
+    required property real baseTop              // y de la primera tarjeta (bajo la barra / el menu)
     signal finished()
 
     readonly property var n: entry.n            // puede ser null si la app ya la cerro
@@ -20,7 +21,7 @@ PanelWindow {
     property bool closing: false
 
     anchors { top: true; right: true }
-    margins.top: 14 + slot * (cardH + 12)
+    margins.top: baseTop + slot * (cardH + 12)
     Behavior on margins.top { NumberAnimation { duration: 420; easing.type: Easing.OutBack; easing.overshoot: 1.3 } }
 
     implicitWidth: 420
