@@ -24,7 +24,8 @@ Si es correcta se ponen verdes y se desbloquea. Usa ext-session-lock + PAM (serv
 ```
 
 Bloquea la pantalla con tu contraseña real y **se desbloquea sola a los 45 s** pase lo que pase.
-Escribe tu contraseña y pulsa Enter: si las figuras aparecen al teclear y desbloquea, el teclado
+Ejecuta **una sola a la vez** (dos instancias se disputan el bloqueo y el temporizador de seguridad no
+libera la pantalla; el script ya se niega a arrancar si hay otra). Escribe tu contraseña y pulsa Enter: si las figuras aparecen al teclear y desbloquea, el teclado
 llega bien y puedes activarlo con `nativeLock: true`. Si no escribe nada, espera los 45 s.
 
 ### Activarlo
