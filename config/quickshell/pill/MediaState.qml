@@ -27,6 +27,8 @@ Singleton {
     readonly property bool hasMedia: active !== null && active.trackTitle !== ""
     readonly property bool playing: active !== null && active.isPlaying
 
+    readonly property string source: active !== null ? active.identity : ""
+
     readonly property string line: hasMedia
         ? active.trackTitle + (active.trackArtist !== "" ? " — " + active.trackArtist : "")
         : ""
@@ -38,7 +40,14 @@ Singleton {
         else if (p.canPlay) p.play();
     }
     function next()     { const p = active; if (p && p.canGoNext) p.next(); }
-    function previous() { const p = active; if (p && p.canGoPrevious) p.previous(); }
+    // Como en los reproductores normales: si la cancion ya lleva mas de 3 s, "anterior" la reinicia;
+    // si acaba de empezar, pasa a la pista anterior.
+    function previous() {
+        const p = active;
+        if (!p) return;
+        if (p.positionSupported && p.canSeek && p.position > 3) { p.position = 0; return; }
+        if (p.canGoPrevious) p.previous();
+    }
     function select(name) {
         const p = players.find(x => x.identity.toLowerCase().includes(name.toLowerCase()));
         preferred = p ? p.identity : "";

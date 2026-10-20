@@ -21,7 +21,22 @@ si no, el primero con pista. Las teclas multimedia (`XF86AudioPlay/Next/Prev`) p
 (`qs -c pill ipc call media playpause|next|previous`), actúan sobre ese reproductor y muestran un HUD
 con carátula, título y artista; si Quickshell no está corriendo, niri vuelve a `playerctl`.
 
-Al pasar el ratón por el notch, si algo suena aparece `♪ título — artista` y un click abre el panel.
+### En el notch
+
+- **Reposo:** mientras suena algo, a la derecha del notch aparecen unas barras animadas (estilo cava); un
+  click sobre ellas abre el panel (igual que `Mod+M`).
+- **Al pasar el ratón:** se despliega `♪ título — artista` y de dónde suena (`en Chrome`, `en Spotify`…).
+- **Botón "anterior":** como en los reproductores normales, si la canción lleva más de 3 s la **reinicia**;
+  si acaba de empezar, pasa a la pista anterior. Vale para el botón, la tecla `P`, las teclas multimedia
+  del teclado y `qs -c pill ipc call media previous`.
+
+### Las barras: cava o simuladas
+
+Con [`cava`](https://github.com/karlstav/cava) instalado (`sudo apt install cava`; ya está en
+`scripts/01-packages.sh`) muestran el **espectro real** del audio de la salida predeterminada
+(`cava.conf`, modo `raw` por stdout). Sin `cava` se ven barras con un movimiento **simulado** (no
+reaccionan al audio). Solo corren mientras suena algo y el notch es visible (no en pantalla completa), y se
+actualizan sin interpolación por barra a propósito: interpolar a 60 fps costaba ~18 % de CPU; así ronda ~5 %.
 
 ## Notas
 

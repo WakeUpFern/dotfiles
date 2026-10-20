@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
+import Quickshell.Services.SystemTray
 
 // Punto de entrada. Arrancar con:  qs -c pill
 // La pildora es el unico "widget": barra, launcher, notificaciones y estado.
@@ -16,7 +17,12 @@ ShellRoot {
     // Menu abierto de la barra derecha: "" | "bluetooth" | "volume" | "battery" | "clock".
     // Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
     property string popover: ""
-    onPopoverChanged: if (popover !== "" && mode !== "idle" && mode !== "osd") mode = "idle"
+    property var trayItem: null           // icono de la bandeja cuyo menu esta abierto (popover "tray")
+    onPopoverChanged: {
+        if (popover !== "" && mode !== "idle" && mode !== "osd") mode = "idle";
+        // Abrir la campana ya muestra todo en la lista: las tarjetas sobran.
+        if (popover === "notifications") toasts.dismissAll();
+    }
     onModeChanged: if (mode !== "idle" && mode !== "osd" && popover !== "") popover = ""
 
     property string osdKind: "volume"
@@ -39,7 +45,11 @@ ShellRoot {
 
         onNotification: n => {
             n.tracked = true;
-            toasts.add(n);
+            const critical = n.urgency === NotificationUrgency.Critical;
+            NotificationCenter.add(n, critical);
+            // No molestar: no salen tarjetas (las criticas si); queda en el historial y el contador.
+            if (NotificationCenter.dnd && !critical) n.expire();
+            else toasts.add(n);
         }
     }
     // Las tarjetas se colocan bajo la barra derecha y, con un menu abierto, bajo el menu.
@@ -110,6 +120,28 @@ ShellRoot {
         function set(path: string): void { Theme.setWallpaper(path); }
     }
 
+    // Notificaciones:  qs -c pill ipc call notifications dnd|clear   (No molestar / borrar historial)
+    IpcHandler {
+        target: "notifications"
+        function dnd(): string { NotificationCenter.toggleDnd(); return NotificationCenter.dnd ? "No molestar: activado" : "No molestar: desactivado"; }
+        function clear(): void { NotificationCenter.clear(); toasts.dismissAll(); }
+        function unread(): int { return NotificationCenter.unread; }
+    }
+
+    // Bandeja:  qs -c pill ipc call tray list | menu <n>   (n empieza en 0)
+    IpcHandler {
+        target: "tray"
+        function list(): string {
+            return SystemTray.items.values.map((it, i) => i + ": " + (it.tooltipTitle || it.title || it.id) + (it.hasMenu ? " (menu)" : "") + (it.onlyMenu ? " (solo menu)" : "")).join("\n");
+        }
+        function menu(n: int): void {
+            const it = SystemTray.items.values[n];
+            if (!it) return;
+            if (root.popover === "tray" && root.trayItem === it) root.popover = "";
+            else { root.trayItem = it; root.popover = "tray"; }
+        }
+    }
+
     // Menus de la barra derecha:  qs -c pill ipc call popover toggle bluetooth|volume|battery|clock
     IpcHandler {
         target: "popover"
@@ -147,11 +179,17 @@ ShellRoot {
     StatusBar {
         id: statusBar
         active: root.popover
+        trayItem: root.trayItem
         onToggled: name => root.popover = root.popover === name ? "" : name
+        onTrayMenu: item => {
+            if (root.popover === "tray" && root.trayItem === item) root.popover = "";
+            else { root.trayItem = item; root.popover = "tray"; }
+        }
     }
     PopoverHost {
         id: popoverHost
         name: root.popover
+        trayItem: root.trayItem
         onCloseRequested: root.popover = ""
     }
 

@@ -31,6 +31,7 @@ Scope {
             property string image
             property bool critical
             property real timeout
+            property bool closeNow          // dismissAll() lo activa; cada tarjeta se despide sola
         }
     }
 
@@ -44,6 +45,9 @@ Scope {
         });
         entries = entries.concat([e]);
     }
+    // Cierra todas las tarjetas visibles (con su animacion de salida).
+    function dismissAll() { entries.forEach(e => e.closeNow = true); }
+
     function remove(entry) {
         entries = entries.filter(e => e !== entry);
         entry.destroy(500);

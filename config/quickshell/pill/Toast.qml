@@ -72,6 +72,12 @@ PanelWindow {
         onFinished: win.finished()
     }
 
+    // dismissAll() de Toasts.
+    Connections {
+        target: win.entry
+        function onCloseNowChanged() { if (win.entry.closeNow) win.dismissNow(true); }
+    }
+
     // La app puede cerrar la notificacion por su cuenta.
     Connections {
         target: win.n

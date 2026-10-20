@@ -41,7 +41,10 @@ config/quickshell/pill/         la píldora (QML)
   ClipboardPanel.qml            historial del portapapeles (cliphist): panel grande con busqueda, imagenes y borrado
   MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
   BluetoothAudio.qml / bt-profile.py   al conectar audifonos: salida de audio a ellos + mejor perfil A2DP
-  StatusBar.qml                 barra derecha: iconos sin fondo (bluetooth, volumen, bateria) + reloj
+  StatusBar.qml                 barra derecha: bandeja, bluetooth, volumen, bateria, campana + reloj
+  NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
+  TrayMenuPopover.qml           menu de un icono de la bandeja del sistema
+  CavaState.qml / cava.conf     barras de audio del notch (espectro real con cava, simulado sin el)
   PopoverHost.qml               tarjeta de vidrio que se abre bajo la barra con el menu pulsado
   VolumePopover.qml / BluetoothPopover.qml / BatteryPopover.qml   los menus
   Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote

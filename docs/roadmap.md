@@ -6,8 +6,9 @@
 - [x] Panel de controles: volumen, salida de audio, brillo, bateria y perfil de energia
 - [x] Barra derecha con menús propios (Bluetooth, volumen + brillo, batería, reloj)
 - [ ] Icono y menú de Wi-Fi en la barra derecha
-- [ ] Campana de notificaciones con historial y "No molestar"
-- [ ] Bandeja del sistema (apps en segundo plano) en la barra derecha
+- [x] Campana de notificaciones con historial y "No molestar"
+- [x] Bandeja del sistema en la barra derecha
+- [ ] Persistir el historial de notificaciones y "No molestar" entre reinicios
 - [x] Notificaciones emergentes (tarjetas de vidrio arriba a la derecha)
 - [ ] Centro de notificaciones con historial, acciones y "no molestar"
 - [x] Menu de apagado (usa swaylock para bloquear)

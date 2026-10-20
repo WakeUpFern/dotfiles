@@ -80,6 +80,7 @@ PanelWindow {
     readonly property bool fullscreenFocused: NiriState.focusedWidth >= win.screen.width
                                            && NiriState.focusedHeight >= win.screen.height
     readonly property bool tucked: fullscreenFocused && mode === "idle"
+    Binding { target: CavaState; property: "wanted"; value: MediaState.playing && !win.tucked }
     // Todos los menus capturan el teclado para que Esc los cierre (como los menus de escritorio).
     WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "clipboard" || mode === "media" || mode === "power")
         ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -174,6 +175,42 @@ PanelWindow {
                 }
             }
 
+            // Derecha: barras de audio (estilo cava) mientras suena algo; click = abrir el reproductor.
+            Item {
+                id: viz
+                anchors.right: parent.right
+                anchors.rightMargin: 18
+                anchors.verticalCenter: parent.verticalCenter
+                width: vizRow.implicitWidth
+                height: 20
+                opacity: MediaState.playing ? 1 : 0
+                visible: opacity > 0.01
+                Behavior on opacity { NumberAnimation { duration: 260 } }
+
+                Row {
+                    id: vizRow
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 3
+                    Repeater {
+                        model: CavaState.count
+                        Rectangle {
+                            required property int index
+                            width: 3
+                            height: 3 + 15 * (CavaState.bars[index] || 0)
+                            radius: 1.5
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Theme.accent
+                        }
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: -8
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: win.modeRequested("media")
+                }
+            }
+
             // Centro: icono de la app activa; en hover se despliega el resto.
             Row {
                 anchors.centerIn: parent
@@ -235,6 +272,15 @@ PanelWindow {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: win.modeRequested("media")
                             }
+                        Text {
+                            visible: MediaState.playing && MediaState.source !== ""
+                            width: Math.min(implicitWidth, 130)
+                            text: "en " + MediaState.source
+                            color: Theme.textDim
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontSize - 1
+                            elide: Text.ElideRight
+                        }
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import Quickshell.Bluetooth
+import Quickshell.Services.SystemTray
 
 // Barra de estado de la derecha: iconos sin fondo (con una sombra suave para que se lean sobre
 // cualquier ventana) y el reloj. Cada icono abre su menu (PopoverHost); con uno abierto, pulsar
@@ -12,7 +13,9 @@ PanelWindow {
     id: win
 
     property string active: ""            // menu abierto ("" = ninguno)
+    property var trayItem: null           // icono de la bandeja cuyo menu esta abierto
     signal toggled(string name)
+    signal trayMenu(var item)             // pedir el menu de un icono de la bandeja
 
     readonly property real barWidth: strip.width
     readonly property real barHeight: Theme.notchHeight
@@ -78,6 +81,45 @@ PanelWindow {
         }
     }
 
+    // Un icono de la bandeja: click = la accion de la app (o su menu si solo tiene menu), click
+    // derecho = menu, rueda y boton central = lo que la app defina.
+    component TrayButton: Item {
+        id: tb
+        required property var modelData
+        readonly property bool open: win.active === "tray" && win.trayItem === modelData
+        implicitWidth: 28
+        implicitHeight: 26
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 8
+            color: tb.open ? Qt.rgba(1, 1, 1, 0.20) : (tbArea.pressed ? Qt.rgba(1, 1, 1, 0.22) : (tbArea.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : "transparent"))
+            Behavior on color { ColorAnimation { duration: 120 } }
+        }
+        Image {
+            anchors.centerIn: parent
+            width: 16; height: 16
+            sourceSize: Qt.size(32, 32)
+            source: tb.modelData.icon
+            smooth: true
+        }
+        MouseArea {
+            id: tbArea
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mouse => {
+                if (mouse.button === Qt.MiddleButton) tb.modelData.secondaryActivate();
+                else if (mouse.button === Qt.RightButton) {
+                    if (tb.modelData.hasMenu) win.trayMenu(tb.modelData); else tb.modelData.secondaryActivate();
+                } else if (tb.modelData.onlyMenu && tb.modelData.hasMenu) win.trayMenu(tb.modelData);
+                else tb.modelData.activate();
+            }
+            onWheel: wheel => tb.modelData.scroll(wheel.angleDelta.y, false)
+        }
+    }
+
     // Icono con sombra suave (legible sobre fondos claros u oscuros).
     component BarGlyph: Text {
         font.family: "FontAwesome"
@@ -113,6 +155,12 @@ PanelWindow {
             anchors.right: parent.right
             anchors.rightMargin: 6
             spacing: 2
+
+            // Bandeja del sistema (apps en segundo plano)
+            Repeater {
+                model: SystemTray.items
+                delegate: TrayButton {}
+            }
 
             BarButton {
                 name: "bluetooth"
@@ -151,6 +199,41 @@ PanelWindow {
                     text: Math.round(win.batteryPct * 100) + "%"
                     font.pixelSize: Theme.fontSize - 1
                     color: win.batteryPct < 0.2 && !win.charging ? Theme.urgent : Theme.text
+                }
+            }
+            BarButton {
+                name: "notifications"
+                onClicked: win.toggled(name)
+                Item {
+                    width: 20; height: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    BarGlyph {
+                        anchors.centerIn: parent
+                        text: NotificationCenter.dnd ? "\uf1f6" : "\uf0f3"
+                        color: NotificationCenter.dnd ? Theme.warn : Theme.text
+                    }
+                    // Contador de no leidas
+                    Rectangle {
+                        visible: NotificationCenter.unread > 0
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.topMargin: -4
+                        anchors.rightMargin: -6
+                        height: 13
+                        width: Math.max(13, badgeText.implicitWidth + 6)
+                        radius: 7
+                        color: Theme.urgent
+                        scale: NotificationCenter.unread > 0 ? 1 : 0
+                        Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: 3 } }
+                        Text {
+                            id: badgeText
+                            anchors.centerIn: parent
+                            text: NotificationCenter.unread > 9 ? "9+" : NotificationCenter.unread
+                            color: "white"
+                            font.pixelSize: 9
+                            font.weight: Font.Bold
+                        }
+                    }
                 }
             }
             BarButton {

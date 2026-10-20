@@ -21,6 +21,7 @@ RUNTIME=(
   wl-clipboard cliphist grim slurp brightnessctl playerctl libnotify-bin xdg-utils
   swaylock wlsunset
   alacritty
+  cava
 )
 
 # Qt6/QML que usa Quickshell para dibujar la pildora.

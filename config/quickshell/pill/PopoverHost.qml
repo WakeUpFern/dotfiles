@@ -10,6 +10,7 @@ PanelWindow {
     id: host
 
     property string name: ""               // menu pedido ("" = cerrado)
+    property var trayItem: null            // icono de la bandeja del menu "tray"
     signal closeRequested()
 
     readonly property bool open: name !== ""
@@ -24,6 +25,8 @@ PanelWindow {
         case "volume":    return 400;
         case "battery":   return 360;
         case "clock":     return 320;
+        case "notifications": return 420;
+        case "tray":      return 300;
         default:          return 360;
         }
     }
@@ -104,13 +107,24 @@ PanelWindow {
             sourceComponent: host.shown === "bluetooth" ? bluetoothComp
                            : host.shown === "volume"    ? volumeComp
                            : host.shown === "battery"   ? batteryComp
-                           : host.shown === "clock"     ? clockComp : null
+                           : host.shown === "clock"     ? clockComp
+                           : host.shown === "notifications" ? notificationsComp
+                           : host.shown === "tray"      ? trayComp : null
         }
     }
 
     Component { id: bluetoothComp; BluetoothPopover {} }
     Component { id: volumeComp;    VolumePopover {} }
     Component { id: batteryComp;   BatteryPopover {} }
+    Component { id: notificationsComp; NotificationsPopover {} }
+    Component { id: trayComp; TrayMenuPopover { item: host.trayItem } }
+
+    // Menus que piden cerrarse solos (p. ej. al ir a la app de una notificacion).
+    Connections {
+        target: loader.item
+        ignoreUnknownSignals: true
+        function onCloseRequested() { host.closeRequested(); }
+    }
     Component {
         id: clockComp
         // Calendario sencillo: mes actual.
