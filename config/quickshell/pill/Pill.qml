@@ -272,6 +272,7 @@ PanelWindow {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: win.modeRequested("media")
                             }
+                        }
                         Text {
                             visible: MediaState.playing && MediaState.source !== ""
                             width: Math.min(implicitWidth, 130)
@@ -280,7 +281,6 @@ PanelWindow {
                             font.family: Theme.fontSans
                             font.pixelSize: Theme.fontSize - 1
                             elide: Text.ElideRight
-                        }
                         }
                     }
                 }
