@@ -63,18 +63,15 @@ PanelWindow {
     exclusiveZone: Theme.notchHeight
 
     WlrLayershell.namespace: "pill"
-    // Las ventanas en pantalla completa se dibujan por encima de la capa Top, asi que el
-    // notch en reposo queda oculto (esta bien). Cuando aparece algo (HUD de volumen/brillo,
-    // launcher, menus) sube a Overlay para verse sobre el video, y baja otra vez cuando
-    // termina su animacion de salida.
-    property bool elevated: false
-    onModeChanged: {
-        if (mode !== "idle") { demote.stop(); elevated = true; }
-        else demote.restart();
-    }
-    Timer { id: demote; interval: 700; onTriggered: win.elevated = false }
+    // Siempre en Overlay: cambiar de capa obliga a recrear la superficie (~600 ms de retraso y
+    // un tiron al volver). Las ventanas en pantalla completa tapan la capa Top pero no Overlay,
+    // asi que en vez de cambiar de capa el notch se esconde deslizandose hacia arriba cuando hay
+    // una ventana a pantalla completa y reaparece (con rebote) en cuanto hay algo que mostrar.
+    WlrLayershell.layer: WlrLayer.Overlay
 
-    WlrLayershell.layer: elevated ? WlrLayer.Overlay : WlrLayer.Top
+    readonly property bool fullscreenFocused: NiriState.focusedWidth >= win.screen.width
+                                           && NiriState.focusedHeight >= win.screen.height
+    readonly property bool tucked: fullscreenFocused && mode === "idle"
     WlrLayershell.keyboardFocus: (launcherOpen || mode === "power") ? WlrKeyboardFocus.Exclusive
         : mode === "controls" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
@@ -95,6 +92,8 @@ PanelWindow {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
+        anchors.topMargin: win.tucked ? -(height + 8) : 0
+        Behavior on anchors.topMargin { NumberAnimation { duration: 460; easing.type: Easing.OutBack; easing.overshoot: 1.6 } }
         width: win.targetWidth
         height: win.targetHeight
 

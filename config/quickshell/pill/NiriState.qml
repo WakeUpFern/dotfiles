@@ -11,6 +11,8 @@ Singleton {
     property var workspaces: []        // [{id, idx, name, is_active, is_focused, output}]
     property string focusedTitle: ""
     property string focusedAppId: ""
+    property real focusedWidth: 0       // tamano logico de la ventana enfocada
+    property real focusedHeight: 0
 
     function focusWorkspace(idx) {
         focusProc.command = ["niri", "msg", "action", "focus-workspace", String(idx)];
@@ -19,6 +21,38 @@ Singleton {
 
     Process {
         id: focusProc
+    }
+
+    // Enfoca la ventana de una app: por app-id (desktopEntry de la notificacion) o,
+    // si no hay coincidencia exacta, por nombre. Prefiere la que pide atencion.
+    function focusApp(desktopEntry, appName) {
+        raiseTarget = { entry: (desktopEntry || "").toLowerCase(), name: (appName || "").toLowerCase() };
+        raiseQuery.running = true;
+    }
+    property var raiseTarget: ({ entry: "", name: "" })
+
+    Process {
+        id: raiseQuery
+        command: ["niri", "msg", "--json", "windows"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const t = root.raiseTarget;
+                    const all = JSON.parse(text);
+                    const id = w => (w.app_id || "").toLowerCase();
+                    let m = all.filter(w => t.entry !== "" && id(w) === t.entry);
+                    if (m.length === 0 && t.name !== "") m = all.filter(w => id(w).includes(t.name) || t.name.includes(id(w)) && id(w) !== "");
+                    if (m.length === 0) return;
+                    m.sort((a, b) => (b.is_urgent ? 1 : 0) - (a.is_urgent ? 1 : 0));
+                    root.focusById(m[0].id);
+                } catch (e) { console.warn("focusApp:", e); }
+            }
+        }
+    }
+
+    function focusById(id) {
+        focusProc.command = ["niri", "msg", "action", "focus-window", "--id", String(id)];
+        focusProc.running = true;
     }
 
     Process {
@@ -60,7 +94,10 @@ Singleton {
                     const w = JSON.parse(text);
                     root.focusedTitle = w ? (w.title || "") : "";
                     root.focusedAppId = w ? (w.app_id || "") : "";
-                } catch (e) { root.focusedTitle = ""; root.focusedAppId = ""; }
+                    const sz = w && w.layout ? w.layout.window_size : null;
+                    root.focusedWidth = sz ? sz[0] : 0;
+                    root.focusedHeight = sz ? sz[1] : 0;
+                } catch (e) { root.focusedTitle = ""; root.focusedAppId = ""; root.focusedWidth = 0; root.focusedHeight = 0; }
             }
         }
     }

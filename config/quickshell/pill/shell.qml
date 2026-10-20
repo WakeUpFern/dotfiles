@@ -27,7 +27,7 @@ ShellRoot {
         bodySupported: true
         bodyMarkupSupported: false
         imageSupported: true
-        actionsSupported: false
+        actionsSupported: true
         keepOnReload: false
 
         onNotification: n => {

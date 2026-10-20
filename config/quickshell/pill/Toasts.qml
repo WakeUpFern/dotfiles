@@ -21,6 +21,7 @@ Scope {
             property string summary
             property string body
             property string appName
+            property string desktopEntry
             property string appIcon
             property string image
             property bool critical
@@ -31,7 +32,7 @@ Scope {
     function add(n) {
         const e = entryComp.createObject(root, {
             n: n,
-            summary: n.summary, body: n.body, appName: n.appName,
+            summary: n.summary, body: n.body, appName: n.appName, desktopEntry: n.desktopEntry,
             appIcon: n.appIcon, image: n.image,
             critical: n.urgency === NotificationUrgency.Critical,
             timeout: n.expireTimeout

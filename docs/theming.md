@@ -66,8 +66,12 @@ Tiempo por defecto: 6,5 s (o el que pida la app). Máximo 5 visibles.
 
 ## Pantalla completa
 
-niri dibuja las ventanas en pantalla completa por encima de la capa `Top`, donde vive el notch en reposo,
-así que ahí queda oculto. Cuando aparece algo (HUD de volumen/brillo, launcher, panel de controles, menú de
-apagado) el notch sube a la capa `Overlay` (y `Dismiss` también) para verse sobre el video; baja a `Top`
-700 ms después de volver a reposo, para que se vea su animación de salida. La ventana en pantalla completa
-no cambia de tamaño. Las notificaciones y el bloqueo ya iban por encima.
+niri dibuja las ventanas en pantalla completa por encima de la capa `Top` pero no de `Overlay`. El notch
+vive **siempre en Overlay**: cambiar de capa en caliente obliga a Quickshell a recrear la superficie y
+tardaba ~640 ms en verse (medido), con un tirón al volver. En su lugar, cuando la ventana enfocada ocupa
+toda la pantalla (`NiriState.focusedWidth/Height` >= tamano de la pantalla) y el notch esta en reposo,
+se desliza hacia arriba fuera de la pantalla; cualquier HUD, launcher o menu lo baja con rebote y, al
+terminar, vuelve a esconderse. La ventana en pantalla completa no cambia de tamano.
+
+Al hacer click en una notificación se invoca la acción `default` de la app (si la manda) y se enfoca su
+ventana, buscándola por `desktop-entry` o, si no, por nombre (`NiriState.focusApp`). La `✕` solo descarta.

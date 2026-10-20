@@ -37,6 +37,18 @@ PanelWindow {
     // 0 = fuera (a la derecha), 1 = en su sitio; pasa de 1 al entrar (rebote).
     property real p: 0
 
+    // Click en la tarjeta: invoca la accion por defecto de la app (si la hay) y enfoca su
+    // ventana, como hacen los demonios de notificaciones de escritorio.
+    function activate() {
+        if (closing) return;
+        if (n) {
+            const def = n.actions.find(a => a.identifier === "default");
+            if (def) def.invoke();
+        }
+        NiriState.focusApp(entry.desktopEntry, entry.appName);
+        dismissNow(true);
+    }
+
     function dismissNow(user) {
         if (closing) return;
         closing = true;
@@ -87,7 +99,7 @@ PanelWindow {
         Behavior on color { ColorAnimation { duration: 150 } }
 
         HoverHandler { id: hover }
-        TapHandler { onTapped: win.dismissNow(true) }
+        TapHandler { onTapped: win.activate() }
 
         Row {
             anchors.fill: parent
@@ -150,16 +162,24 @@ PanelWindow {
             }
         }
 
-        // "x" al pasar el raton.
+        // "x" al pasar el raton: solo descarta, sin abrir la app.
         Text {
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: 12
             text: "✕"
-            color: Theme.textDim
+            color: closeArea.containsMouse ? Theme.text : Theme.textDim
             font.pixelSize: 12
             opacity: hover.hovered ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 150 } }
+            MouseArea {
+                id: closeArea
+                anchors.fill: parent
+                anchors.margins: -8
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: win.dismissNow(true)
+            }
         }
     }
 }
