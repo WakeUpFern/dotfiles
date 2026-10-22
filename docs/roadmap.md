@@ -6,16 +6,15 @@
   sonido, batería, brillo, No molestar, No suspender, Luz nocturna, Modo avión) y campana + reloj con calendario
 - [x] Mezclador de audio por aplicación y micrófono, con aviso de "micrófono en uso"
 - [x] Notificaciones emergentes, historial y No molestar
-- [x] Launcher: apps fijadas, lista completa A-Z, búsqueda por descripción/categoría y alias en español
+- [x] Launcher: apps fijadas, recientes, lista completa A-Z, búsqueda por descripción/categoría y alias en español
 - [x] Menú de apagado, bloqueo de pantalla propio (`WlSessionLock`) e inactividad/suspensión con bloqueo antes de dormir
 - [x] Agente polkit propio y avisos de batería baja
 - [x] Portapapeles con historial, reproductor multimedia (MPRIS) y selector de emoji
 - [x] Capturas, grabación de pantalla y punto de acceso Wi-Fi
 - [x] Paleta dinámica desde el fondo, selector de fondos y tema GTK/Qt/cursor coherente
+- [x] Launcher como centro de acciones: cuentas, unidades, archivos, contenido de documentos, web, comandos y recientes (docs/launcher.md)
 
 ## Pendiente
-- [ ] **Launcher como centro de acciones:** calculadora y conversión de unidades, búsqueda de archivos, atajos
-  de búsqueda web (`g gatos`), ejecutar comandos (`>`) y recientes por uso
 - [ ] **Notificaciones:** persistir el historial y "No molestar" entre reinicios, y botones de acción (responder,
   abrir…) dentro del historial
 - [ ] **Audio:** mover una app a otra salida (hoy solo se ajusta su volumen) y audio en las grabaciones de pantalla
@@ -28,5 +27,6 @@
 ## Por verificar en uso real (se probaron las piezas, no el flujo completo)
 - [ ] Bloquear al cerrar la tapa y al suspender; apagar pantalla y suspender por inactividad
 - [ ] Activar el punto de acceso y el modo avión (cortan la red)
+- [ ] Lanzar con Enter/Ctrl+Enter cada tipo de resultado del launcher (abrir archivo/carpeta, copiar resultado, ejecutar comando)
 - [ ] Elegir un emoji y que `wtype` lo escriba en la app; el selector de área de captura
 - [ ] Apps Qt siguiendo el tema GTK tras volver a iniciar sesión

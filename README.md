@@ -35,7 +35,8 @@ config/quickshell/pill/         la píldora (QML)
   Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
   Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
   Backdrop.qml                  mismo fondo, desenfocado, para el overview (Mod+O)
-  Launcher.qml                  buscador de apps (con alias en espanol), apps fijadas / todas A-Z + fila de energia
+  Launcher.qml                  buscador de apps, archivos, documentos, cuentas, unidades, web y comandos (docs/launcher.md)
+  LauncherLogic.js / FileIndex.qml / AppUsage.qml   puntuacion difusa, cuentas y unidades; indice de archivos (find); uso de apps
   PinnedApps.qml                apps fijadas del launcher (~/.local/state/pill/pinned-apps)
   PowerMenu.qml / PowerButton.qml / PowerActions.qml   menu de apagado (apagar, reiniciar, suspender, bloquear, cerrar sesion)
   LockScreen.qml / LockView.qml / ShapeGlyph.qml   bloqueo propio (contraseña como figuras animadas)
