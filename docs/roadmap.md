@@ -16,10 +16,10 @@
 - [ ] Centro de notificaciones con historial, acciones y "no molestar"
 - [x] Menu de apagado (usa swaylock para bloquear)
 - [ ] Bloqueo de pantalla propio (`Quickshell.Wayland.WlSessionLock`) para reemplazar swaylock
-- [ ] Agente polkit (módulo `Quickshell.Services.Polkit`)
+- [x] Agente polkit propio (módulo `Quickshell.Services.Polkit`)
 - [x] Portapapeles con historial (cliphist) en el notch
 - [x] Reproductor multimedia (MPRIS) en el notch
-- [ ] Idle/suspensión (`swayidle` o `Quickshell.Wayland.IdleMonitor`)
+- [x] Idle/suspensión (`Quickshell.Wayland.IdleMonitor`), bloqueo antes de suspender y avisos de batería baja
 - [ ] Captura de pantalla integrada (niri ya trae `screenshot`)
 - [ ] Tema de GTK/Qt coherente (Adwaita-dark + Papirus) y cursor
 - [ ] Paleta dinámica desde el wallpaper (opcional)

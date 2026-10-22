@@ -179,6 +179,12 @@ PanelWindow {
                 onMiddleClicked: if (win.sink && win.sink.audio) win.sink.audio.muted = !win.sink.audio.muted
 
                 BarGlyph {
+                    visible: Idle.caffeine
+                    text: "\uf0f4"
+                    font.pixelSize: 13
+                    color: Theme.accent
+                }
+                BarGlyph {
                     visible: NetworkState.vpnActive
                     text: "\uf023"
                     font.pixelSize: 12

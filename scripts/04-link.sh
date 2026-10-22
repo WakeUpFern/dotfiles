@@ -29,6 +29,21 @@ for entry in "${LINKS[@]}"; do
   log "enlazado: $dst -> $src"
 done
 
+# El agente polkit lo da Quickshell (PolkitDialog.qml). Solo puede haber uno por sesion, asi que se
+# oculta el de mate-polkit (que solo arranca fuera de GNOME/KDE, o sea en niri). Para deshacerlo:
+# borra ~/.config/autostart/polkit-mate-authentication-agent-1.desktop (y pon Theme.polkitAgent = false).
+MATE_AGENT=/etc/xdg/autostart/polkit-mate-authentication-agent-1.desktop
+if [ -e "$MATE_AGENT" ]; then
+  mkdir -p "$HOME/.config/autostart"
+  cat > "$HOME/.config/autostart/polkit-mate-authentication-agent-1.desktop" <<'EOT'
+[Desktop Entry]
+Type=Application
+Name=PolicyKit Authentication Agent (reemplazado por Quickshell)
+Hidden=true
+EOT
+  log "agente polkit de mate desactivado (lo reemplaza Quickshell)"
+fi
+
 if command -v niri >/dev/null 2>&1; then
   log "Validando config de niri"
   niri validate -c "$HOME/.config/niri/config.kdl"

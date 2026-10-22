@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Services.Notifications
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Pipewire
+import Quickshell.Services.UPower
 
 // Punto de entrada. Arrancar con:  qs -c pill
 // La pildora es el unico "widget": barra, launcher, notificaciones y estado.
@@ -13,7 +14,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -130,6 +131,19 @@ ShellRoot {
         function lock(): void   { root.mode = "idle"; PowerActions.run("lock"); }
     }
 
+    // Inactividad:  qs -c pill ipc call idle caffeine|status   (cafeina = no atenuar, bloquear ni suspender)
+    IpcHandler {
+        target: "idle"
+        function caffeine(): string { Idle.toggleCaffeine(); return Idle.caffeine ? "despierto: activado" : "despierto: desactivado"; }
+        function status(): string { return "cafeina=" + Idle.caffeine + " activo=" + Idle.active + " bateria=" + UPower.onBattery; }
+    }
+
+    // Pruebas de los avisos de bateria:  qs -c pill ipc call battery simulate 18   (-1 = vuelve a la real)
+    IpcHandler {
+        target: "battery"
+        function simulate(pct: int): void { BatteryAlerts.simulated = pct; if (pct < 0) BatteryAlerts.notified = 0; }
+    }
+
     // Cambiar el fondo (y el del overview) en vivo:
     //   qs -c pill ipc call wallpaper set ~/Pictures/foto.png
     IpcHandler {
@@ -190,6 +204,9 @@ ShellRoot {
 
     Wallpaper {}
     Backdrop {}
+
+    // Agente polkit con nuestro estilo (si no, hace falta otro agente en la sesion).
+    Loader { active: Theme.polkitAgent; sourceComponent: PolkitDialog {} }
 
     // Bloqueo propio (solo se usa si Theme.nativeLock; si no, swaylock).
     LockScreen { id: lockScreen }

@@ -302,6 +302,13 @@ ColumnLayout {
                     onToggled: NotificationCenter.toggleDnd()
                 }
                 Tile {
+                    glyph: "\uf0f4"
+                    title: "No suspender"
+                    subtitle: Idle.caffeine ? "Pantalla siempre activa" : "Desactivado"
+                    on: Idle.caffeine
+                    onToggled: Idle.toggleCaffeine()
+                }
+                Tile {
                     visible: root.battery.isPresent
                     glyph: PowerProfiles.profile === PowerProfile.PowerSaver ? "" : (PowerProfiles.profile === PowerProfile.Performance ? "" : "")
                     title: root.profileName

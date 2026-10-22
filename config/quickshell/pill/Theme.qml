@@ -31,6 +31,23 @@ Singleton {
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
     readonly property bool nativeLock: true
 
+    // Inactividad (Idle.qml). Segundos sin tocar nada; 0 desactiva ese paso. Un video o cualquier app que
+    // pida inhibir la inactividad la retrasa; el tile "No suspender" del panel la apaga del todo.
+    readonly property bool idleEnabled: true
+    readonly property int idleDimSeconds: 240          // baja el brillo
+    readonly property int idleLockSeconds: 300         // bloquea
+    readonly property int idleScreenOffSeconds: 330    // apaga la pantalla (se enciende al mover el raton)
+    readonly property int idleSuspendSeconds: 900      // suspende, solo con bateria
+    readonly property bool lockBeforeSleep: true       // bloquea siempre antes de suspender (tapa, boton, menu)
+
+    // Agente polkit propio (PolkitDialog.qml). Si lo pones en false vuelve a hacer falta otro agente
+    // (p. ej. mate-polkit) y hay que quitar el override de ~/.config/autostart (ver docs/power.md).
+    readonly property bool polkitAgent: true
+
+    // Avisos de bateria baja (porcentajes, de mayor a menor; el ultimo y el penultimo son criticos).
+    // UPower hace el apagado/suspension final (PercentageAction en /etc/UPower/UPower.conf).
+    readonly property var batteryWarnLevels: [20, 10, 5]
+
     // Bluetooth: al conectar unos audifonos pasa la salida de audio a ellos y elige el mejor perfil
     // A2DP (ver BluetoothAudio.qml). Pon false para desactivar cada comportamiento.
     readonly property bool btAutoSwitchOutput: true
