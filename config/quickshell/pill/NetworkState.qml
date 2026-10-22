@@ -44,30 +44,8 @@ Singleton {
 
     function start() { refreshSoon(); monitor.running = true; }
 
-    // --- Ejecutar un comando y recoger (codigo, salida) ---------------------------------------
-    Component {
-        id: cmdComp
-        Process {
-            id: p
-            property var cb
-            stdout: StdioCollector {
-                onStreamFinished: {
-                    const i = text.indexOf("\n");
-                    const code = parseInt(text.slice(0, i));
-                    const out = text.slice(i + 1).trim();
-                    if (p.cb) p.cb(code, out);
-                    p.destroy();
-                }
-            }
-        }
-    }
-    function exec(args, cb) {
-        const p = cmdComp.createObject(root, {
-            command: ["sh", "-c", 'out=$("$@" 2>&1); c=$?; echo $c; echo "$out"', "_"].concat(args),
-            cb: cb
-        });
-        p.running = true;
-    }
+    // --- Ejecutar un comando y recoger (codigo, salida): ver Exec.qml ----------------------------
+    function exec(args, cb) { Exec.run(args, cb); }
 
     // nmcli -t separa con ":" y escapa los ":" y "\" del contenido con "\".
     function fields(line) {
