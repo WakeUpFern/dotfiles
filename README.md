@@ -48,6 +48,8 @@ config/quickshell/pill/         la píldora (QML)
   Idle.qml / BatteryAlerts.qml / PolkitDialog.qml   inactividad y suspension, avisos de bateria baja y agente polkit (docs/power.md)
   NightLight.qml / NightLightPage.qml   luz nocturna (wlsunset) con modos, intensidad y horario
   Field.qml / Btn.qml           campo de texto y boton de los menus
+  ScreenCapture.qml / CapturePage.qml   capturas (niri) y grabacion (wf-recorder) con selector (docs/capture-emoji.md)
+  EmojiPanel.qml / EmojiData.qml / emoji.json   selector de emoji en el notch con busqueda en espanol e ingles
   HoverRow.qml                  fila de lista con resaltado, reutilizada por los menus
   AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen por app, microfono y "microfono en uso"
   NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
@@ -62,7 +64,7 @@ config/quickshell/pill/         la píldora (QML)
   Brightness.qml                brillo via brightnessctl (con throttle)
   NiriState.qml                 workspaces y ventana enfocada vía `niri msg --json`
   Theme.qml                     colores, fuentes, tiempos de animación
-scripts/                        pasos del instalador
+scripts/                        pasos del instalador (y gen-emoji.py, que regenera emoji.json)
 docs/                           notas
 ```
 

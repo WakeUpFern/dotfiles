@@ -20,6 +20,7 @@
 - [x] Portapapeles con historial (cliphist) en el notch
 - [x] Reproductor multimedia (MPRIS) en el notch
 - [x] Idle/suspensión (`Quickshell.Wayland.IdleMonitor`), bloqueo antes de suspender y avisos de batería baja
-- [ ] Captura de pantalla integrada (niri ya trae `screenshot`)
+- [x] Captura de pantalla integrada (niri) y grabación de pantalla (wf-recorder), selector en el panel
+- [x] Selector de emoji (Mod+;) con búsqueda en español e inglés
 - [ ] Tema de GTK/Qt coherente (Adwaita-dark + Papirus) y cursor
 - [ ] Paleta dinámica desde el wallpaper (opcional)

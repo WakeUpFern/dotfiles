@@ -14,6 +14,9 @@ ColumnLayout {
 
     Component.onCompleted: { NetworkState.error = ""; NetworkState.refresh(); NetworkState.scan(); NetworkState.loadHotspot(); }
 
+    // Con la pagina abierta la senal se mantiene al dia (el sondeo normal es cada 15 s).
+    Timer { interval: 5000; running: true; repeat: true; onTriggered: NetworkState.refresh() }
+
     // Interfaces cableadas: las que no tienen cable se resumen en una sola linea.
     readonly property var ethRows: {
         const eth = NetworkState.ethernet;
@@ -85,12 +88,11 @@ ColumnLayout {
                     anchors.leftMargin: 10
                     anchors.rightMargin: 12
                     spacing: 10
-                    UiGlyph {
-                        text: ""
-                        font.pixelSize: 15
+                    SignalBars {
                         Layout.preferredWidth: 22
+                        Layout.alignment: Qt.AlignVCenter
+                        signal: item.n.signal
                         color: item.n.active ? Theme.accent : Theme.text
-                        opacity: 0.35 + 0.65 * item.n.signal / 100
                     }
                     UiLabel {
                         Layout.fillWidth: true
@@ -112,6 +114,13 @@ ColumnLayout {
                         font.pixelSize: Theme.fontSize - 1
                         opacity: item.working ? 0.55 + 0.45 * Math.abs(Math.sin(Date.now() / 300)) : 1
                     }
+                    UiLabel {
+                        text: item.n.signal + "%"
+                        color: Theme.textDim
+                        font.pixelSize: Theme.fontSize - 2
+                        Layout.preferredWidth: 30
+                        horizontalAlignment: Text.AlignRight
+                    }
                     UiGlyph { visible: item.n.secure; text: ""; font.pixelSize: 12; color: Theme.textDim }
                 }
             }
@@ -126,7 +135,7 @@ ColumnLayout {
                     Layout.leftMargin: 10
                     color: Theme.textDim
                     font.pixelSize: Theme.fontSize - 1
-                    text: "Señal " + item.n.signal + "%  ·  " + (item.n.secure ? item.n.security : "Abierta")
+                    text: "Señal " + item.n.signal + " %  ·  " + (item.n.secure ? item.n.security : "Abierta")
                         + (NetworkState.ips[NetworkState.wifiDevice] ? "  ·  " + NetworkState.ips[NetworkState.wifiDevice] : "")
                     elide: Text.ElideRight
                 }

@@ -22,7 +22,7 @@ ColumnLayout {
     onPageChanged: if (page !== shownPage) swap.restart()
 
     readonly property var titles: ({
-        network: "Red", bluetooth: "Bluetooth", audio: "Sonido", vpn: "VPN", battery: "Batería y energía", nightlight: "Luz nocturna"
+        network: "Red", bluetooth: "Bluetooth", audio: "Sonido", vpn: "VPN", battery: "Batería y energía", nightlight: "Luz nocturna", capture: "Captura"
     })
 
     SequentialAnimation {
@@ -172,12 +172,15 @@ ColumnLayout {
         id: body
         Layout.fillWidth: true
         Layout.preferredHeight: item ? item.implicitHeight : 0
+        // La pagina siempre mide lo que la tarjeta (si no, un contenido ancho la desborda).
+        onLoaded: item.width = Qt.binding(() => body.width)
         sourceComponent: root.shownPage === "network" ? networkComp
                        : root.shownPage === "bluetooth" ? bluetoothComp
                        : root.shownPage === "audio" ? audioComp
                        : root.shownPage === "vpn" ? vpnComp
                        : root.shownPage === "battery" ? batteryComp
-                       : root.shownPage === "nightlight" ? nightComp : homeComp
+                       : root.shownPage === "nightlight" ? nightComp
+                       : root.shownPage === "capture" ? captureComp : homeComp
     }
     Component { id: networkComp; NetworkPage {} }
     Component { id: bluetoothComp; BluetoothPopover {} }
@@ -185,6 +188,13 @@ ColumnLayout {
     Component { id: vpnComp; VpnPage {} }
     Component { id: batteryComp; BatteryPopover {} }
     Component { id: nightComp; NightLightPage {} }
+    Component { id: captureComp; CapturePage {} }
+    // Las paginas que piden cerrar el panel (p. ej. al disparar una captura) lo cierran.
+    Connections {
+        target: body.item
+        ignoreUnknownSignals: true
+        function onCloseRequested() { root.closeRequested(); }
+    }
 
     // --- Inicio --------------------------------------------------------------------------------------
     Component {
@@ -327,6 +337,13 @@ ColumnLayout {
                     subtitle: Idle.caffeine ? "Pantalla siempre activa" : "Desactivado"
                     on: Idle.caffeine
                     onToggled: Idle.toggleCaffeine()
+                }
+                Tile {
+                    glyph: "\uf030"
+                    title: "Captura"
+                    subtitle: ScreenCapture.recording ? "Grabando " + ScreenCapture.elapsedText : "Pantalla y grabación"
+                    on: ScreenCapture.recording
+                    onToggled: root.page = "capture"
                 }
                 Tile {
                     glyph: "\uf186"

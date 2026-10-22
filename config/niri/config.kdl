@@ -705,6 +705,10 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
+    // Selector de captura y grabacion del notch (Mod+Shift+S) y selector de emoji (Mod+;).
+    Mod+Shift+S hotkey-overlay-title="Screenshot and recording panel" { spawn-sh "qs -c pill ipc call popover toggle capture"; }
+    Mod+Semicolon hotkey-overlay-title="Emoji picker" { spawn-sh "qs -c pill ipc call emoji toggle"; }
+
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }

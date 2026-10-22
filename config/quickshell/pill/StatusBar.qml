@@ -179,6 +179,14 @@ PanelWindow {
                 onMiddleClicked: if (win.sink && win.sink.audio) win.sink.audio.muted = !win.sink.audio.muted
 
                 BarGlyph {
+                    visible: ScreenCapture.recording
+                    text: "\uf111"
+                    font.pixelSize: 11
+                    color: Theme.urgent
+                    SequentialAnimation on opacity { loops: Animation.Infinite; running: ScreenCapture.recording
+                        NumberAnimation { to: 0.35; duration: 600 } NumberAnimation { to: 1; duration: 600 } }
+                }
+                BarGlyph {
                     visible: Idle.caffeine
                     text: "\uf0f4"
                     font.pixelSize: 13
@@ -190,8 +198,14 @@ PanelWindow {
                     font.pixelSize: 12
                     color: Theme.accent
                 }
+                // Wi-Fi conectado: barras con la intensidad real de la senal.
+                SignalBars {
+                    visible: NetworkState.kind === "wifi"
+                    signal: NetworkState.wifiSignal
+                    anchors.verticalCenter: parent.verticalCenter
+                }
                 BarGlyph {
-                    visible: NetworkState.hasWifi || NetworkState.ethernet.length > 0
+                    visible: NetworkState.kind !== "wifi" && (NetworkState.hasWifi || NetworkState.ethernet.length > 0)
                     text: NetworkState.kind === "ethernet" ? "\uf0e8" : "\uf1eb"
                     color: NetworkState.kind === "none" ? Theme.textDim : Theme.text
                     opacity: NetworkState.kind === "none" ? 0.6 : 0.45 + 0.55 * (NetworkState.kind === "wifi" ? Math.max(0.3, NetworkState.wifiSignal / 100) : 1)

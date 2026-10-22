@@ -12,9 +12,9 @@ import Quickshell.Services.UPower
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -70,7 +70,7 @@ ShellRoot {
     // Nombres de menu (de la barra o del IPC) -> menu real + pagina del panel de ajustes rapidos.
     readonly property var quickPages: ({
         quick: "home", network: "network", wifi: "network", ethernet: "network", bluetooth: "bluetooth",
-        volume: "audio", audio: "audio", vpn: "vpn", battery: "battery", nightlight: "nightlight", night: "nightlight"
+        volume: "audio", audio: "audio", vpn: "vpn", battery: "battery", nightlight: "nightlight", night: "nightlight", capture: "capture"
     })
     function popoverFor(name) { return name === "clock" ? "notifications" : (quickPages[name] ? "quick" : name); }
     function togglePopover(name) {
@@ -114,6 +114,14 @@ ShellRoot {
         }
     }
 
+    // Selector de emoji:  qs -c pill ipc call emoji toggle   (niri: Mod+;)
+    IpcHandler {
+        target: "emoji"
+        function toggle(): void { root.mode = root.mode === "emoji" ? "idle" : "emoji"; }
+        function open(): void   { root.mode = "emoji"; }
+        function close(): void  { root.mode = "idle"; }
+    }
+
     // Portapapeles:  qs -c pill ipc call clipboard toggle   (niri: Mod+V)
     IpcHandler {
         target: "clipboard"
@@ -142,6 +150,19 @@ ShellRoot {
     IpcHandler {
         target: "battery"
         function simulate(pct: int): void { BatteryAlerts.simulated = pct; if (pct < 0) BatteryAlerts.notified = 0; }
+    }
+
+    // Capturas:  qs -c pill ipc call capture area|window|screen|record|recordarea|stop|status
+    // (el panel con todas las opciones:  qs -c pill ipc call popover toggle capture   niri: Mod+Shift+S)
+    IpcHandler {
+        target: "capture"
+        function area(): void       { ScreenCapture.shoot("area"); }
+        function window(): void     { ScreenCapture.shoot("window"); }
+        function screen(): void     { ScreenCapture.shoot("screen"); }
+        function record(): void     { ScreenCapture.record(false); }
+        function recordarea(): void { ScreenCapture.record(true); }
+        function stop(): void       { ScreenCapture.stop(); }
+        function status(): string   { return (ScreenCapture.recording ? "grabando " + ScreenCapture.elapsedText : "libre") + " grabador=" + ScreenCapture.hasRecorder; }
     }
 
     // Luz nocturna:  qs -c pill ipc call nightlight off|auto|on|toggle|status
@@ -227,7 +248,7 @@ ShellRoot {
 
     // Click en cualquier parte fuera del notch / la barra / el menu abierto lo cierra.
     Dismiss {
-        active: root.mode === "launcher" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.popover !== ""
+        active: root.mode === "launcher" || root.mode === "emoji" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.popover !== ""
         pillWidth: pill.pillWidth
         pillHeight: pill.pillHeight
         barWidth: statusBar.barWidth + 16

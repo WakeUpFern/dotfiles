@@ -18,7 +18,7 @@ RUNTIME=(
   pipewire wireplumber pipewire-pulse
   network-manager bluez upower power-profiles-daemon
   dbus-user-session polkitd mate-polkit
-  wl-clipboard cliphist grim slurp brightnessctl playerctl libnotify-bin xdg-utils
+  wl-clipboard cliphist grim slurp wf-recorder wtype brightnessctl playerctl libnotify-bin xdg-utils
   swaylock wlsunset
   alacritty
   cava
