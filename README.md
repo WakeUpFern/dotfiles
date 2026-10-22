@@ -34,20 +34,25 @@ config/quickshell/pill/         la píldora (QML)
   Pill.qml                      el notch: ventana, animaciones, icono de app activa, OSD, estado
   Wallpaper.qml                 fondo de pantalla (capa Background; necesario para el blur)
   Backdrop.qml                  mismo fondo, desenfocado, para el overview (Mod+O)
-  Launcher.qml                  buscador de apps + fila de energia
+  Launcher.qml                  buscador de apps (con alias en espanol), apps fijadas / todas A-Z + fila de energia
+  PinnedApps.qml                apps fijadas del launcher (~/.local/state/pill/pinned-apps)
   PowerMenu.qml / PowerButton.qml / PowerActions.qml   menu de apagado (apagar, reiniciar, suspender, bloquear, cerrar sesion)
   LockScreen.qml / LockView.qml / ShapeGlyph.qml   bloqueo propio (contraseña como figuras animadas)
   lock-test.qml                 instancia de prueba del bloqueo (scripts/lock-test.sh)
   ClipboardPanel.qml            historial del portapapeles (cliphist): panel grande con busqueda, imagenes y borrado
   MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
   BluetoothAudio.qml / bt-profile.py   al conectar audifonos: salida de audio a ellos + mejor perfil A2DP
-  StatusBar.qml                 barra derecha: bandeja, bluetooth, volumen, bateria, campana + reloj
+  StatusBar.qml                 barra derecha: bandeja, boton de ajustes rapidos y boton campana + reloj
+  QuickPanel.qml                panel unificado: inicio (bateria, volumen, brillo, tiles) y paginas de detalle
+  NetworkState.qml / NetworkPage.qml / VpnPage.qml   Wi-Fi, Ethernet y VPN via nmcli / tailscale (docs/network.md)
+  HoverRow.qml                  fila de lista con resaltado, reutilizada por los menus
   AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen por app, microfono y "microfono en uso"
   NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
+  DatePopover.qml               menu del reloj: calendario + notificaciones
   TrayMenuPopover.qml           menu de un icono de la bandeja del sistema
   CavaState.qml / cava.conf     barras de audio del notch (espectro real con cava, simulado sin el)
   PopoverHost.qml               tarjeta de vidrio que se abre bajo la barra con el menu pulsado
-  VolumePopover.qml / BluetoothPopover.qml / BatteryPopover.qml   los menus
+  VolumePopover.qml / BluetoothPopover.qml / BatteryPopover.qml   paginas Sonido, Bluetooth y Bateria del panel
   Toasts.qml / Toast.qml        notificaciones: tarjetas de vidrio arriba a la derecha, con rebote
   Dismiss.qml                   capa transparente: click fuera del notch cierra el menu abierto
   Slider.qml                    slider reutilizable (perilla con rebote)

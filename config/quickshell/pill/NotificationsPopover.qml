@@ -8,6 +8,7 @@ ColumnLayout {
     id: root
     spacing: 12
     signal closeRequested()
+    property real maxListHeight: 380
 
     // Mientras esta abierto todo cuenta como leido.
     Component.onCompleted: NotificationCenter.markRead()
@@ -68,7 +69,7 @@ ColumnLayout {
         id: list
         visible: NotificationCenter.entries.length > 0
         Layout.fillWidth: true
-        Layout.preferredHeight: Math.min(contentHeight, 380)
+        Layout.preferredHeight: Math.min(contentHeight, root.maxListHeight)
         clip: true
         spacing: 8
         boundsBehavior: Flickable.StopAtBounds

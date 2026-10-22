@@ -8,6 +8,8 @@ ColumnLayout {
     id: root
     spacing: 16
 
+    property string detail: ""        // dispositivo conectado cuyos detalles estan abiertos (ahi se desconecta)
+
     // La busqueda de dispositivos gasta bateria: se apaga al cerrar el menu o a los 30 s.
     Timer { interval: 30000; running: root.bt !== null && root.bt.discovering; onTriggered: root.bt.discovering = false }
     Component.onDestruction: if (bt && bt.discovering) bt.discovering = false
@@ -100,16 +102,18 @@ ColumnLayout {
                 readonly property var d: modelData
                 readonly property bool busy: d.state === BluetoothDeviceState.Connecting || d.state === BluetoothDeviceState.Disconnecting || d.pairing
                 property bool connectAfterPair: false
+                readonly property bool detailOpen: root.detail === d.address && d.connected
 
                 Layout.fillWidth: true
-                Layout.preferredHeight: 38
+                Layout.preferredHeight: 38 + (detailOpen ? 46 : 0)
+                clip: true
                 radius: 12
                 color: d.connected ? Qt.rgba(0.54, 0.71, 1, 0.16) : (devArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 function act() {
                     if (busy) return;
-                    if (d.connected) d.disconnect();
+                    if (d.connected) root.detail = detailOpen ? "" : d.address;     // desconectar: en los detalles
                     else if (d.paired) d.connect();
                     else { connectAfterPair = true; d.pair(); }
                 }
@@ -121,7 +125,10 @@ ColumnLayout {
                 }
 
                 RowLayout {
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 38
                     anchors.leftMargin: 10
                     anchors.rightMargin: 12
                     spacing: 10
@@ -151,9 +158,42 @@ ColumnLayout {
                         opacity: dev.busy ? 0.55 + 0.45 * Math.abs(Math.sin(Date.now() / 300)) : 1
                     }
                 }
+                // Detalles del dispositivo conectado
+                Row {
+                    visible: dev.detailOpen
+                    anchors.left: parent.left
+                    anchors.leftMargin: 42
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
+                    spacing: 10
+                    UiLabel {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: dev.d.batteryAvailable ? "Batería " + Math.round(dev.d.battery * 100) + "%" : "Conectado"
+                        color: Theme.textDim
+                        font.pixelSize: Theme.fontSize - 1
+                    }
+                    Rectangle {
+                        width: discText.implicitWidth + 28
+                        height: 30
+                        radius: 15
+                        color: discArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08)
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        UiLabel { id: discText; anchors.centerIn: parent; text: "Desconectar" }
+                        MouseArea {
+                            id: discArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: { root.detail = ""; dev.d.disconnect(); }
+                        }
+                    }
+                }
                 MouseArea {
                     id: devArea
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 38
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: dev.act()

@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 
-// Menu de volumen: deslizador, salidas, volumen por aplicacion, microfono y brillo de pantalla.
+// Pagina de Sonido: salidas, volumen por aplicacion y microfono (el volumen y el brillo estan en el inicio del panel).
 ColumnLayout {
     id: root
     spacing: 16
@@ -12,38 +12,10 @@ ColumnLayout {
     readonly property var sinks: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream)
     PwObjectTracker { objects: root.sinks }
 
-    // --- Volumen -------------------------------------------------------------
+    // --- Salidas -------------------------------------------------------------
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 8
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-            UiLabel {
-                text: root.sink && root.sink.audio && root.sink.audio.muted ? "mute" : "vol"
-                color: Theme.textDim
-                Layout.preferredWidth: 34
-                Behavior on color { ColorAnimation { duration: 200 } }
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -4
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: if (root.sink && root.sink.audio) root.sink.audio.muted = !root.sink.audio.muted
-                }
-            }
-            Slider {
-                Layout.fillWidth: true
-                value: root.sink && root.sink.audio ? root.sink.audio.volume : 0
-                dimmed: root.sink && root.sink.audio ? root.sink.audio.muted : false
-                onMoved: v => { if (root.sink && root.sink.audio) { root.sink.audio.muted = false; root.sink.audio.volume = v; } }
-            }
-            UiLabel {
-                text: root.sink && root.sink.audio ? Math.round(root.sink.audio.volume * 100) : "-"
-                Layout.preferredWidth: 30
-                horizontalAlignment: Text.AlignRight
-            }
-        }
 
         // Salidas de audio: click para cambiar.
         Repeater {
@@ -83,28 +55,4 @@ ColumnLayout {
     // --- Aplicaciones (volumen por app) y microfono ---------------------------
     AppMixer { Layout.fillWidth: true }
     MicControl { Layout.fillWidth: true }
-
-    // --- Brillo --------------------------------------------------------------
-    RowLayout {
-        Layout.fillWidth: true
-        visible: Brightness.available
-        spacing: 12
-        UiLabel {
-            text: "luz"
-            color: Theme.textDim
-            Layout.preferredWidth: 34
-            Behavior on color { ColorAnimation { duration: 200 } }
-        }
-        Slider {
-            Layout.fillWidth: true
-            value: Brightness.level
-            onMoved: v => Brightness.set(v)
-        }
-        UiLabel {
-            text: Math.round(Brightness.level * 100)
-            Layout.preferredWidth: 30
-            horizontalAlignment: Text.AlignRight
-        }
-    }
-
 }

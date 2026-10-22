@@ -166,28 +166,37 @@ PanelWindow {
                 delegate: TrayButton {}
             }
 
+            // Panel unificado de ajustes rapidos: red, bluetooth, volumen y bateria en un solo boton.
+            // Rueda = volumen, clic central = silenciar (como en macOS y KDE).
             BarButton {
-                name: "bluetooth"
-                visible: win.bt !== null
+                name: "quick"
                 onClicked: win.toggled(name)
-                BarGlyph {
-                    text: ""
-                    color: win.btConnected ? Theme.accent : (win.btOn ? Theme.text : Theme.textDim)
-                    opacity: win.btOn ? 1 : 0.7
-                }
-            }
-            BarButton {
-                name: "volume"
-                onClicked: win.toggled(name)
-                // Rueda = volumen, clic central = silenciar (como en macOS y KDE).
                 onScrolled: delta => {
                     if (!win.sink || !win.sink.audio) return;
                     win.sink.audio.muted = false;
                     win.sink.audio.volume = Math.max(0, Math.min(1, win.sink.audio.volume + (delta > 0 ? 0.03 : -0.03)));
                 }
                 onMiddleClicked: if (win.sink && win.sink.audio) win.sink.audio.muted = !win.sink.audio.muted
+
                 BarGlyph {
-                    text: win.muted || win.volume <= 0.001 ? "" : (win.volume < 0.5 ? "" : "")
+                    visible: NetworkState.vpnActive
+                    text: "\uf023"
+                    font.pixelSize: 12
+                    color: Theme.accent
+                }
+                BarGlyph {
+                    visible: NetworkState.hasWifi || NetworkState.ethernet.length > 0
+                    text: NetworkState.kind === "ethernet" ? "\uf0e8" : "\uf1eb"
+                    color: NetworkState.kind === "none" ? Theme.textDim : Theme.text
+                    opacity: NetworkState.kind === "none" ? 0.6 : 0.45 + 0.55 * (NetworkState.kind === "wifi" ? Math.max(0.3, NetworkState.wifiSignal / 100) : 1)
+                }
+                BarGlyph {
+                    visible: win.bt !== null && win.btOn
+                    text: "\uf293"
+                    color: win.btConnected ? Theme.accent : Theme.textDim
+                }
+                BarGlyph {
+                    text: win.muted || win.volume <= 0.001 ? "\uf026" : (win.volume < 0.5 ? "\uf027" : "\uf028")
                     color: win.muted ? Theme.textDim : Theme.text
                 }
                 // Punto naranja: alguna app tiene el micrófono abierto.
@@ -199,28 +208,27 @@ PanelWindow {
                     scale: AudioStreams.micInUse ? 1 : 0
                     Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: 3 } }
                 }
-            }
-            BarButton {
-                name: "battery"
-                visible: win.battery.isPresent
-                onClicked: win.toggled(name)
                 BarGlyph {
-                    visible: win.charging
-                    text: ""
+                    visible: win.battery.isPresent && win.charging
+                    text: "\uf0e7"
                     font.pixelSize: 12
                     color: "#ffd479"
                 }
                 BarGlyph {
-                    text: win.batteryPct > 0.875 ? "" : win.batteryPct > 0.625 ? "" : win.batteryPct > 0.375 ? "" : win.batteryPct > 0.125 ? "" : ""
+                    visible: win.battery.isPresent
+                    text: win.batteryPct > 0.875 ? "\uf240" : win.batteryPct > 0.625 ? "\uf241" : win.batteryPct > 0.375 ? "\uf242" : win.batteryPct > 0.125 ? "\uf243" : "\uf244"
                     color: win.batteryPct < 0.2 && !win.charging ? Theme.urgent : Theme.text
                     font.pixelSize: 17
                 }
                 BarText {
+                    visible: win.battery.isPresent
                     text: Math.round(win.batteryPct * 100) + "%"
                     font.pixelSize: Theme.fontSize - 1
                     color: win.batteryPct < 0.2 && !win.charging ? Theme.urgent : Theme.text
                 }
             }
+
+            // Campana + reloj: un solo boton (calendario y notificaciones).
             BarButton {
                 name: "notifications"
                 onClicked: win.toggled(name)
@@ -255,12 +263,8 @@ PanelWindow {
                         }
                     }
                 }
-            }
-            BarButton {
-                name: "clock"
-                onClicked: win.toggled(name)
                 BarText {
-                    text: Qt.formatDateTime(clock.date, "ddd d  HH:mm")
+                    text: Theme.dayNames[clock.date.getDay()].slice(0, 3) + " " + clock.date.getDate() + "  " + Qt.formatDateTime(clock.date, "HH:mm")
                     font.weight: Font.Medium
                 }
             }

@@ -11,6 +11,7 @@ PanelWindow {
 
     property string name: ""               // menu pedido ("" = cerrado)
     property var trayItem: null            // icono de la bandeja del menu "tray"
+    property string quickPage: "home"      // pagina inicial del panel "quick"
     signal closeRequested()
 
     readonly property bool open: name !== ""
@@ -21,10 +22,7 @@ PanelWindow {
 
     function widthFor(n) {
         switch (n) {
-        case "bluetooth": return 400;
-        case "volume":    return 400;
-        case "battery":   return 360;
-        case "clock":     return 320;
+        case "quick":     return 400;
         case "notifications": return 420;
         case "tray":      return 300;
         default:          return 360;
@@ -104,19 +102,14 @@ PanelWindow {
             anchors.topMargin: 20
             opacity: host.contentFade * (host.open ? 1 : 0)
             Behavior on opacity { NumberAnimation { duration: 180 } }
-            sourceComponent: host.shown === "bluetooth" ? bluetoothComp
-                           : host.shown === "volume"    ? volumeComp
-                           : host.shown === "battery"   ? batteryComp
-                           : host.shown === "clock"     ? clockComp
-                           : host.shown === "notifications" ? notificationsComp
+            sourceComponent: host.shown === "quick" ? quickComp
+                           : host.shown === "notifications" ? dateComp
                            : host.shown === "tray"      ? trayComp : null
         }
     }
 
-    Component { id: bluetoothComp; BluetoothPopover {} }
-    Component { id: volumeComp;    VolumePopover {} }
-    Component { id: batteryComp;   BatteryPopover {} }
-    Component { id: notificationsComp; NotificationsPopover {} }
+    Component { id: quickComp; QuickPanel { initialPage: host.quickPage } }
+    Component { id: dateComp;  DatePopover {} }
     Component { id: trayComp; TrayMenuPopover { item: host.trayItem } }
 
     // Menus que piden cerrarse solos (p. ej. al ir a la app de una notificacion).
@@ -124,14 +117,5 @@ PanelWindow {
         target: loader.item
         ignoreUnknownSignals: true
         function onCloseRequested() { host.closeRequested(); }
-    }
-    Component {
-        id: clockComp
-        // Calendario sencillo: mes actual.
-        Column {
-            spacing: 6
-            UiLabel { text: Qt.formatDateTime(new Date(), "dddd, d 'de' MMMM yyyy"); font.pixelSize: Theme.fontSize + 2; font.weight: Font.DemiBold }
-            UiLabel { text: Qt.formatDateTime(new Date(), "HH:mm:ss"); color: Theme.textDim }
-        }
     }
 }

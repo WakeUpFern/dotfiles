@@ -13,11 +13,12 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); }
 
-    // Menu abierto de la barra derecha: "" | "bluetooth" | "volume" | "battery" | "clock".
-    // Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
+    // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
+    // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
     property string popover: ""
+    property string quickPage: "home"     // pagina del panel "quick": home | network | bluetooth | audio | vpn | battery
     property var trayItem: null           // icono de la bandeja cuyo menu esta abierto (popover "tray")
     onPopoverChanged: {
         if (popover !== "" && mode !== "idle" && mode !== "osd") mode = "idle";
@@ -64,6 +65,21 @@ ShellRoot {
         interval: 1600
         onTriggered: if (root.mode === "osd") root.mode = "idle"
     }
+
+    // Nombres de menu (de la barra o del IPC) -> menu real + pagina del panel de ajustes rapidos.
+    readonly property var quickPages: ({
+        quick: "home", network: "network", wifi: "network", ethernet: "network", bluetooth: "bluetooth",
+        volume: "audio", audio: "audio", vpn: "vpn", battery: "battery"
+    })
+    function popoverFor(name) { return name === "clock" ? "notifications" : (quickPages[name] ? "quick" : name); }
+    function togglePopover(name) {
+        const p = popoverFor(name);
+        const page = quickPages[name] || "home";
+        if (popover === p && (p !== "quick" || name === "quick" || quickPage === page)) { popover = ""; return; }
+        quickPage = page;
+        popover = p;
+    }
+    function openPopover(name) { quickPage = quickPages[name] || "home"; popover = popoverFor(name); }
 
     // Control desde fuera:  qs -c pill ipc call launcher toggle
     IpcHandler {
@@ -161,11 +177,13 @@ ShellRoot {
         }
     }
 
-    // Menus de la barra derecha:  qs -c pill ipc call popover toggle bluetooth|volume|battery|clock
+    // Menus de la barra derecha:
+    //   qs -c pill ipc call popover toggle quick|network|bluetooth|volume|vpn|battery|notifications|clock
+    // (network/bluetooth/volume/vpn/battery abren esa pagina del panel de ajustes rapidos)
     IpcHandler {
         target: "popover"
-        function toggle(name: string): void { root.popover = root.popover === name ? "" : name; }
-        function open(name: string): void   { root.popover = name; }
+        function toggle(name: string): void { root.togglePopover(name); }
+        function open(name: string): void   { root.openPopover(name); }
         function close(): void              { root.popover = ""; }
     }
 
@@ -199,7 +217,7 @@ ShellRoot {
         id: statusBar
         active: root.popover
         trayItem: root.trayItem
-        onToggled: name => root.popover = root.popover === name ? "" : name
+        onToggled: name => root.togglePopover(name)
         onTrayMenu: item => {
             if (root.popover === "tray" && root.trayItem === item) root.popover = "";
             else { root.trayItem = item; root.popover = "tray"; }
@@ -208,6 +226,7 @@ ShellRoot {
     PopoverHost {
         id: popoverHost
         name: root.popover
+        quickPage: root.quickPage
         trayItem: root.trayItem
         onCloseRequested: root.popover = ""
     }

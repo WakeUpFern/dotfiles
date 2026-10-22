@@ -1,18 +1,28 @@
 # Barra derecha y menús
 
 Arriba a la derecha hay iconos **sin fondo** (con una sombra suave para que se lean sobre cualquier
-ventana) y el reloj: Bluetooth, volumen, batería. Cada uno abre **su propio menú**, una tarjeta de vidrio
-anclada bajo la barra. El notch del centro se queda para lo dinámico (espacios de trabajo, app activa, música,
-HUD de volumen/brillo, launcher, portapapeles, reproductor).
+ventana) agrupados en tres botones. El notch del centro se queda para lo dinámico (espacios de trabajo, app
+activa, música, HUD de volumen/brillo, launcher, portapapeles, reproductor).
 
-| Icono | Menú |
-|---|---|
-| Bluetooth | interruptor, buscar, dispositivos, calidad del audio ([bluetooth.md](bluetooth.md)) |
-| Volumen | mezclador: volumen general, salidas, **volumen por aplicación**, **micrófono** y brillo ([audio.md](audio.md)) |
-| Batería | nivel, estado, tiempo restante y perfil de energía |
-| Campana | historial de notificaciones, "No molestar" y borrar todo |
-| Reloj | fecha y hora |
-| Iconos de apps (bandeja) | click = acción de la app; click derecho = su menú (con nuestro estilo, con submenús) |
+| Botón | Qué abre | ¿Parte del panel unificado? |
+|---|---|---|
+| **Ajustes rápidos** (candado de VPN, red, bluetooth, volumen, batería) | un solo panel con tiles y páginas de detalle (abajo) | **sí** |
+| **Campana + reloj** | calendario del mes y debajo el historial de notificaciones con "No molestar" | no |
+| Iconos de apps (bandeja) | click = acción de la app; click derecho = su menú (con nuestro estilo, con submenús) | no |
+
+## Panel de ajustes rápidos
+
+Como en GNOME, Windows 11 y macOS: **todo lo que es un ajuste del sistema vive en una sola tarjeta**; lo que
+es otra cosa (avisos, fecha, apps en segundo plano) queda fuera.
+
+- **Inicio:** batería, deslizador de volumen (clic en el icono = silenciar), brillo y tiles. Los tiles con
+  flecha se activan/desactivan con la parte izquierda y abren su página con la flecha: **Red** (Wi-Fi o
+  Ethernet), **Bluetooth**, **VPN** (solo si hay alguna), **No molestar** y **Modo de energía**. Si una app
+  usa el micrófono sale una línea naranja que lleva al mezclador.
+- **Páginas:** Red ([network.md](network.md)), Bluetooth ([bluetooth.md](bluetooth.md)), Sonido (salidas,
+  **volumen por aplicación** y **micrófono**, [audio.md](audio.md)), VPN y Batería y energía. Se vuelve con la
+  flecha de la cabecera.
+- **En la barra:** rueda sobre el botón = volumen y clic central = silenciar. Un candado azul = VPN activa.
 
 - **Cambio directo:** con un menú abierto, pulsar otro icono cambia a ese; la tarjeta se redimensiona con
   resorte y el contenido hace un fundido (no se cierra ni parpadea).
@@ -24,7 +34,8 @@ HUD de volumen/brillo, launcher, portapapeles, reproductor).
 - **Legibilidad:** al ser transparente, un icono claro sobre una ventana blanca se lee peor; la sombra
   ayuda. Si molesta, se puede añadir una banda tenue detrás (ver `StatusBar.qml`).
 
-Abrir a mano: `qs -c pill ipc call popover toggle bluetooth|volume|battery|notifications|clock`,
+Abrir a mano: `qs -c pill ipc call popover toggle quick|network|bluetooth|volume|vpn|battery|notifications`
+(los cinco primeros abren esa página del panel de ajustes rápidos; `clock` es lo mismo que `notifications`),
 `qs -c pill ipc call tray list` y `... tray menu <n>`.
 
 ## Campana: historial y "No molestar"

@@ -49,3 +49,9 @@ wireplumber.settings = {
 y reinicia WirePlumber (`systemctl --user restart wireplumber`). No está activado por defecto.
 
 Usa `Quickshell.Bluetooth` (BlueZ por D-Bus) y `Quickshell.Services.Pipewire`.
+
+## Sin desconexiones por accidente
+
+Un clic en un dispositivo **conectado** abre sus detalles (batería) y ahí está *Desconectar*. El tile de
+Bluetooth del panel, estando encendido, abre la página en vez de apagarlo; se apaga con el interruptor de
+la página.

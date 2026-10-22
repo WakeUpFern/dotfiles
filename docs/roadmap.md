@@ -5,7 +5,8 @@
 - [ ] Bandeja del sistema (`Quickshell.Services.SystemTray`) dentro de la píldora
 - [x] Panel de controles: volumen, salida de audio, brillo, bateria y perfil de energia
 - [x] Barra derecha con menús propios (Bluetooth, volumen + brillo, batería, reloj)
-- [ ] Icono y menú de Wi-Fi en la barra derecha
+- [x] Launcher: apps fijadas, lista completa A-Z y búsqueda por descripción/categoría
+- [x] Panel unificado de ajustes rápidos con Wi-Fi, Ethernet y VPN (docs/network.md); campana y reloj en un solo botón
 - [x] Campana de notificaciones con historial y "No molestar"
 - [x] Bandeja del sistema en la barra derecha
 - [x] Mezclador de audio: volumen por aplicación y micrófono

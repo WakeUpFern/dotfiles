@@ -18,6 +18,10 @@ Singleton {
     readonly property string fontMono: "JetBrains Mono"
     readonly property int fontSize: 13
 
+    // Fechas en espanol (el locale del sistema esta en ingles).
+    readonly property var dayNames: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+    readonly property var monthNames: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
     // Notch: pegado al borde superior (sin margen), esquinas redondas abajo.
     readonly property int notchHeight: 34
     readonly property int notchPeekHeight: 40
