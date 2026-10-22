@@ -22,6 +22,7 @@ RUNTIME=(
   swaylock wlsunset
   alacritty
   qt6-image-formats-plugins
+  fzf
   cava
 )
 

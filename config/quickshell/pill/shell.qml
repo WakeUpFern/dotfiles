@@ -14,7 +14,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "wallpapers" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); Fzf.probe(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).

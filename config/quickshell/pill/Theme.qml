@@ -38,6 +38,9 @@ Singleton {
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
     readonly property bool nativeLock: true
 
+    // Motor de busqueda del launcher (fzf; ver Fzf.qml). Si no esta instalado se usa un puntuador interno.
+    readonly property string fzfCommand: "fzf"
+
     // Paleta desde el fondo de pantalla. `syncGtkAccent` tambien pone el acento de GNOME mas cercano
     // (org.gnome.desktop.interface accent-color) para que Nautilus y demas apps libadwaita combinen.
     readonly property bool dynamicPalette: true
