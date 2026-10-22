@@ -14,7 +14,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -70,7 +70,7 @@ ShellRoot {
     // Nombres de menu (de la barra o del IPC) -> menu real + pagina del panel de ajustes rapidos.
     readonly property var quickPages: ({
         quick: "home", network: "network", wifi: "network", ethernet: "network", bluetooth: "bluetooth",
-        volume: "audio", audio: "audio", vpn: "vpn", battery: "battery"
+        volume: "audio", audio: "audio", vpn: "vpn", battery: "battery", nightlight: "nightlight", night: "nightlight"
     })
     function popoverFor(name) { return name === "clock" ? "notifications" : (quickPages[name] ? "quick" : name); }
     function togglePopover(name) {
@@ -142,6 +142,16 @@ ShellRoot {
     IpcHandler {
         target: "battery"
         function simulate(pct: int): void { BatteryAlerts.simulated = pct; if (pct < 0) BatteryAlerts.notified = 0; }
+    }
+
+    // Luz nocturna:  qs -c pill ipc call nightlight off|auto|on|toggle|status
+    IpcHandler {
+        target: "nightlight"
+        function off(): void    { NightLight.setMode("off"); }
+        function auto(): void   { NightLight.setMode("auto"); }
+        function on(): void     { NightLight.setMode("on"); }
+        function toggle(): void { NightLight.toggle(); }
+        function status(): string { return NightLight.mode + " " + NightLight.temperature + "K " + NightLight.from + "-" + NightLight.to; }
     }
 
     // Cambiar el fondo (y el del overview) en vivo:

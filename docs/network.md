@@ -32,3 +32,17 @@ y el tile dice "Ethernet".
   una sola vez: `sudo tailscale set --operator=$USER`.
 - El tile VPN solo aparece si hay alguna; con una sola VPN un clic la enciende o apaga, con varias abre la página.
   El candado azul de la barra indica que hay una activa.
+
+## Punto de acceso (compartir la conexión)
+En la página Red, "Compartir conexión (punto de acceso)" pide nombre y contraseña (8 a 63 caracteres; la
+primera vez propone `Pill-<equipo>` y una contraseña aleatoria) y crea el perfil `PillHotspot`
+(`nmcli connection add type wifi … 802-11-wireless.mode ap ipv4.method shared`, banda 2,4 GHz, WPA2).
+- **Ojo:** la tarjeta Wi-Fi pasa a ser el punto de acceso, así que **dejas de estar conectado a tu Wi-Fi**
+  mientras esté activo (la página lo avisa y no lo activa con un clic suelto: hay que pulsar *Activar*).
+  Con Ethernet conectado sigues con internet y lo compartes.
+- Activo, la página muestra el nombre y la contraseña y el botón *Detener*.
+- Necesita `dnsmasq-base` (viene con NetworkManager) para repartir direcciones.
+
+## Modo avión
+Tile del panel: apaga Wi-Fi y Bluetooth (sin `rfkill`: `nmcli radio wifi off` y BlueZ). **Hay que pulsarlo
+dos veces** (el primer clic solo lo arma, 3 s) porque corta la red; salir del modo avión es un clic.

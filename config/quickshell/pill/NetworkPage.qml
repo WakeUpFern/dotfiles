@@ -10,8 +10,9 @@ ColumnLayout {
     property string expanded: ""        // red cuyo campo de contrasena esta abierto
     property string detail: ""          // red conectada cuyos detalles estan abiertos (ahi se desconecta)
     property bool hiddenOpen: false
+    property bool hotspotOpen: false
 
-    Component.onCompleted: { NetworkState.error = ""; NetworkState.refresh(); NetworkState.scan(); }
+    Component.onCompleted: { NetworkState.error = ""; NetworkState.refresh(); NetworkState.scan(); NetworkState.loadHotspot(); }
 
     // Interfaces cableadas: las que no tienen cable se resumen en una sola linea.
     readonly property var ethRows: {
@@ -19,63 +20,6 @@ ColumnLayout {
         const usable = eth.filter(e => e.state !== "unavailable");
         if (usable.length > 0) return usable;
         return eth.length > 0 ? [eth[0]] : [];
-    }
-
-    component Field: Rectangle {
-        id: f
-        property alias text: input.text
-        property string placeholder
-        property bool password: false
-        signal accepted()
-        function focusIt() { input.forceActiveFocus(); }
-        Layout.fillWidth: true
-        Layout.preferredHeight: 34
-        radius: 10
-        color: Qt.rgba(1, 1, 1, 0.08)
-        border.width: input.activeFocus ? 1 : 0
-        border.color: Theme.accent
-        TextInput {
-            id: input
-            anchors.fill: parent
-            anchors.leftMargin: 12
-            anchors.rightMargin: 12
-            verticalAlignment: TextInput.AlignVCenter
-            clip: true
-            color: Theme.text
-            selectionColor: Theme.accent
-            font.family: Theme.fontSans
-            font.pixelSize: Theme.fontSize
-            echoMode: f.password ? TextInput.Password : TextInput.Normal
-            onAccepted: f.accepted()
-            Text {
-                visible: input.text === ""
-                anchors.verticalCenter: parent.verticalCenter
-                text: f.placeholder
-                color: Theme.textDim
-                font: input.font
-            }
-        }
-    }
-
-    component Btn: Rectangle {
-        id: b
-        property string label
-        property bool primary: true
-        property color tint: Theme.text
-        signal clicked()
-        Layout.preferredHeight: 34
-        Layout.preferredWidth: btnText.implicitWidth + 28
-        radius: 17
-        color: primary ? Theme.accent : (btnArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
-        opacity: btnArea.pressed ? 0.8 : 1
-        UiLabel {
-            id: btnText
-            anchors.centerIn: parent
-            text: b.label
-            color: b.primary ? "#0b1020" : b.tint
-            font.weight: b.primary ? Font.DemiBold : Font.Normal
-        }
-        MouseArea { id: btnArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: b.clicked() }
     }
 
     // --- Wi-Fi: interruptor y buscar -----------------------------------------------------------
@@ -106,7 +50,7 @@ ColumnLayout {
         id: list
         Layout.fillWidth: true
         Layout.preferredHeight: Math.min(contentHeight, 250)
-        visible: NetworkState.hasWifi && NetworkState.wifiEnabled && NetworkState.networks.length > 0
+        visible: NetworkState.hasWifi && NetworkState.wifiEnabled && !NetworkState.hotspotActive && NetworkState.networks.length > 0
         clip: true
         spacing: 2
         boundsBehavior: Flickable.StopAtBounds
@@ -212,7 +156,7 @@ ColumnLayout {
     }
 
     UiLabel {
-        visible: NetworkState.hasWifi && NetworkState.wifiEnabled && NetworkState.networks.length === 0
+        visible: NetworkState.hasWifi && NetworkState.wifiEnabled && !NetworkState.hotspotActive && NetworkState.networks.length === 0
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignHCenter
         text: NetworkState.scanning ? "Buscando redes…" : "No hay redes a la vista"
@@ -222,7 +166,7 @@ ColumnLayout {
     // --- Red oculta -----------------------------------------------------------------------------------
     ColumnLayout {
         Layout.fillWidth: true
-        visible: NetworkState.hasWifi && NetworkState.wifiEnabled
+        visible: NetworkState.hasWifi && NetworkState.wifiEnabled && !NetworkState.hotspotActive
         spacing: 8
 
         HoverRow {
@@ -261,6 +205,79 @@ ColumnLayout {
         hiddenOpen = false;
         hiddenPw.text = "";
         hiddenSsid.text = "";
+    }
+
+    // --- Punto de acceso ------------------------------------------------------------------------------
+    // Comparte la conexion por Wi-Fi (nmcli, perfil "PillHotspot"). Activarlo ocupa la tarjeta Wi-Fi.
+    ColumnLayout {
+        Layout.fillWidth: true
+        visible: NetworkState.hasWifi && NetworkState.wifiEnabled
+        spacing: 8
+
+        HoverRow {
+            Layout.fillWidth: true
+            height: 36
+            highlighted: NetworkState.hotspotActive
+            onClicked: root.hotspotOpen = !root.hotspotOpen
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 10
+                anchors.rightMargin: 12
+                spacing: 10
+                UiGlyph { text: "\uf1e0"; font.pixelSize: 14; Layout.preferredWidth: 22; color: NetworkState.hotspotActive ? Theme.accent : Theme.textDim }
+                UiLabel {
+                    Layout.fillWidth: true
+                    text: NetworkState.hotspotActive ? "Punto de acceso activo" : "Compartir conexión (punto de acceso)"
+                    color: NetworkState.hotspotActive ? Theme.text : Theme.textDim
+                    elide: Text.ElideRight
+                }
+                UiLabel {
+                    visible: NetworkState.busy === NetworkState.hotspotName
+                    text: "Un momento…"
+                    color: Theme.accent
+                    font.pixelSize: Theme.fontSize - 1
+                }
+            }
+        }
+
+        ColumnLayout {
+            visible: root.hotspotOpen
+            Layout.fillWidth: true
+            spacing: 8
+
+            // Activo: datos para conectarse y detener
+            UiLabel {
+                visible: NetworkState.hotspotActive
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                color: Theme.textDim
+                wrapMode: Text.WordWrap
+                text: "Red: " + NetworkState.hotspotSsid + "\nContraseña: " + NetworkState.hotspotPsk
+            }
+            RowLayout {
+                visible: NetworkState.hotspotActive
+                Layout.leftMargin: 10
+                Btn { primary: false; label: "Detener"; onClicked: NetworkState.stopHotspot() }
+            }
+
+            // Inactivo: nombre, contrasena y aviso
+            Field { visible: !NetworkState.hotspotActive; placeholder: "Nombre de la red"; text: NetworkState.hotspotSsid; onTextChanged: NetworkState.hotspotSsid = text; id: hsSsid }
+            Field { visible: !NetworkState.hotspotActive; placeholder: "Contraseña (8 a 63 caracteres)"; text: NetworkState.hotspotPsk; onTextChanged: NetworkState.hotspotPsk = text; id: hsPsk }
+            UiLabel {
+                visible: !NetworkState.hotspotActive && NetworkState.wifiSsid !== ""
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                wrapMode: Text.WordWrap
+                color: Theme.warn
+                font.pixelSize: Theme.fontSize - 1
+                text: "Al activarlo dejarás de estar conectado a " + NetworkState.wifiSsid + " (la tarjeta Wi-Fi se usa para compartir)."
+            }
+            RowLayout {
+                visible: !NetworkState.hotspotActive
+                Layout.leftMargin: 10
+                Btn { label: "Activar"; onClicked: NetworkState.startHotspot(NetworkState.hotspotSsid, NetworkState.hotspotPsk) }
+            }
+        }
     }
 
     // --- Ethernet ----------------------------------------------------------------------------------------

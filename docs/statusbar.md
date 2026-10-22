@@ -17,9 +17,9 @@ es otra cosa (avisos, fecha, apps en segundo plano) queda fuera.
 
 - **Inicio:** batería, deslizador de volumen (clic en el icono = silenciar), brillo y tiles. Los tiles con
   flecha se activan/desactivan con la parte izquierda y abren su página con la flecha: **Red** (Wi-Fi o
-  Ethernet), **Bluetooth**, **VPN** (solo si hay alguna), **No molestar** y **Modo de energía**. Si una app
+  Ethernet), **Bluetooth**, **VPN** (solo si hay alguna), **No molestar**, **No suspender**, **Luz nocturna**, **Modo avión** y **Modo de energía**. Si una app
   usa el micrófono sale una línea naranja que lleva al mezclador.
-- **Páginas:** Red ([network.md](network.md)), Bluetooth ([bluetooth.md](bluetooth.md)), Sonido (salidas,
+- **Páginas:** Luz nocturna ([power.md](power.md#luz-nocturna)), Red ([network.md](network.md)), Bluetooth ([bluetooth.md](bluetooth.md)), Sonido (salidas,
   **volumen por aplicación** y **micrófono**, [audio.md](audio.md)), VPN y Batería y energía. Se vuelve con la
   flecha de la cabecera.
 - **En la barra:** rueda sobre el botón = volumen y clic central = silenciar. Un candado azul = VPN activa.

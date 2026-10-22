@@ -22,17 +22,22 @@ Singleton {
     property var ips: ({})                  // dispositivo -> direccion IPv4 (solo las conectadas)
     property var vpns: []                   // { id, name, kind: "nm" | "ts", active }
     property bool tsAvailable: false
+    property bool hotspotActive: false      // el perfil PillHotspot esta activo (la tarjeta Wi-Fi es el punto de acceso)
+    property string hotspotSsid: ""
+    property string hotspotPsk: ""
+    readonly property string hotspotName: "PillHotspot"
 
     property bool scanning: false
     property string busy: ""                // red / VPN / interfaz que se esta (des)conectando
     property string error: ""
 
     readonly property bool ethernetConnected: ethernet.some(e => e.state === "connected")
-    readonly property string kind: ethernetConnected ? "ethernet" : (wifiSsid !== "" ? "wifi" : "none")
+    readonly property string kind: ethernetConnected ? "ethernet" : (wifiSsid !== "" ? "wifi" : (hotspotActive ? "hotspot" : "none"))
     readonly property bool vpnActive: vpns.some(v => v.active)
     readonly property string label: {
         if (ethernetConnected) return "Ethernet";
         if (wifiSsid !== "") return wifiSsid;
+        if (hotspotActive) return "Punto de acceso";
         if (hasWifi && !wifiEnabled) return "Wi-Fi apagado";
         return hasWifi || ethernet.length > 0 ? "Sin conexión" : "Sin red";
     }
@@ -112,14 +117,15 @@ Singleton {
         exec(["nmcli", "-t", "-f", "NAME,TYPE,ACTIVE", "connection", "show"], (code, out) => {
             if (code !== 0) return;
             const r = rows(out);
-            root.knownWifi = r.filter(f => f[1] === "802-11-wireless").map(f => f[0]);
+            root.knownWifi = r.filter(f => f[1] === "802-11-wireless" && f[0] !== root.hotspotName).map(f => f[0]);
+            root.hotspotActive = r.some(f => f[0] === root.hotspotName && f[2] === "yes");
             const nm = r.filter(f => f[1] === "vpn" || f[1] === "wireguard")
                 .map(f => ({ id: f[0], name: f[0], kind: "nm", active: f[2] === "yes" }));
             root.nmVpns = nm;
             root.rebuildNetworks();
         });
         exec(["nmcli", "-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "device", "wifi", "list", "--rescan", "no"], (code, out) => {
-            if (code !== 0) return;
+            if (code !== 0 || root.scanning) return;      // durante el escaneo NM devuelve resultados parciales
             root.rawWifi = rows(out);
             root.rebuildNetworks();
         });
@@ -192,7 +198,7 @@ Singleton {
         scanning = true;
         exec(["nmcli", "device", "wifi", "rescan"], () => scanDone.restart());
     }
-    Timer { id: scanDone; interval: 2500; onTriggered: { root.scanning = false; root.refresh(); } }
+    Timer { id: scanDone; interval: 4000; onTriggered: { root.scanning = false; root.refresh(); } }
 
     // Conectar. Con perfil guardado y sin contrasena nueva se reutiliza; si no se crea uno.
     function connectWifi(ssid, password, hidden) {
@@ -252,4 +258,46 @@ Singleton {
         if (v.kind === "ts") exec(v.active ? ["tailscale", "down"] : ["tailscale", "up", "--timeout", "10s"], done);
         else exec(["nmcli", "connection", v.active ? "down" : "up", "id", v.id], done);
     }
+
+    // Lee el perfil guardado (o prepara un nombre y una contrasena por defecto la primera vez).
+    function loadHotspot() {
+        exec(["nmcli", "-s", "-g", "802-11-wireless.ssid,802-11-wireless-security.psk", "connection", "show", hotspotName], (code, out) => {
+            const lines = out.split("\n");
+            if (code === 0 && lines.length >= 2 && lines[0] !== "") { root.hotspotSsid = lines[0]; root.hotspotPsk = lines[1]; return; }
+            exec(["hostname"], (c, host) => {
+                root.hotspotSsid = "Pill-" + (host || "equipo");
+                exec(["sh", "-c", "head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 12"], (c2, pw) => root.hotspotPsk = pw);
+            });
+        });
+    }
+
+    // Comparte la conexion con otros dispositivos. OJO: la tarjeta Wi-Fi pasa a ser el punto de acceso,
+    // asi que se deja la red Wi-Fi actual (la pagina lo avisa y pide el clic en Activar).
+    function startHotspot(ssid, psk) {
+        if (busy !== "" || wifiDevice === "") return;
+        if (ssid.trim() === "") { error = "Pon un nombre para la red"; return; }
+        if (psk.length < 8 || psk.length > 63) { error = "La contraseña debe tener entre 8 y 63 caracteres"; return; }
+        error = "";
+        busy = hotspotName;
+        exec(["nmcli", "connection", "delete", hotspotName], () => {
+            exec(["nmcli", "connection", "add", "type", "wifi", "ifname", wifiDevice, "con-name", hotspotName, "autoconnect", "no",
+                  "ssid", ssid.trim(), "802-11-wireless.mode", "ap", "802-11-wireless.band", "bg", "ipv4.method", "shared",
+                  "wifi-sec.key-mgmt", "wpa-psk", "wifi-sec.psk", psk], (code, out) => {
+                if (code !== 0) { root.busy = ""; root.error = root.friendly(out); return; }
+                exec(["nmcli", "--wait", "20", "connection", "up", hotspotName], (c2, o2) => {
+                    root.busy = "";
+                    if (c2 !== 0) root.error = root.friendly(o2);
+                    else { root.hotspotSsid = ssid.trim(); root.hotspotPsk = psk; }
+                    root.refreshSoon();
+                });
+            });
+        });
+    }
+
+    function stopHotspot() {
+        if (busy !== "") return;
+        busy = hotspotName;
+        exec(["nmcli", "connection", "down", hotspotName], () => { root.busy = ""; root.refreshSoon(); });
+    }
 }
+

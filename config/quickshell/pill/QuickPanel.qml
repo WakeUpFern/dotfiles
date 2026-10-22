@@ -22,7 +22,7 @@ ColumnLayout {
     onPageChanged: if (page !== shownPage) swap.restart()
 
     readonly property var titles: ({
-        network: "Red", bluetooth: "Bluetooth", audio: "Sonido", vpn: "VPN", battery: "Batería y energía"
+        network: "Red", bluetooth: "Bluetooth", audio: "Sonido", vpn: "VPN", battery: "Batería y energía", nightlight: "Luz nocturna"
     })
 
     SequentialAnimation {
@@ -44,6 +44,24 @@ ColumnLayout {
     readonly property var battery: UPower.displayDevice
     readonly property string profileName: PowerProfiles.profile === PowerProfile.PowerSaver ? "Ahorro"
         : PowerProfiles.profile === PowerProfile.Performance ? "Rendimiento" : "Equilibrado"
+
+    // Modo avion: Wi-Fi y Bluetooth apagados (sin rfkill: nmcli + BlueZ). Para activarlo hay que pulsar
+    // dos veces (el primer clic solo arma el tile): cortar la red por un clic suelto es peligroso.
+    readonly property bool airplane: (NetworkState.hasWifi || bt !== null) && !(NetworkState.hasWifi && NetworkState.wifiEnabled) && !btOn
+    property bool airplaneArmed: false
+    Timer { id: airplaneDisarm; interval: 3000; onTriggered: root.airplaneArmed = false }
+    function toggleAirplane() {
+        if (airplane) {                       // salir del modo avion es seguro: un clic
+            if (NetworkState.hasWifi) NetworkState.setWifiEnabled(true);
+            if (bt !== null) bt.enabled = true;
+            return;
+        }
+        if (!airplaneArmed) { airplaneArmed = true; airplaneDisarm.restart(); return; }
+        airplaneArmed = false;
+        airplaneDisarm.stop();
+        if (NetworkState.hasWifi) NetworkState.setWifiEnabled(false);
+        if (bt !== null) bt.enabled = false;
+    }
 
     function formatTime(seconds) {
         if (!seconds || seconds <= 0) return "";
@@ -158,13 +176,15 @@ ColumnLayout {
                        : root.shownPage === "bluetooth" ? bluetoothComp
                        : root.shownPage === "audio" ? audioComp
                        : root.shownPage === "vpn" ? vpnComp
-                       : root.shownPage === "battery" ? batteryComp : homeComp
+                       : root.shownPage === "battery" ? batteryComp
+                       : root.shownPage === "nightlight" ? nightComp : homeComp
     }
     Component { id: networkComp; NetworkPage {} }
     Component { id: bluetoothComp; BluetoothPopover {} }
     Component { id: audioComp; VolumePopover {} }
     Component { id: vpnComp; VpnPage {} }
     Component { id: batteryComp; BatteryPopover {} }
+    Component { id: nightComp; NightLightPage {} }
 
     // --- Inicio --------------------------------------------------------------------------------------
     Component {
@@ -307,6 +327,23 @@ ColumnLayout {
                     subtitle: Idle.caffeine ? "Pantalla siempre activa" : "Desactivado"
                     on: Idle.caffeine
                     onToggled: Idle.toggleCaffeine()
+                }
+                Tile {
+                    glyph: "\uf186"
+                    title: "Luz nocturna"
+                    subtitle: NightLight.mode === "auto" ? "Programada" : (NightLight.mode === "on" ? "Activada" : "Apagada")
+                    on: NightLight.enabled
+                    hasMore: true
+                    onToggled: NightLight.toggle()
+                    onMore: root.page = "nightlight"
+                }
+                Tile {
+                    visible: NetworkState.hasWifi || root.bt !== null
+                    glyph: "\uf072"
+                    title: "Modo avión"
+                    subtitle: root.airplaneArmed ? "Pulsa otra vez: corta Wi-Fi y Bluetooth" : (root.airplane ? "Activado" : "Desactivado")
+                    on: root.airplane || root.airplaneArmed
+                    onToggled: root.toggleAirplane()
                 }
                 Tile {
                     visible: root.battery.isPresent

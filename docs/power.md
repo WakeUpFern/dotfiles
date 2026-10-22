@@ -34,3 +34,10 @@ Avisa una vez por descarga al 20 %, 10 % y 5 % (`Theme.batteryWarnLevels`) con u
 dos últimos niveles son **críticos** y atraviesan *No molestar*. Se rearma al cargar. La acción final
 (apagar o suspender al 2 %) la hace UPower (`PercentageAction` en `/etc/UPower/UPower.conf`).
 Probar: `qs -c pill ipc call battery simulate 18` (y `simulate -1` para volver a la batería real).
+
+## Luz nocturna (`NightLight.qml`)
+Tinte cálido de pantalla con `wlsunset`. Tile del panel (un clic = encender *ahora* / apagar; la flecha abre
+la página). Tres modos: **Apagada**, **Programada** (se calienta de `20:00` a `07:00` con transición de 30 min;
+las horas se editan en la página) y **Ahora** (constante hasta que la apagues). Intensidad de 6000 K (casi
+nada) a 2500 K (muy cálido), 4000 K por defecto. Se guarda en `~/.local/state/pill/nightlight` y se recupera al
+arrancar. IPC: `qs -c pill ipc call nightlight off|auto|on|toggle|status`.

@@ -46,6 +46,8 @@ config/quickshell/pill/         la píldora (QML)
   QuickPanel.qml                panel unificado: inicio (bateria, volumen, brillo, tiles) y paginas de detalle
   NetworkState.qml / NetworkPage.qml / VpnPage.qml   Wi-Fi, Ethernet y VPN via nmcli / tailscale (docs/network.md)
   Idle.qml / BatteryAlerts.qml / PolkitDialog.qml   inactividad y suspension, avisos de bateria baja y agente polkit (docs/power.md)
+  NightLight.qml / NightLightPage.qml   luz nocturna (wlsunset) con modos, intensidad y horario
+  Field.qml / Btn.qml           campo de texto y boton de los menus
   HoverRow.qml                  fila de lista con resaltado, reutilizada por los menus
   AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen por app, microfono y "microfono en uso"
   NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
