@@ -38,8 +38,19 @@ Singleton {
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
     readonly property bool nativeLock: true
 
-    // Motor de busqueda del launcher (fzf; ver Fzf.qml). Si no esta instalado se usa un puntuador interno.
-    readonly property string fzfCommand: "fzf"
+    // Launcher: busquedas web con prefijo ("g gatos"), carpetas que no entran en la busqueda de archivos
+    // (nombres o globs de `find -name`; los archivos y carpetas ocultos ya se saltan) y el buscador por defecto.
+    readonly property string fzfCommand: "fzf"                 // motor de busqueda del launcher (ver Fzf.qml)
+    readonly property string launcherDefaultSearch: "d"
+    readonly property var launcherWebSearches: ({
+        "g":  { name: "Google",     url: "https://www.google.com/search?q=%s" },
+        "d":  { name: "DuckDuckGo", url: "https://duckduckgo.com/?q=%s" },
+        "yt": { name: "YouTube",    url: "https://www.youtube.com/results?search_query=%s" },
+        "w":  { name: "Wikipedia",  url: "https://es.wikipedia.org/w/index.php?search=%s" },
+        "gh": { name: "GitHub",     url: "https://github.com/search?q=%s" },
+        "m":  { name: "Maps",       url: "https://www.google.com/maps/search/%s" }
+    })
+    readonly property var fileSearchExcludes: ["node_modules", "snap", "__pycache__", "*.pyc", "*.o", "target"]
 
     // Paleta desde el fondo de pantalla. `syncGtkAccent` tambien pone el acento de GNOME mas cercano
     // (org.gnome.desktop.interface accent-color) para que Nautilus y demas apps libadwaita combinen.

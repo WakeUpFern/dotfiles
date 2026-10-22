@@ -11,6 +11,7 @@ import Quickshell.Services.Pipewire
 PanelWindow {
     id: win
 
+    property string launcherQuery: ""   // texto con el que se abre el launcher
     property string mode: "idle"      // idle | launcher | emoji | wallpapers | clipboard | media | power | osd
     property string osdKind: "volume" // "volume" | "brightness" | "track" en modo osd
     signal modeRequested(string mode)
@@ -496,6 +497,7 @@ PanelWindow {
             opacity: active ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
             sourceComponent: Launcher {
+                initialQuery: win.launcherQuery
                 onCloseRequested: win.modeRequested("idle")
             }
         }

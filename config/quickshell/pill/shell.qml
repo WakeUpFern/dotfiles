@@ -14,7 +14,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "wallpapers" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); Fzf.probe(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); AppUsage.load(); Fzf.probe(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -28,6 +28,7 @@ ShellRoot {
     }
     onModeChanged: if (mode !== "idle" && mode !== "osd" && popover !== "") popover = ""
 
+    property string launcherQuery: ""
     property string osdKind: "volume"
 
     // HUD de volumen/brillo: aparece un momento y vuelve a reposo.
@@ -85,8 +86,10 @@ ShellRoot {
     // Control desde fuera:  qs -c pill ipc call launcher toggle
     IpcHandler {
         target: "launcher"
-        function toggle(): void { root.mode = root.mode === "launcher" ? "idle" : "launcher"; }
-        function open(): void   { root.mode = "launcher"; }
+        function toggle(): void { root.launcherQuery = ""; root.mode = root.mode === "launcher" ? "idle" : "launcher"; }
+        function open(): void   { root.launcherQuery = ""; root.mode = "launcher"; }
+        // Abre el launcher ya escrito:  qs -c pill ipc call launcher search "f informe"
+        function search(text: string): void { root.mode = "idle"; root.launcherQuery = text; root.mode = "launcher"; }
         function close(): void  { root.mode = "idle"; }
     }
 
@@ -286,6 +289,7 @@ ShellRoot {
     Pill {
         id: pill
         mode: root.mode
+        launcherQuery: root.launcherQuery
         osdKind: root.osdKind
         onModeRequested: m => root.mode = m
         onVolumeActivity: root.showOsd("volume")
