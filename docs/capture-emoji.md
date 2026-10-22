@@ -1,7 +1,7 @@
 # Capturas, grabación de pantalla y selector de emoji
 
 ## Capturas y grabación (`ScreenCapture.qml`, `CapturePage.qml`)
-Panel **Mod+Shift+S** (o el tile *Captura* del panel de ajustes rápidos; `qs -c pill ipc call popover toggle capture`):
+Panel **Mod+Shift+S** (o el botón de la cámara, arriba a la derecha del panel de ajustes rápidos; `qs -c pill ipc call popover toggle capture`):
 
 | Botón | Qué hace |
 |---|---|
@@ -15,8 +15,8 @@ Panel **Mod+Shift+S** (o el tile *Captura* del panel de ajustes rápidos; `qs -c
   (`~/Pictures/Screenshots`) y se copian al portapapeles. Las teclas `Print`, `Ctrl+Print` y `Alt+Print` siguen
   haciendo lo mismo directamente.
 - **Grabación:** requiere `wf-recorder` y `slurp` (`sudo apt install wf-recorder slurp`; el instalador ya los
-  incluye). Mientras graba sale un punto rojo parpadeante en la barra, el tile muestra el tiempo y la página
-  tiene *Detener*; al terminar avisa con la ruta del archivo. Sin audio por ahora.
+  incluye). Mientras graba sale un punto rojo parpadeante en la barra y otro en el botón de la cámara, y la
+  página tiene el tiempo y *Detener*; al terminar avisa con la ruta del archivo. Sin audio por ahora.
 - IPC: `qs -c pill ipc call capture area|window|screen|record|recordarea|stop|status`.
 
 ## Selector de emoji (`EmojiPanel.qml`, `EmojiData.qml`)

@@ -13,7 +13,7 @@ GNOME se queda instalado como sesión de respaldo (ver [docs/gnome-fallback.md](
 ```bash
 git clone <este-repo> ~/dotfiles && cd ~/dotfiles
 ./install.sh            # todos los pasos
-./install.sh niri link  # o pasos sueltos: packages | rust | niri | link
+./install.sh niri link  # o pasos sueltos: packages | rust | niri | link | theme
 ```
 
 | Paso | Qué hace |
@@ -21,7 +21,8 @@ git clone <este-repo> ~/dotfiles && cd ~/dotfiles
 | `packages` | apt: dependencias de compilación, portales, audio, fuentes, y Quickshell desde `trixie-backports` |
 | `rust` | rustup (el rustc de apt es viejo para niri) |
 | `niri` | compila niri y xwayland-satellite (versiones fijadas en `scripts/lib.sh`), los instala en `/usr/local` y registra la sesión en GDM |
-| `link` | enlaza `config/*` en `~/.config` (respalda lo que haya) |
+| `link` | enlaza `config/*` en `~/.config` (respalda lo que haya) y oculta el agente polkit de mate |
+| `theme` | tema oscuro coherente: iconos Papirus-Dark, cursor y Qt siguiendo a GTK (`gsettings`) |
 
 Después: cerrar sesión → engranaje de GDM → **niri**.
 
@@ -50,6 +51,8 @@ config/quickshell/pill/         la píldora (QML)
   Field.qml / Btn.qml           campo de texto y boton de los menus
   ScreenCapture.qml / CapturePage.qml   capturas (niri) y grabacion (wf-recorder) con selector (docs/capture-emoji.md)
   EmojiPanel.qml / EmojiData.qml / emoji.json   selector de emoji en el notch con busqueda en espanol e ingles
+  WallpaperPanel.qml            selector de fondos con miniaturas (Mod+Shift+W)
+  wallpaper-palette.py          saca el acento y el tinte del vidrio del fondo de pantalla (paleta dinamica)
   HoverRow.qml                  fila de lista con resaltado, reutilizada por los menus
   AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen por app, microfono y "microfono en uso"
   NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
@@ -80,6 +83,9 @@ docs/                           notas
 | `Mod+Shift+E` / `Ctrl+Alt+Del` | menú de apagado (← → mover, Enter elegir, Esc cerrar, letras L S R P E) |
 | `Mod+M` | reproductor multimedia (maximizar a los bordes pasa a `Mod+Alt+M`) |
 | `Mod+V` | portapapeles (como Win+V); la ventana flotante pasa a `Mod+Alt+V` |
+| `Mod+;` | selector de emoji |
+| `Mod+Shift+S` | panel de captura y grabación de pantalla |
+| `Mod+Shift+W` | selector de fondos de pantalla |
 | `Esc` | cierra cualquier menú del notch (launcher, portapapeles, multimedia, controles, apagado) |
 | click fuera | cierra el launcher, el portapapeles, el reproductor, el menú de apagado o el menú de la barra derecha |
 | scroll sobre el notch | volumen |

@@ -12,7 +12,7 @@ import Quickshell.Services.UPower
 ShellRoot {
     id: root
 
-    // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "clipboard" | "media" | "power" | "osd"
+    // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "wallpapers" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
     Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); }
 
@@ -175,11 +175,15 @@ ShellRoot {
         function status(): string { return NightLight.mode + " " + NightLight.temperature + "K " + NightLight.from + "-" + NightLight.to; }
     }
 
+    // Selector de fondos:  qs -c pill ipc call wallpaper toggle   (niri: Mod+Shift+W)
     // Cambiar el fondo (y el del overview) en vivo:
     //   qs -c pill ipc call wallpaper set ~/Pictures/foto.png
     IpcHandler {
         target: "wallpaper"
         function set(path: string): void { Theme.setWallpaper(path); }
+        function toggle(): void { root.mode = root.mode === "wallpapers" ? "idle" : "wallpapers"; }
+        function open(): void   { root.mode = "wallpapers"; }
+        function close(): void  { root.mode = "idle"; }
     }
 
     // Notificaciones:  qs -c pill ipc call notifications dnd|clear   (No molestar / borrar historial)
@@ -248,7 +252,7 @@ ShellRoot {
 
     // Click en cualquier parte fuera del notch / la barra / el menu abierto lo cierra.
     Dismiss {
-        active: root.mode === "launcher" || root.mode === "emoji" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.popover !== ""
+        active: root.mode === "launcher" || root.mode === "emoji" || root.mode === "wallpapers" || root.mode === "clipboard" || root.mode === "media" || root.mode === "power" || root.popover !== ""
         pillWidth: pill.pillWidth
         pillHeight: pill.pillHeight
         barWidth: statusBar.barWidth + 16

@@ -202,7 +202,11 @@ ColumnLayout {
         ColumnLayout {
             spacing: 14
 
-            // Bateria
+            // Cabecera: bateria (izquierda) y acciones rapidas pequenas (derecha)
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+
             HoverRow {
                 Layout.fillWidth: true
                 visible: root.battery.isPresent
@@ -229,6 +233,27 @@ ColumnLayout {
                         elide: Text.ElideRight
                     }
                     UiGlyph { text: ""; font.pixelSize: 11; color: Theme.textDim }
+                }
+            }
+
+                // Captura de pantalla (Mod+Shift+S): abre su pagina. Punto rojo mientras se graba.
+                Rectangle {
+                    Layout.preferredWidth: 34
+                    Layout.preferredHeight: 34
+                    radius: 17
+                    color: capArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08)
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    UiGlyph { anchors.centerIn: parent; text: "\uf030"; font.pixelSize: 15 }
+                    Rectangle {
+                        visible: ScreenCapture.recording
+                        width: 9; height: 9; radius: 4.5
+                        color: Theme.urgent
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.topMargin: 3
+                        anchors.rightMargin: 3
+                    }
+                    MouseArea { id: capArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.page = "capture" }
                 }
             }
 
@@ -337,13 +362,6 @@ ColumnLayout {
                     subtitle: Idle.caffeine ? "Pantalla siempre activa" : "Desactivado"
                     on: Idle.caffeine
                     onToggled: Idle.toggleCaffeine()
-                }
-                Tile {
-                    glyph: "\uf030"
-                    title: "Captura"
-                    subtitle: ScreenCapture.recording ? "Grabando " + ScreenCapture.elapsedText : "Pantalla y grabación"
-                    on: ScreenCapture.recording
-                    onToggled: root.page = "capture"
                 }
                 Tile {
                     glyph: "\uf186"

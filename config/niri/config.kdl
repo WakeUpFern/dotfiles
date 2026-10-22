@@ -221,6 +221,15 @@ layout {
 // (trae el logo de Debian y mas iconos de apps que Adwaita).
 environment {
     QS_ICON_THEME "Papirus-Dark"
+    // Las apps Qt siguen el tema GTK (oscuro, iconos, fuentes) en lugar de verse como otra cosa.
+    // Quickshell se lanza sin esto (ver mas abajo) para que su estilo propio no cambie.
+    QT_QPA_PLATFORMTHEME "gtk3"
+}
+
+// Cursor explicito (Wayland y XWayland): el mismo que usa GTK (scripts/05-theme.sh).
+cursor {
+    xcursor-theme "Adwaita"
+    xcursor-size 24
 }
 
 // Add lines like this to spawn processes at startup.
@@ -230,7 +239,7 @@ environment {
 
 // Quickshell: la pildora (barra, launcher, notificaciones, estado) vive en
 // ~/.config/quickshell/pill, enlazada desde config/quickshell/pill de este repo.
-spawn-sh-at-startup "qs -c pill"
+spawn-sh-at-startup "env -u QT_QPA_PLATFORMTHEME qs -c pill"
 
 // Historial del portapapeles (cliphist): guarda cada texto e imagen que copies.
 spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
@@ -707,6 +716,7 @@ binds {
 
     // Selector de captura y grabacion del notch (Mod+Shift+S) y selector de emoji (Mod+;).
     Mod+Shift+S hotkey-overlay-title="Screenshot and recording panel" { spawn-sh "qs -c pill ipc call popover toggle capture"; }
+    Mod+Shift+W hotkey-overlay-title="Wallpaper picker" { spawn-sh "qs -c pill ipc call wallpaper toggle"; }
     Mod+Semicolon hotkey-overlay-title="Emoji picker" { spawn-sh "qs -c pill ipc call emoji toggle"; }
 
     Print { screenshot; }

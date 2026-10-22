@@ -11,7 +11,7 @@ import Quickshell.Services.Pipewire
 PanelWindow {
     id: win
 
-    property string mode: "idle"      // idle | launcher | emoji | clipboard | media | power | osd
+    property string mode: "idle"      // idle | launcher | emoji | wallpapers | clipboard | media | power | osd
     property string osdKind: "volume" // "volume" | "brightness" | "track" en modo osd
     signal modeRequested(string mode)
     signal volumeActivity()
@@ -35,6 +35,7 @@ PanelWindow {
         switch (mode) {
         case "launcher":     w = 560; break;
         case "emoji":        w = 560; break;
+        case "wallpapers":   w = 640; break;
         case "clipboard":    w = 640; break;
         case "media":        w = 560; break;
         case "power":        w = 500; break;
@@ -55,6 +56,7 @@ PanelWindow {
         switch (mode) {
         case "launcher":     return 450;
         case "emoji":        return 450;
+        case "wallpapers":   return 440;
         case "clipboard":    return clipboardHeight;
         case "media":        return mediaHeight;
         case "power":        return 168;
@@ -84,7 +86,7 @@ PanelWindow {
     readonly property bool tucked: fullscreenFocused && mode === "idle"
     Binding { target: CavaState; property: "wanted"; value: MediaState.playing && !win.tucked }
     // Todos los menus capturan el teclado para que Esc los cierre (como los menus de escritorio).
-    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "emoji" || mode === "clipboard" || mode === "media" || mode === "power")
+    WlrLayershell.keyboardFocus: (mode === "launcher" || mode === "emoji" || mode === "wallpapers" || mode === "clipboard" || mode === "media" || mode === "power")
         ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Solo el notch recibe clicks; lo demas deja pasar el raton a las ventanas.
@@ -452,6 +454,22 @@ PanelWindow {
             opacity: active ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
             sourceComponent: PowerMenu {
+                onCloseRequested: win.modeRequested("idle")
+            }
+        }
+
+        // --- Selector de fondos de pantalla ---------------------------------------
+        // Tamano fijo (el final), centrado: el notch solo lo "revela" al crecer.
+        Loader {
+            width: 640 - 36
+            height: 440 - 36
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 18
+            active: win.mode === "wallpapers"
+            opacity: active ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 220 } }
+            sourceComponent: WallpaperPanel {
                 onCloseRequested: win.modeRequested("idle")
             }
         }

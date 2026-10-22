@@ -66,7 +66,7 @@ Scope {
                         Layout.preferredWidth: 44
                         Layout.preferredHeight: 44
                         radius: 14
-                        color: Qt.rgba(0.54, 0.71, 1, 0.16)
+                        color: Theme.accentSoft
                         UiGlyph { anchors.centerIn: parent; text: ""; font.pixelSize: 20; color: Theme.accent }
                     }
                     ColumnLayout {

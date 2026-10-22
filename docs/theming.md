@@ -15,6 +15,38 @@ se usa `border` fino en su lugar.
 
 Colores/fuentes/tiempos de la píldora: `config/quickshell/pill/Theme.qml`.
 
+## Paleta dinámica (acento desde el fondo)
+
+El **acento** (botones activos, sliders, tiles encendidos, selección) y el **tinte del vidrio** salen del fondo
+de pantalla. `wallpaper-palette.py` (GdkPixbuf, ~0,2 s) reduce la imagen, pondera cada matiz por saturación y
+brillo, elige el dominante y devuelve un acento claro (`L 0,74`, para que el texto oscuro de los botones se lea),
+una base oscura tintada para el vidrio y el nombre de acento de GNOME más cercano. `Theme.qml` lo aplica con una
+animación de 0,7 s cada vez que cambia el fondo, y todo lo que usa `Theme.accent` / `Theme.glass` lo sigue solo.
+- Imágenes casi grises no tienen matiz: se queda el acento azul por defecto (`#8ab4ff`).
+- `Theme.dynamicPalette: false` lo desactiva (queda el azul fijo).
+- `Theme.syncGtkAccent: true` además ejecuta `gsettings set org.gnome.desktop.interface accent-color <nombre>`,
+  así Nautilus y las apps libadwaita combinan con el fondo (blue, teal, green, yellow, orange, red, pink,
+  purple o slate).
+- Probar un fondo: `python3 -I config/quickshell/pill/wallpaper-palette.py imagen.jpg`.
+
+## Selector de fondos (`Mod+Shift+W`)
+
+`WallpaperPanel.qml` (modo `wallpapers` del notch): miniaturas de las imágenes de `~/Pictures/Wallpapers`,
+`~/Wallpapers` y `~/Pictures` (solo ese nivel). Flechas, Enter o clic aplican; el fondo, el del overview y la
+paleta cambian a la vez. Para tener tu colección ordenada, ponla en `~/Pictures/Wallpapers`.
+`qs -c pill ipc call wallpaper toggle|open|close|set <ruta>`.
+- **WebP:** Qt necesita `qt6-image-formats-plugins` para dibujar `.webp` (el instalador ya lo incluye); sin
+  él la miniatura dice "Sin vista previa" y ese fondo no se vería.
+
+## Tema de las apps (GTK, Qt y cursor): `./install.sh theme`
+
+`scripts/05-theme.sh` deja todo oscuro y coherente a nivel de usuario (`gsettings`): `color-scheme prefer-dark`,
+tema `Adwaita-dark`, iconos **Papirus-Dark** y cursor Adwaita 24. Las apps **Qt** siguen el tema GTK con
+`QT_QPA_PLATFORMTHEME "gtk3"` (paquete `qt6-gtk-platformtheme`) en el bloque `environment` de niri (aplica al
+iniciar sesión); Quickshell se lanza con `env -u QT_QPA_PLATFORMTHEME` para que su estilo propio no cambie.
+El bloque `cursor` de niri fija el mismo cursor para Wayland y XWayland.
+Para deshacerlo: `gsettings reset-recursively org.gnome.desktop.interface`.
+
 ## Fondo de pantalla (requisito del blur)
 
 El blur de niri desenfoca el *fondo de pantalla* (capa Background). Sin fondo no hay nada que

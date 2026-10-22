@@ -12,7 +12,7 @@ Rectangle {
 
     implicitHeight: 38
     radius: 12
-    color: highlighted ? Qt.rgba(0.54, 0.71, 1, 0.16) : (hovered ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
+    color: highlighted ? Theme.accentSoft : (hovered ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
     Behavior on color { ColorAnimation { duration: 120 } }
 
     MouseArea {

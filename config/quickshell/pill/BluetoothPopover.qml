@@ -108,7 +108,7 @@ ColumnLayout {
                 Layout.preferredHeight: 38 + (detailOpen ? 46 : 0)
                 clip: true
                 radius: 12
-                color: d.connected ? Qt.rgba(0.54, 0.71, 1, 0.16) : (devArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
+                color: d.connected ? Theme.accentSoft : (devArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 function act() {

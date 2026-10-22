@@ -21,6 +21,7 @@ RUNTIME=(
   wl-clipboard cliphist grim slurp wf-recorder wtype brightnessctl playerctl libnotify-bin xdg-utils
   swaylock wlsunset
   alacritty
+  qt6-image-formats-plugins
   cava
 )
 
