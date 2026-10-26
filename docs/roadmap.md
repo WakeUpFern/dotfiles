@@ -5,6 +5,7 @@
 - [x] Barra derecha: bandeja del sistema, panel unificado de ajustes rápidos (Wi-Fi, Ethernet, VPN, Bluetooth,
   sonido, batería, brillo, No molestar, No suspender, Luz nocturna, Modo avión) y campana + reloj con calendario
 - [x] Mezclador de audio por aplicación y micrófono, con aviso de "micrófono en uso" y salida por app (mover cada app a otra salida, recordado)
+- [x] Monitor del sistema en la barra izquierda: CPU, RAM, temperatura y red, con detalle (gráficas, hilos, disco, consumo y procesos) (docs/system-monitor.md)
 - [x] Notificaciones emergentes, historial y No molestar
 - [x] Launcher: apps fijadas, recientes, lista completa A-Z, búsqueda por descripción/categoría y alias en español
 - [x] Menú de apagado, bloqueo de pantalla propio (`WlSessionLock`) e inactividad/suspensión con bloqueo antes de dormir
@@ -20,7 +21,6 @@
 - [ ] **Audio:** audio en las grabaciones de pantalla
 - [ ] **Indicadores:** distribución de teclado, Caps/Num Lock y cámara en uso
 - [ ] **Volúmenes y USB:** aviso al conectar y expulsar desde el panel
-- [ ] **Monitor del sistema:** CPU, RAM, temperatura y red (al pasar el ratón o como página del panel)
 - [ ] **Ventanas:** lista de ventanas abiertas en el notch o un Alt+Tab propio
 - [ ] **Estilo:** que el borde de las ventanas de niri siga el acento (niri no recarga colores en vivo)
 

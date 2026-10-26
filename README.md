@@ -45,6 +45,7 @@ config/quickshell/pill/         la píldora (QML)
   MediaPanel.qml / MediaState.qml   reproductor multimedia (MPRIS): panel con carátula, progreso y controles
   BluetoothAudio.qml / bt-profile.py   al conectar audifonos: salida de audio a ellos + mejor perfil A2DP
   StatusBar.qml                 barra derecha: bandeja, boton de ajustes rapidos y boton campana + reloj
+  SysBar.qml / SysPopover.qml / SysMonitor.qml / SystemStats.qml / Spark.qml   barra izquierda: monitor del sistema (docs/system-monitor.md)
   QuickPanel.qml                panel unificado: inicio (bateria, volumen, brillo, tiles) y paginas de detalle
   NetworkState.qml / NetworkPage.qml / VpnPage.qml   Wi-Fi, Ethernet y VPN via nmcli / tailscale (docs/network.md)
   Idle.qml / BatteryAlerts.qml / PolkitDialog.qml   inactividad y suspension, avisos de bateria baja y agente polkit (docs/power.md)

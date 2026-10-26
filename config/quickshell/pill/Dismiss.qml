@@ -19,6 +19,13 @@ PanelWindow {
     property real cardHeight: 0
     property real cardTop: 0
     property real cardRight: 0
+    // Barra izquierda (monitor del sistema) y su tarjeta.
+    property real leftBarWidth: 0
+    property real leftBarHeight: 0
+    property real leftCardWidth: 0
+    property real leftCardHeight: 0
+    property real leftCardTop: 0
+    property real leftCardLeft: 0
     signal dismissed()
 
     visible: active
@@ -43,6 +50,20 @@ PanelWindow {
                 y: 0
                 width: win.barWidth
                 height: win.barHeight
+                intersection: Intersection.Subtract
+            },
+            Region {
+                x: 0
+                y: 0
+                width: win.leftBarWidth
+                height: win.leftBarHeight
+                intersection: Intersection.Subtract
+            },
+            Region {
+                x: win.leftCardLeft
+                y: win.leftCardTop
+                width: win.leftCardWidth
+                height: win.leftCardHeight
                 intersection: Intersection.Subtract
             },
             Region {

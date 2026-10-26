@@ -1,5 +1,7 @@
 # Barra derecha y menús
 
+> La barra de la **izquierda** (CPU, memoria, temperatura y red) está en [system-monitor.md](system-monitor.md).
+
 Arriba a la derecha hay iconos **sin fondo** (con una sombra suave para que se lean sobre cualquier
 ventana) agrupados en tres botones. El notch del centro se queda para lo dinámico (espacios de trabajo, app
 activa, música, HUD de volumen/brillo, launcher, portapapeles, reproductor).

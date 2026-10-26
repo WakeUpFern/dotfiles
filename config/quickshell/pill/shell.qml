@@ -14,7 +14,7 @@ ShellRoot {
 
     // Quien tenga el foco del notch: "idle" | "launcher" | "emoji" | "wallpapers" | "clipboard" | "media" | "power" | "osd"
     property string mode: "idle"
-    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); AppUsage.load(); Fzf.probe(); }
+    Component.onCompleted: { BluetoothAudio.start(); AudioStreams.start(); PinnedApps.load(); NetworkState.start(); Idle.start(); BatteryAlerts.start(); NightLight.load(); EmojiData.load(); ScreenCapture.load(); AppUsage.load(); Fzf.probe(); SystemStats.start(); }
 
     // Menu abierto de la barra derecha: "" | "quick" (ajustes rapidos) | "notifications" (reloj +
     // campana) | "tray". Notch y menus de la barra son excluyentes (abrir uno cierra el otro).
@@ -73,7 +73,10 @@ ShellRoot {
         quick: "home", network: "network", wifi: "network", ethernet: "network", bluetooth: "bluetooth",
         volume: "audio", audio: "audio", vpn: "vpn", battery: "battery", nightlight: "nightlight", night: "nightlight", capture: "capture"
     })
-    function popoverFor(name) { return name === "clock" ? "notifications" : (quickPages[name] ? "quick" : name); }
+    function popoverFor(name) {
+        if (name === "sysmon" || name === "monitor") return "system";
+        return name === "clock" ? "notifications" : (quickPages[name] ? "quick" : name);
+    }
     function togglePopover(name) {
         const p = popoverFor(name);
         const page = quickPages[name] || "home";
@@ -241,6 +244,7 @@ ShellRoot {
 
     // Menus de la barra derecha:
     //   qs -c pill ipc call popover toggle quick|network|bluetooth|volume|vpn|battery|notifications|clock
+    //   qs -c pill ipc call popover toggle system      (monitor del sistema, barra izquierda)
     // (network/bluetooth/volume/vpn/battery abren esa pagina del panel de ajustes rapidos)
     IpcHandler {
         target: "popover"
@@ -274,6 +278,12 @@ ShellRoot {
         cardHeight: popoverHost.cardHeight
         cardTop: popoverHost.topGap
         cardRight: popoverHost.rightGap
+        leftBarWidth: sysBar.barWidth + 16
+        leftBarHeight: sysBar.barHeight + 4
+        leftCardWidth: sysPopover.cardWidth
+        leftCardHeight: sysPopover.cardHeight
+        leftCardTop: sysPopover.topGap
+        leftCardLeft: sysPopover.leftGap
         onDismissed: { root.mode = "idle"; root.popover = ""; }
     }
 
@@ -288,9 +298,20 @@ ShellRoot {
             else { root.trayItem = item; root.popover = "tray"; }
         }
     }
+    // Barra izquierda: monitor del sistema (y su detalle, popover "system").
+    SysBar {
+        id: sysBar
+        open: root.popover === "system"
+        onToggled: root.togglePopover("system")
+    }
+    SysPopover {
+        id: sysPopover
+        open: root.popover === "system"
+        onCloseRequested: root.popover = ""
+    }
     PopoverHost {
         id: popoverHost
-        name: root.popover
+        name: root.popover === "system" ? "" : root.popover
         quickPage: root.quickPage
         trayItem: root.trayItem
         onCloseRequested: root.popover = ""

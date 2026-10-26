@@ -34,6 +34,9 @@ Singleton {
     readonly property int notchPeekHeight: 40
     readonly property int animMs: 420
 
+    // Barra izquierda (monitor del sistema, SysBar.qml): que valores se muestran. El detalle (clic) lo trae todo.
+    readonly property var sysmonShow: ({ cpu: true, ram: true, temp: true, net: true })
+
     // Bloqueo de pantalla: false = swaylock (probado), true = el bloqueo propio del notch
     // (LockScreen.qml). Activar solo despues de probar `scripts/lock-test.sh`.
     readonly property bool nativeLock: true

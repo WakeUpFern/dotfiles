@@ -735,6 +735,8 @@ binds {
     // Mod+Shift+Space { switch-layout "prev"; }
 
     // Selector de captura y grabacion del notch (Mod+Shift+S) y selector de emoji (Mod+;).
+    // Monitor del sistema (barra izquierda): CPU, memoria, temperaturas, red, disco y procesos.
+    Ctrl+Shift+Escape hotkey-overlay-title="System monitor" { spawn-sh "qs -c pill ipc call popover toggle system"; }
     Mod+Shift+S hotkey-overlay-title="Screenshot and recording panel" { spawn-sh "qs -c pill ipc call popover toggle capture"; }
     Mod+Shift+W hotkey-overlay-title="Wallpaper picker" { spawn-sh "qs -c pill ipc call wallpaper toggle"; }
     Mod+Semicolon hotkey-overlay-title="Emoji picker" { spawn-sh "qs -c pill ipc call emoji toggle"; }
