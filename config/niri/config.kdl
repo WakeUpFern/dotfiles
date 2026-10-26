@@ -427,6 +427,23 @@ window-rule {
     }
 }
 
+// --- Dialogos que deben flotar encima, no abrirse en mosaico al lado ------------------------------
+// niri solo flota las ventanas que declaran un "padre" (xdg-foreign / set_parent). El selector de
+// archivos y los avisos de los portales los abre otro proceso y muchas apps (Electron, LibreOffice...)
+// no declaran el padre, asi que salian como una columna nueva junto a tu ventana. Se detectan por
+// app-id (+ titulo cuando el dialogo es una ventana de Nautilus). Se centran y se les da un tamano comodo.
+// Si un dialogo concreto sigue saliendo en mosaico: `Mod+Alt+V` lo pasa a flotante, y se puede
+// anadir su titulo a esta lista (`niri msg windows` muestra el app-id y el titulo).
+window-rule {
+    // Selector de archivos del portal: Nautilus con el titulo que le pone la app ("Open File", "Abrir"...).
+    match app-id=r#"^org\.gnome\.Nautilus$"# title=r#"(?i)^(open|save|select|choose|pick|upload|attach|insert|import|export|add|abrir|guardar|seleccionar|selecciona|elegir|elige|subir|adjuntar|insertar|importar|exportar|a.adir)\b"#
+    // Portales de GNOME/GTK (avisos de permisos, color, etc.)
+    match app-id=r#"^(org\.freedesktop\.impl\.portal\.desktop\.(gtk|gnome)|xdg-desktop-portal-(gtk|gnome))$"#
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 640; }
+}
+
 // Todo lo de Quickshell (namespaces `pill`, `pill-toast`, `pill-popover`, `pill-polkit`...) pide su blur
 // por ext-background-effect, con la forma exacta de su tarjeta. Aqui solo se cambia el MODO: `xray false`
 // desenfoca lo que realmente hay debajo (apps incluidas) en tiempo real, en vez de solo el fondo de
