@@ -209,6 +209,16 @@ ShellRoot {
             AudioStreams.setGroupVolume(g, Number(v));
             return g.name + " -> " + v;
         }
+        function outputs(): string {
+            return AudioStreams.apps.map(g => g.name + " -> " + (AudioStreams.groupSink(g) ? AudioStreams.groupSink(g).name : "?")).join("\n") + "\n--\n" + AudioStreams.sinks.map(n => n.name).join("\n");
+        }
+        function moveapp(name: string, sink: string): string {
+            const g = AudioStreams.apps.find(x => x.name.toLowerCase().indexOf(name.toLowerCase()) >= 0);
+            if (!g) return "app no encontrada";
+            const s = AudioStreams.sinks.find(x => x.name.indexOf(sink) >= 0 || (x.description || "").toLowerCase().indexOf(sink.toLowerCase()) >= 0);
+            AudioStreams.moveGroup(g, sink === "auto" ? null : s);
+            return s || sink === "auto" ? "ok" : "salida no encontrada";
+        }
         function dump(): string {
             return Pipewire.nodes.values.map(n => n.id + " | stream=" + n.isStream + " sink=" + n.isSink + " | " + n.name + " | clase=" + JSON.stringify((n.properties || {})["media.class"]) + " | app=" + JSON.stringify((n.properties || {})["application.name"])).join("\n");
         }

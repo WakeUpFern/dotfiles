@@ -55,7 +55,7 @@ config/quickshell/pill/         la píldora (QML)
   WallpaperPanel.qml            selector de fondos con miniaturas (Mod+Shift+W)
   wallpaper-palette.py          saca el acento y el tinte del vidrio del fondo de pantalla (paleta dinamica)
   HoverRow.qml                  fila de lista con resaltado, reutilizada por los menus
-  AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen por app, microfono y "microfono en uso"
+  AudioStreams.qml / AppMixer.qml / MicControl.qml   mezclador: volumen y salida por app, microfono y "microfono en uso"
   NotificationCenter.qml / NotificationsPopover.qml   historial de notificaciones y No molestar
   DatePopover.qml               menu del reloj: calendario + notificaciones
   TrayMenuPopover.qml           menu de un icono de la bandeja del sistema

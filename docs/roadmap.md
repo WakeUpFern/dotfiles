@@ -4,7 +4,7 @@
 - [x] Fondo de pantalla (capa Background, necesario para el blur) y fondo desenfocado del overview
 - [x] Barra derecha: bandeja del sistema, panel unificado de ajustes rápidos (Wi-Fi, Ethernet, VPN, Bluetooth,
   sonido, batería, brillo, No molestar, No suspender, Luz nocturna, Modo avión) y campana + reloj con calendario
-- [x] Mezclador de audio por aplicación y micrófono, con aviso de "micrófono en uso"
+- [x] Mezclador de audio por aplicación y micrófono, con aviso de "micrófono en uso" y salida por app (mover cada app a otra salida, recordado)
 - [x] Notificaciones emergentes, historial y No molestar
 - [x] Launcher: apps fijadas, recientes, lista completa A-Z, búsqueda por descripción/categoría y alias en español
 - [x] Menú de apagado, bloqueo de pantalla propio (`WlSessionLock`) e inactividad/suspensión con bloqueo antes de dormir
@@ -17,7 +17,7 @@
 ## Pendiente
 - [ ] **Notificaciones:** persistir el historial y "No molestar" entre reinicios, y botones de acción (responder,
   abrir…) dentro del historial
-- [ ] **Audio:** mover una app a otra salida (hoy solo se ajusta su volumen) y audio en las grabaciones de pantalla
+- [ ] **Audio:** audio en las grabaciones de pantalla
 - [ ] **Indicadores:** distribución de teclado, Caps/Num Lock y cámara en uso
 - [ ] **Volúmenes y USB:** aviso al conectar y expulsar desde el panel
 - [ ] **Monitor del sistema:** CPU, RAM, temperatura y red (al pasar el ratón o como página del panel)
