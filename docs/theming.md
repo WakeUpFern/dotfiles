@@ -85,8 +85,23 @@ En `config/niri/config.kdl`:
   Cuesta más y en niri 26.04 es experimental: el blur desaparece durante las animaciones de abrir/cerrar
   ventana y al arrastrar una ventana en mosaico.
 
-El notch usa el modo real (`layer-rule` en `config.kdl`). Las terminales siguen en xray; para que una
-terminal flotante también desenfoque lo que tiene debajo, agrega `xray false` en su `background-effect`.
+**Qué usa blur en vivo (`xray false`)** en `config.kdl`:
+
+| Superficie | Cómo se aplica |
+|---|---|
+| Todo lo de Quickshell: notch, menús de la barra, tarjetas de notificación, diálogo de autenticación polkit | un solo `layer-rule` con `match namespace="^pill"`; cualquier ventana nueva con ese prefijo que pida blur lo hereda sola |
+| Terminales (Alacritty, foot, kitty, wezterm, ghostty) | `xray false` en su `window-rule` (se nota cuando flotan sobre otra ventana) |
+
+> **Lección:** antes la regla era una lista de espacios de nombres y el diálogo de autenticación
+> (`pill-polkit`) quedó fuera: se veía "con vidrio" pero desenfocaba el fondo de pantalla en vez de lo
+> que tenía detrás. Con el patrón `^pill` eso no se repite.
+
+**Lo que NO tiene blur en vivo, y por qué:**
+- La pantalla de bloqueo propia: tapa todo, no hay nada vivo detrás; usa el wallpaper desenfocado.
+- El overview (`Mod+O`), el Alt+Tab y los avisos que dibuja niri (salir, atajos): niri no ofrece blur
+  para esas pantallas.
+- Ventanas de otras apps (GTK, Qt, navegadores): no tienen vidrio salvo que una regla las haga translúcidas.
+  Para sumar una: otro `match app-id=...` en la regla de las terminales (con `xray false`).
 
 ## Notificaciones
 

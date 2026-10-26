@@ -421,18 +421,21 @@ window-rule {
     opacity 0.80
     background-effect {
         blur true
+        // Blur "en vivo": desenfoca lo que hay debajo (otra ventana si la terminal flota encima),
+        // no solo el fondo de pantalla. Para el modo barato: `xray true`.
+        xray false
     }
 }
 
-// El notch (Quickshell) pide su blur por ext-background-effect, con la forma exacta
-// del rectangulo animado. Aqui solo se cambia el modo: `xray false` desenfoca lo que
-// realmente hay debajo (apps incluidas) en tiempo real, en vez de solo el fondo de
-// pantalla. Es mas costoso y experimental en niri 26.04: el blur desaparece durante
-// las animaciones de abrir/cerrar ventana. Para volver al modo barato: `xray true`.
+// Todo lo de Quickshell (namespaces `pill`, `pill-toast`, `pill-popover`, `pill-polkit`...) pide su blur
+// por ext-background-effect, con la forma exacta de su tarjeta. Aqui solo se cambia el MODO: `xray false`
+// desenfoca lo que realmente hay debajo (apps incluidas) en tiempo real, en vez de solo el fondo de
+// pantalla. Un solo patron `^pill` cubre tambien lo que se anada despues (antes habia una lista y
+// el dialogo de autenticacion se quedo fuera con el blur "estatico"). Las superficies que no piden blur
+// (fondo, barra, capa de click-fuera) no se ven afectadas. Es mas costoso y experimental en niri 26.04:
+// el blur desaparece durante las animaciones de abrir/cerrar ventana. Modo barato: `xray true`.
 layer-rule {
-    match namespace="^pill$"
-    match namespace="^pill-toast$"
-    match namespace="^pill-popover$"
+    match namespace="^pill"
 
     background-effect {
         xray false
