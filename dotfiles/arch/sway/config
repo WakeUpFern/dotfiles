@@ -7,7 +7,6 @@ exec sh -lc 'dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLA
 exec wl-paste --watch cliphist store
 exec nm-applet
 exec blueman-applet
-exec pasystray
 exec polkit-agent
 
 # exec swayidle -w \
@@ -200,6 +199,7 @@ bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="blueman-manager"] floating enable
+for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="thunar" title="File Operation Progress"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="dialog"] floating enable

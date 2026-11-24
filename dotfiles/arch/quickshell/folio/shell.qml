@@ -25,6 +25,8 @@ ShellRoot {
     }
     Ask {}
     TrayMenu {}
+    NetPane {}
+    BluePane {}
     KeySheet {}
     Lock {}
 }

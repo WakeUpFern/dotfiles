@@ -79,6 +79,7 @@ PanelWindow {
             switch (result.command) {
             case "lock":
                 ShellState.menuItem = null;
+                ShellState.panel = "";
                 ShellState.locked = true;
                 break;
             case "sleep":

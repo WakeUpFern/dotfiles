@@ -13,6 +13,19 @@ PanelWindow {
     property bool earlier: false
     property bool calendar: false
     property bool layouts: false
+    // The earlier sheet's text column fits the widest kept notice, capped; it is measured while
+    // the sheet is closed and held while it is open, so forgetting a row never remaps it wider/narrower.
+    readonly property real pastGap: 18 * u
+    readonly property real pastTime: Theme.wide("00:00")
+    readonly property real pastCap: Math.min(Theme.wide("M".repeat(60)), width * 0.6 - 44 * u - pastTime - 2 * pastGap - Theme.wide("×"))
+    readonly property real pastWant: Math.min(pastCap, Math.max(0, ...Notices.history.slice(0, 10).map(p => Theme.wide(pastText(p)))))
+    property real pastWidth: 0
+    onPastWantChanged: if (!earlier) pastWidth = pastWant
+    onEarlierChanged: if (!earlier) pastWidth = pastWant
+    Component.onCompleted: pastWidth = pastWant
+    function pastText(p): string {
+        return (p.app + ": " + p.summary + (p.body ? " — " + p.body : "")).replace(/\s+/g, " ");
+    }
     Connections {
         target: ShellState
         function onMissedWanted(onScreen) {
@@ -403,7 +416,6 @@ PanelWindow {
         }
         onDismissed: line.earlier = false
         Column {
-            width: 820 * line.u
             spacing: 12 * line.u
             Repeater {
                 model: Notices.history.slice(0, 10)
@@ -415,15 +427,15 @@ PanelWindow {
                     Small {
                         screen: line.screen
                         lit: false
-                        width: 110 * line.u
+                        width: line.pastTime
                         text: Qt.formatDateTime(new Date(past.modelData.time), "HH:mm")
                     }
                     Small {
                         screen: line.screen
                         color: past.modelData.critical ? Theme.signal : Theme.fg
-                        width: 640 * line.u
+                        width: line.pastWidth
                         elide: Text.ElideRight
-                        text: past.modelData.app + ": " + past.modelData.summary + (past.modelData.body ? " — " + past.modelData.body.replace(/\s+/g, " ") : "")
+                        text: line.pastText(past.modelData)
                     }
                     Small {
                         screen: line.screen

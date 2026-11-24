@@ -32,6 +32,15 @@ QtObject {
     function fitSmall(screen): int {
         return !screen || screen.height >= 1300 ? 22 : 11;
     }
+    // Width of a Small label (Departure Mono at small size, shown uppercase); +1 px slack so
+    // columns sized with it never elide what they measured.
+    property FontMetrics smallMetrics: FontMetrics {
+        font.family: root.mono
+        font.pixelSize: root.small(null)
+    }
+    function wide(text: string): real {
+        return Math.ceil(smallMetrics.advanceWidth(text.toUpperCase())) + 1;
+    }
     property FileView palette: FileView {
         path: root.configHome + "/quickshell/folio/colors.json"
         watchChanges: true

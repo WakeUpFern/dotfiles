@@ -19,6 +19,7 @@ PanelWindow {
     readonly property var desks: RailLogic.workspaceNames(I3.workspaces.values, screen.name, Desktop.occupied)
     readonly property var lit: Desktop.windows.find(w => w.focused && w.workspace === line.here) ?? null
     readonly property var player: Media.player
+    readonly property var trayItems: SystemTray.items.values.filter(i => !["nm-applet", "blueman"].includes(i.id))
     readonly property var audio: Pipewire.defaultAudioSink?.audio ?? null
     readonly property var battery: UPower.displayDevice
     property int brightness: -1
@@ -219,7 +220,7 @@ PanelWindow {
             }
         }
         Rectangle {
-            visible: SystemTray.items.values.length > 0
+            visible: line.trayItems.length > 0
             anchors.verticalCenter: parent.verticalCenter
             width: icons.width + 20 * line.u
             height: 38 * line.u
@@ -233,7 +234,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 spacing: 6 * line.u
                 Repeater {
-                    model: SystemTray.items
+                    model: line.trayItems
                     Item {
                         id: tray
                         required property var modelData
@@ -283,6 +284,35 @@ PanelWindow {
                         }
                     }
                 }
+            }
+        }
+        Small {
+            id: netWord
+            anchors.verticalCenter: parent.verticalCenter
+            screen: line.screen
+            link: true
+            lit: Net.online || ShellState.panel === "net"
+            text: Net.label
+            onPressed: event => {
+                if (event.button === Qt.RightButton)
+                    Quickshell.execDetached(["nm-connection-editor"]);
+                else
+                    ShellState.openPanel("net", line.screen, netWord.mapToItem(null, netWord.width, 0).x);
+            }
+        }
+        Small {
+            id: btWord
+            anchors.verticalCenter: parent.verticalCenter
+            screen: line.screen
+            visible: Blue.adapter !== null
+            link: true
+            lit: Blue.linked > 0 || ShellState.panel === "bt"
+            text: Blue.label
+            onPressed: event => {
+                if (event.button === Qt.RightButton)
+                    Quickshell.execDetached(["blueman-manager"]);
+                else
+                    ShellState.openPanel("bt", line.screen, btWord.mapToItem(null, btWord.width, 0).x);
             }
         }
         Small {
@@ -341,7 +371,7 @@ PanelWindow {
         anchor.rect.y: line.height
         implicitWidth: Math.ceil(name.implicitWidth + 28 * line.u)
         implicitHeight: Math.ceil(name.implicitHeight + 18 * line.u)
-        visible: line.tip.length > 0 && ShellState.menuItem === null
+        visible: line.tip.length > 0 && ShellState.menuItem === null && ShellState.panel === ""
         color: Theme.bg
         Rectangle {
             anchors.fill: parent

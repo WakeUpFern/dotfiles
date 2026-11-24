@@ -14,8 +14,23 @@ QtObject {
     property var menuItem: null
     property var menuScreen: null
     property real menuX: 0
+    property string panel: ""
+    property var panelScreen: null
+    property real panelX: -1
+    function openPanel(name: string, onScreen, x: real): void {
+        asking = false;
+        menuItem = null;
+        keys = false;
+        panelScreen = onScreen;
+        panelX = x;
+        panel = name;
+    }
+    function closePanel(): void {
+        panel = "";
+    }
     function openMenu(item, onScreen, x: real): void {
         asking = false;
+        panel = "";
         menuScreen = onScreen;
         menuX = x;
         menuItem = item;
@@ -53,6 +68,7 @@ QtObject {
         about = what;
         keys = false;
         menuItem = null;
+        panel = "";
         if (asking)
             return;
         screen = focusedScreen;
@@ -60,6 +76,7 @@ QtObject {
     }
     function close(): void {
         asking = false;
+        root.panel = "";
     }
     signal missedWanted(var onScreen)
     function showMissed(onScreen): void {
@@ -76,6 +93,7 @@ QtObject {
         function lock(): void {
             root.asking = false;
             root.menuItem = null;
+            root.panel = "";
             root.locked = true;
         }
         function unlock(): void {
@@ -90,7 +108,14 @@ QtObject {
         function keys(): void {
             root.asking = false;
             root.menuItem = null;
+            root.panel = "";
             root.keys = !root.keys;
+        }
+        function network(): void {
+            root.openPanel(root.panel === "net" ? "" : "net", root.focusedScreen, -1);
+        }
+        function bluetooth(): void {
+            root.openPanel(root.panel === "bt" ? "" : "bt", root.focusedScreen, -1);
         }
     }
 }

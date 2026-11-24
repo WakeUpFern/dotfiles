@@ -23,7 +23,7 @@ PanelWindow {
         },
         {
             name: "the top line",
-            rows: [["click a desk", "Go there"], ["click the song", "Pause or play"], ["right, middle click", "Next track, last track"], ["click the tray", "The application; right click for its menu"], ["scroll the volume", "Louder, quieter; click to mute"], ["hover a moving title", "It holds still"]]
+            rows: [["click a desk", "Go there"], ["click the song", "Pause or play"], ["right, middle click", "Next track, last track"], ["click the tray", "The application; right click for its menu"], ["scroll the volume", "Louder, quieter; click to mute"], ["hover a moving title", "It holds still"], ["click wifi or bt", "Its panel"], ["right click them", "The full settings"]]
         },
         {
             name: "the bottom line",
@@ -95,7 +95,7 @@ PanelWindow {
         opacity: sheet.shown
         spacing: 110 * sheet.u
         Repeater {
-            model: [sheet.parts.slice(0, 3), sheet.parts.slice(3)]
+            model: [sheet.parts.filter((p, i) => i < 3 || i === 4), sheet.parts.filter((p, i) => i >= 3 && i !== 4)]
             Column {
                 id: side
                 required property var modelData
