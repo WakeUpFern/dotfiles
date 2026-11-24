@@ -1,6 +1,8 @@
+.DS_Store
+.venv/
+__pycache__/
 *.swp
 *~
-.DS_Store
 # secretos: nunca versionar
 *.key
 *.pem

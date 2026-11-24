@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+set -eu
+
+action=${1:-launcher}
+case $action in
+    launcher | clipboard | close | keys | lock | unlock) ;;
+    view) exec qs ipc -c folio call shell view "${2:-next}" ;;
+    serve) exec qs -c folio --no-duplicate ;;
+    *)
+        printf '%s\n' 'usage: desktop-menu [launcher|clipboard|keys|lock|unlock|close|view [next|prev|NAME]|serve]' >&2
+        exit 2
+        ;;
+esac
+if [ "$action" = lock ]; then
+    qs ipc -c folio call shell lock || exec "${XDG_CONFIG_HOME:-"$HOME/.config"}/dotfiles/lock"
+    exit 0
+fi
+exec qs ipc -c folio call shell "$action"

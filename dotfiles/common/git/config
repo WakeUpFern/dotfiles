@@ -1,0 +1,23 @@
+[user]
+	name = WakeUpFern
+	email = 134184673+WakeUpFern@users.noreply.github.com
+
+[include]
+	path = ~/.config/git/local
+
+[apply]
+	whitespace = fix
+
+[init]
+	defaultBranch = main
+
+[push]
+	autoSetupRemote = true
+
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
