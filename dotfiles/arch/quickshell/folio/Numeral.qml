@@ -8,7 +8,7 @@ Item {
     required property var screen
     property string here: ""
     property bool live: true
-    readonly property real u: Theme.unit(screen)
+    readonly property real u: Theme.fit(screen)
     readonly property real dot: width / 640
     onHereChanged: scatter.restart()
     Item {
@@ -107,10 +107,12 @@ Item {
         spacing: 14 * numeral.u
         Column {
             Small {
+                fitted: true
                 screen: numeral.screen
                 text: "desk " + (/^\d+$/.test(numeral.here) ? Logic.count(Number(numeral.here)) : numeral.here)
             }
             Small {
+                fitted: true
                 screen: numeral.screen
                 lit: false
                 text: {

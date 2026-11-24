@@ -62,16 +62,18 @@ PanelWindow {
         spacing: 14 * line.u
         readonly property var words: line.lit ? Logic.inFocus(line.lit.app, line.lit.title) : ["", ""]
         Small {
+            id: appWord
             screen: line.screen
             visible: text.length > 0
             text: who.words[0]
         }
-        Small {
+        Marquee {
             screen: line.screen
             lit: false
             visible: text.length > 0
-            width: Math.min(implicitWidth, line.width * 0.14)
-            elide: Text.ElideRight
+            width: Math.max(0, Math.min(implicitWidth, line.width * 0.14, status.x - 2 * deskRow.gap - deskRow.width - who.x - appWord.width - who.spacing))
+            gap: 40 * line.u
+            speed: 36 * line.u
             text: who.words[1]
         }
     }
@@ -198,12 +200,13 @@ PanelWindow {
                     color: Theme.fg
                 }
             }
-            Small {
+            Marquee {
                 anchors.baseline: playWord.baseline
                 screen: line.screen
                 link: true
-                width: Math.min(implicitWidth, 300 * line.u)
-                elide: Text.ElideRight
+                width: Math.min(implicitWidth, 160 * line.u)
+                gap: 40 * line.u
+                speed: 36 * line.u
                 text: line.player?.trackTitle || line.player?.identity || ""
                 onPressed: event => {
                     if (event.button === Qt.RightButton)

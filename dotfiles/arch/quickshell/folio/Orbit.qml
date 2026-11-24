@@ -8,7 +8,7 @@ Item {
     required property var screen
     property string here: ""
     property bool live: true
-    readonly property real u: Theme.unit(screen)
+    readonly property real u: Theme.fit(screen)
     readonly property real dot: width / 640
     readonly property real centerX: 320
     readonly property real centerY: 176
@@ -158,17 +158,20 @@ Item {
                     anchors.right: tag.onRight ? undefined : parent.right
                     spacing: 6 * orbit.u
                     Small {
+                        fitted: true
                         screen: orbit.screen
                         lit: false
-                        font.pixelSize: Theme.small(orbit.screen) * 0.72
+                        font.pixelSize: Theme.fitSmall(orbit.screen) * 0.72
                         text: tag.modelData.desk
                     }
                     Small {
+                        fitted: true
                         screen: orbit.screen
                         text: tag.modelData.name
                     }
                 }
                 Small {
+                    fitted: true
                     anchors.right: tag.onRight ? undefined : parent.right
                     screen: orbit.screen
                     lit: !tag.modelData.urgent

@@ -4,7 +4,9 @@ singleton Desktop 1.0 Desktop.qml
 singleton Notices 1.0 Notices.qml
 singleton Media 1.0 Media.qml
 singleton Lyrics 1.0 Lyrics.qml
+singleton Keyboard 1.0 Keyboard.qml
 Small 1.0 Small.qml
+Marquee 1.0 Marquee.qml
 Sheet 1.0 Sheet.qml
 TopLine 1.0 TopLine.qml
 BottomLine 1.0 BottomLine.qml

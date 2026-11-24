@@ -363,8 +363,8 @@ PanelWindow {
         visible: turner.visible
         opacity: turner.opacity
         anchors.centerIn: turner
-        width: turner.width + 36 * page.u
-        height: turner.height + 18 * page.u
+        width: turner.width + 36 * Theme.fit(page.screen)
+        height: turner.height + 18 * Theme.fit(page.screen)
         color: Theme.bg
     }
     Row {
@@ -372,8 +372,8 @@ PanelWindow {
         visible: opacity > 0
         opacity: page.bare && wind.GraphicsInfo.api !== GraphicsInfo.Software ? 1 : 0
         anchors.horizontalCenter: parent.horizontalCenter
-        y: page.height - 104 * page.u
-        spacing: 26 * page.u
+        y: page.height - 60 * page.u - 44 * Theme.fit(page.screen)
+        spacing: 26 * Theme.fit(page.screen)
         Behavior on opacity {
             NumberAnimation {
                 duration: 320
@@ -383,6 +383,7 @@ PanelWindow {
             model: ShellState.views
             Small {
                 required property string modelData
+                fitted: true
                 screen: page.screen
                 link: true
                 lit: modelData === page.view

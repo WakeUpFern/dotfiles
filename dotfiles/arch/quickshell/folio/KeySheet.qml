@@ -6,24 +6,28 @@ import Quickshell.Wayland
 PanelWindow {
     id: sheet
     screen: ShellState.focusedScreen
-    readonly property real u: Theme.unit(screen)
+    readonly property real u: Theme.fit(screen)
     property real shown: ShellState.keys ? 1 : 0
     readonly property var parts: [
         {
             name: "anywhere",
-            rows: [["super space", "Ask for something"], ["super tab", "The same"], ["super shift v", "Ask for something you copied"], ["super `", "Turn the empty desk to its next view"], ["super shift `", "Turn it back"], ["super escape", "Lock the screen"], ["super /", "This sheet"]]
+            rows: [["super space", "Ask for something"], ["super tab", "The same"], ["super shift v", "Ask for something you copied"], ["super `", "Turn the empty desk to its next view"], ["super shift `", "Turn it back"], ["super escape", "Lock the screen"], ["alt shift", "The other keyboard layout"], ["super /", "This sheet"]]
         },
         {
             name: "asking",
             rows: [["↵", "Do it"], ["↑ ↓", "Choose another answer"], ["tab", "What you copied, and back"], ["1 – 9", "Go to that desk, before anything is typed"], ["=", "Arithmetic; Enter copies the answer"], ["esc", "Never mind"]]
         },
         {
+            name: "the touchpad",
+            rows: [["tap", "Click"], ["three fingers left", "The next desk"], ["three fingers right", "The desk before"], ["three fingers up", "Ask for something"], ["three fingers down", "Never mind"], ["four fingers left", "Carry the window to the next desk"], ["four fingers right", "Carry it to the desk before"]]
+        },
+        {
             name: "the top line",
-            rows: [["click a desk", "Go there"], ["click the song", "Pause or play"], ["right, middle click", "Next track, last track"], ["click the tray", "The application; right click for its menu"], ["scroll the volume", "Louder, quieter; click to mute"]]
+            rows: [["click a desk", "Go there"], ["click the song", "Pause or play"], ["right, middle click", "Next track, last track"], ["click the tray", "The application; right click for its menu"], ["scroll the volume", "Louder, quieter; click to mute"], ["hover a moving title", "It holds still"]]
         },
         {
             name: "the bottom line",
-            rows: [["click the time", "A calendar"], ["click missed", "What went by"], ["click quiet", "Hold notifications back"]]
+            rows: [["click the time", "A calendar"], ["click missed", "What went by"], ["click quiet", "Hold notifications back"], ["click the layout", "Choose a keyboard layout"]]
         },
         {
             name: "orbit",
@@ -91,7 +95,7 @@ PanelWindow {
         opacity: sheet.shown
         spacing: 110 * sheet.u
         Repeater {
-            model: [sheet.parts.slice(0, 2), sheet.parts.slice(2)]
+            model: [sheet.parts.slice(0, 3), sheet.parts.slice(3)]
             Column {
                 id: side
                 required property var modelData
@@ -129,6 +133,7 @@ PanelWindow {
                                     width: 330 * sheet.u
                                     height: does.height
                                     Small {
+                                        fitted: true
                                         anchors.right: parent.right
                                         anchors.baseline: parent.top
                                         anchors.baselineOffset: does.baselineOffset

@@ -50,7 +50,7 @@ focus_follows_mouse no
 floating_modifier $mod normal
 
 input type:keyboard {
-    xkb_layout us
+    xkb_layout us,latam
     repeat_delay 300
     repeat_rate 50
 }
@@ -59,6 +59,19 @@ input type:pointer {
     accel_profile flat
     pointer_accel 0
 }
+
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
+bindgesture swipe:3:left workspace next_on_output
+bindgesture swipe:3:right workspace prev_on_output
+bindgesture swipe:3:up exec desktop-menu launcher
+bindgesture swipe:3:down exec desktop-menu close
+bindgesture swipe:4:left move container to workspace next_on_output; workspace next_on_output
+bindgesture swipe:4:right move container to workspace prev_on_output; workspace prev_on_output
 
 seat seat0 xcursor_theme Adwaita 24
 
@@ -110,8 +123,8 @@ bindsym $mod+Shift+l move right
 bindsym $mod+a focus parent
 bindsym $mod+Shift+a focus child
 
-bindsym $mod+Shift+minus move scratchpad
-bindsym $mod+minus scratchpad show
+bindsym --to-code $mod+Shift+minus move scratchpad
+bindsym --to-code $mod+minus scratchpad show
 
 bindsym $mod+b splith
 bindsym $mod+v splitv
@@ -149,14 +162,20 @@ bindsym Mod1+Shift+j exec wtype -M ctrl -k Tab -m ctrl
 bindsym Mod1+Shift+k exec wtype -M ctrl -M shift -k Tab -m shift -m ctrl
 bindsym Mod1+Shift+l exec wtype -M alt -M shift -k Right -m shift -m alt
 
+# Alt+Shift tapped on its own, in either order, turns to the next keyboard layout.
+# As release bindings they never fire when a key follows, so Alt+Shift+<key>
+# above and in applications keeps working (xkb's grp:alt_shift_toggle would eat it).
+bindsym --release Mod1+Shift_L input type:keyboard xkb_switch_layout next
+bindsym --release Shift+Alt_L input type:keyboard xkb_switch_layout next
+
 bindsym $mod+Return exec $term
 bindsym $mod+Space exec $menu
 bindsym $mod+Shift+f exec $browser
 bindsym $mod+Shift+v exec desktop-menu clipboard
 bindsym $mod+Tab exec desktop-menu launcher
-bindsym $mod+grave exec desktop-menu view next
-bindsym $mod+slash exec desktop-menu keys
-bindsym $mod+Shift+grave exec desktop-menu view prev
+bindsym --to-code $mod+grave exec desktop-menu view next
+bindsym --to-code $mod+slash exec desktop-menu keys
+bindsym --to-code $mod+Shift+grave exec desktop-menu view prev
 
 bindsym $mod+s exec sh -lc 'directory="$HOME/pictures/screenshots"; mkdir -p "$directory"; grim -g "$(slurp)" "$directory/$(date +%Y%m%d_%H%M%S).png"'
 bindsym $mod+Shift+s exec flameshot gui

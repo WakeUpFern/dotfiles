@@ -8,7 +8,7 @@ Item {
     required property var screen
     property string here: ""
     property bool live: true
-    readonly property real u: Theme.unit(screen)
+    readonly property real u: Theme.fit(screen)
     readonly property real dot: width / 640
     property date today: new Date()
     readonly property int dayOfYear: Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
@@ -61,11 +61,13 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: 309 * plate.dot
         Small {
+            fitted: true
             anchors.horizontalCenter: parent.horizontalCenter
             screen: plate.screen
             text: "plate " + plate.dayOfYear + (plate.turned > 0 ? "." + plate.turned : "") + " of " + (new Date(plate.today.getFullYear(), 1, 29).getDate() === 29 ? 366 : 365)
         }
         Small {
+            fitted: true
             anchors.horizontalCenter: parent.horizontalCenter
             screen: plate.screen
             lit: false

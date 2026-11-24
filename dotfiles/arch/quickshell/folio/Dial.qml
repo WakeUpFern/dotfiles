@@ -10,7 +10,7 @@ Item {
     property string here: ""
     property bool live: true
     property date now: new Date()
-    readonly property real u: Theme.unit(screen)
+    readonly property real u: Theme.fit(screen)
     readonly property real dot: width / 640
     readonly property real centerX: 320
     readonly property real centerY: 178
@@ -170,6 +170,7 @@ Item {
             }
         }
         Small {
+            fitted: true
             anchors.horizontalCenter: parent.horizontalCenter
             screen: dial.screen
             lit: false
@@ -185,6 +186,7 @@ Item {
             }
         }
         Small {
+            fitted: true
             anchors.horizontalCenter: parent.horizontalCenter
             visible: dial.player !== null && (dial.player?.trackTitle ?? "") !== ""
             width: Math.min(implicitWidth, 250 * dial.u)
@@ -201,11 +203,13 @@ Item {
         Column {
             anchors.right: parent.right
             Small {
+                fitted: true
                 anchors.right: parent.right
                 screen: dial.screen
                 text: dial.stats.total > 0 ? Logic.lasting(dial.stats.total) + " at work" : "nothing recorded"
             }
             Small {
+                fitted: true
                 anchors.right: parent.right
                 screen: dial.screen
                 lit: false
@@ -216,11 +220,13 @@ Item {
             anchors.right: parent.right
             visible: dial.stats.longest.ms >= 60000
             Small {
+                fitted: true
                 anchors.right: parent.right
                 screen: dial.screen
                 text: "longest stretch"
             }
             Small {
+                fitted: true
                 anchors.right: parent.right
                 screen: dial.screen
                 lit: false
@@ -240,6 +246,7 @@ Item {
             color: Theme.dim
         }
         Small {
+            fitted: true
             id: reading
             anchors.centerIn: parent
             screen: dial.screen

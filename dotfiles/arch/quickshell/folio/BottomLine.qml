@@ -12,6 +12,7 @@ PanelWindow {
     readonly property var note: notes.length > 0 ? notes[notes.length - 1] : null
     property bool earlier: false
     property bool calendar: false
+    property bool layouts: false
     Connections {
         target: ShellState
         function onMissedWanted(onScreen) {
@@ -99,7 +100,20 @@ PanelWindow {
             text: Qt.formatDateTime(clock.date, "HH:mm:ss")
             onPressed: {
                 line.month = new Date();
+                line.layouts = false;
                 line.calendar = !line.calendar;
+            }
+        }
+        Small {
+            id: layoutWord
+            screen: line.screen
+            visible: Keyboard.names.length > 0
+            link: true
+            lit: line.layouts
+            text: Keyboard.activeCode
+            onPressed: {
+                line.calendar = false;
+                line.layouts = !line.layouts;
             }
         }
     }
@@ -144,7 +158,7 @@ PanelWindow {
         }
         Small {
             screen: line.screen
-            width: Math.min(implicitWidth, line.width * 0.5)
+            width: Math.min(implicitWidth, line.width * 0.4)
             elide: Text.ElideRight
             text: line.note ? (line.note.appName || "notice") + ": " + line.note.summary + (line.note.body ? " — " + line.note.body.replace(/\s+/g, " ") : "") : ""
         }
@@ -330,6 +344,49 @@ PanelWindow {
                 screen: line.screen
                 lit: false
                 text: Qt.formatDateTime(clock.date, "dddd d MMMM") + " · week " + RailLogic.isoWeek(clock.date)
+            }
+        }
+    }
+
+    Sheet {
+        id: tongues
+        anchor.window: line
+        anchor.rect.x: Math.round(Math.max(0, where.x + layoutWord.x - 22 * line.u))
+        anchor.rect.y: Math.round(-implicitHeight - 6 * line.u)
+        open: line.layouts
+        pad: 22 * line.u
+        onDismissed: line.layouts = false
+        Column {
+            spacing: 12 * line.u
+            Repeater {
+                model: Keyboard.names
+                Row {
+                    id: choice
+                    required property string modelData
+                    required property int index
+                    readonly property bool current: index === Keyboard.active
+                    spacing: 18 * line.u
+                    Small {
+                        screen: line.screen
+                        opacity: choice.current ? 1 : 0
+                        text: "→"
+                    }
+                    Small {
+                        screen: line.screen
+                        lit: choice.current
+                        text: Keyboard.code(choice.modelData)
+                    }
+                    Small {
+                        screen: line.screen
+                        link: true
+                        lit: choice.current
+                        text: choice.modelData
+                        onPressed: {
+                            Keyboard.choose(choice.index);
+                            line.layouts = false;
+                        }
+                    }
+                }
             }
         }
     }

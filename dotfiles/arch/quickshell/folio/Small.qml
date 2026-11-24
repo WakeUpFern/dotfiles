@@ -5,6 +5,7 @@ Text {
     property var screen
     property bool link: false
     property bool lit: true
+    property bool fitted: false
     signal pressed(var event)
     signal wheeled(var event)
     color: lit ? Theme.fg : Theme.dim
@@ -16,7 +17,7 @@ Text {
     textFormat: Text.PlainText
     font {
         family: Theme.mono
-        pixelSize: Theme.small(screen)
+        pixelSize: fitted ? Theme.fitSmall(screen) : Theme.small(screen)
         capitalization: Font.AllUppercase
     }
     Rectangle {

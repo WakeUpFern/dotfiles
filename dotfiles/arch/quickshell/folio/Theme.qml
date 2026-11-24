@@ -16,10 +16,20 @@ QtObject {
     readonly property string serif: "Newsreader"
     readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")
     readonly property string stateHome: Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")
+    // Folio's chrome is drawn at a fixed 125% of seg6's 1440p design, on any screen.
+    readonly property real uiScale: 1.25
     function unit(screen): real {
+        return uiScale;
+    }
+    // Departure Mono is an 11px-grid pixel font: keep labels on the grid.
+    function small(screen): int {
+        return 22;
+    }
+    // Full-screen compositions (desk drawings, key sheet) keep seg6's proportions to the screen.
+    function fit(screen): real {
         return screen ? Math.min(1, screen.height / 1440) : 1;
     }
-    function small(screen): int {
+    function fitSmall(screen): int {
         return !screen || screen.height >= 1300 ? 22 : 11;
     }
     property FileView palette: FileView {
