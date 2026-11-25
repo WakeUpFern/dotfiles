@@ -84,6 +84,21 @@ Pane {
             elide: Text.ElideRight
             text: Net.cable ? "wired · " + Net.cable.name : Net.here ? "on " + Net.here.name : (Net.radio ? "not connected" : "wifi is off")
         }
+        Row {
+            visible: Net.online && Net.doubtful
+            spacing: pane.gap
+            Small {
+                screen: pane.screen
+                color: Theme.signal
+                text: Net.portal ? "this network wants a login" : "limited connection"
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                text: "sign in"
+                onPressed: Net.signIn()
+            }
+        }
         Repeater {
             model: pane.shown
             Column {

@@ -14,7 +14,8 @@ QtObject {
     readonly property var cable: wired.find(d => d.connected) ?? null
     readonly property bool online: here !== null || cable !== null
     readonly property var nearby: wifi ? wifi.networks.values.filter(n => n.name.length > 0).sort((a, b) => (b.connected - a.connected) || (b.known - a.known) || (b.signalStrength - a.signalStrength)) : []
-    readonly property bool doubtful: Networking.connectivity === NetworkConnectivity.Portal || Networking.connectivity === NetworkConnectivity.Limited
+    readonly property bool portal: Networking.connectivity === NetworkConnectivity.Portal
+    readonly property bool doubtful: portal || Networking.connectivity === NetworkConnectivity.Limited
     readonly property string label: cable ? "eth" : here ? "wifi " + Math.round(here.signalStrength * 100) + (doubtful ? " ?" : "") : (wifi && !radio ? "wifi off" : "offline")
     function keyed(n): bool {
         return [WifiSecurityType.WpaPsk, WifiSecurityType.Wpa2Psk, WifiSecurityType.Sae].includes(n.security);
@@ -48,6 +49,11 @@ QtObject {
     function scan(on: bool): void {
         if (wifi)
             wifi.scannerEnabled = on;
+    }
+    // Captive portals intercept plain http; an http-only page makes the network show its login.
+    function signIn(): void {
+        Quickshell.execDetached(["xdg-open", "http://neverssl.com"]);
+        ShellState.closePanel();
     }
     function settings(): void {
         Quickshell.execDetached(["nm-connection-editor"]);
