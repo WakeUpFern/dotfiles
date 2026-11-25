@@ -21,6 +21,7 @@ Lock 1.0 Lock.qml
 singleton Net 1.0 Net.qml
 singleton Blue 1.0 Blue.qml
 Toggle 1.0 Toggle.qml
+Hold 1.0 Hold.qml
 Pane 1.0 Pane.qml
 NetPane 1.0 NetPane.qml
 BluePane 1.0 BluePane.qml

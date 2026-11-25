@@ -12,8 +12,16 @@ Pane {
     readonly property real gap: 18 * pane.u
     readonly property real sigWidth: Theme.wide("100")
     readonly property real nameCap: Theme.wide("M".repeat(26))
-    readonly property real nameWidth: Math.min(nameCap, Math.max(0, ...shown.map(n => Theme.wide((n.connected ? "→ " : "") + n.name))))
-    readonly property real wordWidth: Math.max(0, ...shown.map(n => Theme.wide(Net.word(n))))
+    function span(words): real {
+        return words.reduce((w, s) => w + Theme.wide(s), 0) + gap * (words.length - 1);
+    }
+    property Hold names: Hold {
+        open: pane.open
+        want: Math.min(pane.nameCap, Math.max(0, ...pane.shown.map(n => Theme.wide("→ " + n.name))))
+    }
+    readonly property real nameWidth: names.value
+    readonly property real wordWidth: Math.max(...["open", "wpa", "wpa2", "wpa3", "wep", "eap", "?"].map(w => Theme.wide(w)))
+    readonly property real actWidth: Math.max(span(["saved", "…", "forget"]), span(["…", "leave"]))
     readonly property real portWidth: Math.min(nameCap, Math.max(0, ...Net.wired.map(d => Theme.wide(d.name))))
     readonly property real core: sigWidth + gap + nameWidth + gap + wordWidth
     onOpenChanged: {
@@ -99,7 +107,7 @@ Pane {
                     }
                 }
                 Row {
-                    spacing: 18 * pane.u
+                    spacing: pane.gap
                     Small {
                         screen: pane.screen
                         width: pane.sigWidth
@@ -122,31 +130,35 @@ Pane {
                         lit: false
                         text: Net.word(row.modelData)
                     }
-                    Small {
-                        screen: pane.screen
-                        visible: row.modelData.known && !row.modelData.connected
-                        lit: false
-                        text: "saved"
-                    }
-                    Small {
-                        screen: pane.screen
-                        visible: row.modelData.stateChanging
-                        text: "…"
-                    }
-                    Small {
-                        screen: pane.screen
-                        visible: row.modelData.connected
-                        link: true
-                        text: "leave"
-                        onPressed: row.modelData.disconnect()
-                    }
-                    Small {
-                        screen: pane.screen
-                        visible: row.modelData.known && !row.modelData.connected
-                        link: true
-                        lit: false
-                        text: "forget"
-                        onPressed: row.modelData.forget()
+                    Row {
+                        width: pane.actWidth
+                        spacing: pane.gap
+                        Small {
+                            screen: pane.screen
+                            visible: row.modelData.known && !row.modelData.connected
+                            lit: false
+                            text: "saved"
+                        }
+                        Small {
+                            screen: pane.screen
+                            visible: row.modelData.stateChanging
+                            text: "…"
+                        }
+                        Small {
+                            screen: pane.screen
+                            visible: row.modelData.connected
+                            link: true
+                            text: "leave"
+                            onPressed: row.modelData.disconnect()
+                        }
+                        Small {
+                            screen: pane.screen
+                            visible: row.modelData.known && !row.modelData.connected
+                            link: true
+                            lit: false
+                            text: "forget"
+                            onPressed: row.modelData.forget()
+                        }
                     }
                 }
                 Row {

@@ -26,6 +26,16 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     onVisibleChanged: if (visible) box.forceActiveFocus()
+    // The box keeps the largest size it reached while open, so rows that change state
+    // (connecting, a device moving section, a scan finishing) never make it shrink and jump.
+    property Hold boxWidth: Hold {
+        open: pane.open
+        want: Math.ceil(inside.childrenRect.width + 2 * pane.pad)
+    }
+    property Hold boxHeight: Hold {
+        open: pane.open
+        want: Math.ceil(inside.childrenRect.height + 2 * pane.pad)
+    }
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.AllButtons
@@ -34,8 +44,8 @@ PanelWindow {
     FocusScope {
         id: box
         readonly property real edge: ShellState.panelX < 0 ? pane.width - 36 * pane.u : ShellState.panelX
-        width: Math.ceil(inside.childrenRect.width + 2 * pane.pad)
-        height: Math.ceil(inside.childrenRect.height + 2 * pane.pad)
+        width: pane.boxWidth.value
+        height: pane.boxHeight.value
         x: Math.round(Math.max(36 * pane.u, Math.min(edge - width + pane.pad, pane.width - width - 36 * pane.u)))
         y: Math.round((54 - (1 - opacity) * 10) * pane.u)
         opacity: pane.visible ? 1 : 0

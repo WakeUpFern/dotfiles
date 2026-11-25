@@ -8,13 +8,27 @@ Pane {
     onOpenChanged: if (!open)
         Blue.scan(false)
     readonly property var shown: (Blue.on ? Blue.paired : []).concat((Blue.adapter?.discovering ?? false) ? Blue.nearby.slice(0, 8) : [])
-    readonly property real nameWidth: Math.min(Theme.wide("M".repeat(24)), Math.max(0, ...shown.map(d => Theme.wide((d.connected ? "→ " : "") + d.name))))
+    readonly property real gap: 18 * pane.u
+    function span(words): real {
+        return words.reduce((w, s) => w + Theme.wide(s), 0) + gap * (words.length - 1);
+    }
+    // Columns are fixed so nothing slides while a device pairs or connects: the name column always
+    // makes room for the "→ " of a connected device and only grows while open; battery and actions
+    // reserve their widest state.
+    property Hold names: Hold {
+        open: pane.open
+        want: Math.min(Theme.wide("M".repeat(24)), Math.max(0, ...pane.shown.map(d => Theme.wide("→ " + d.name))))
+    }
+    readonly property real nameWidth: names.value
+    readonly property real batWidth: Theme.wide("bat 100")
+    readonly property real actWidth: Math.max(span(["disconnect"]), span(["connect", "really forget?"]), span(["pairing…", "cancel"]), span(["connecting…"]), span(["pair"]), span(["…"]))
     component Device: Row {
         id: dev
         required property var modelData
         property bool wanted: false
         property bool armed: false
-        spacing: 18 * pane.u
+        readonly property bool busy: dev.modelData.pairing || dev.modelData.state === BluetoothDeviceState.Connecting || dev.modelData.state === BluetoothDeviceState.Disconnecting
+        spacing: pane.gap
         Connections {
             target: dev.modelData
             function onPairedChanged() {
@@ -39,59 +53,63 @@ Pane {
         }
         Small {
             screen: pane.screen
-            visible: dev.modelData.batteryAvailable
+            width: pane.batWidth
             lit: false
-            text: "bat " + Math.round(dev.modelData.battery * 100)
+            text: dev.modelData.batteryAvailable ? "bat " + Math.round(dev.modelData.battery * 100) : ""
         }
-        Small {
-            screen: pane.screen
-            lit: false
-            visible: text.length > 0
-            text: dev.modelData.pairing ? "pairing…" : dev.modelData.state === BluetoothDeviceState.Connecting ? "connecting…" : dev.modelData.state === BluetoothDeviceState.Disconnecting ? "…" : ""
-        }
-        Small {
-            screen: pane.screen
-            visible: dev.modelData.connected
-            link: true
-            text: "disconnect"
-            onPressed: dev.modelData.disconnect()
-        }
-        Small {
-            screen: pane.screen
-            visible: dev.modelData.paired && !dev.modelData.connected
-            link: true
-            text: "connect"
-            onPressed: dev.modelData.connect()
-        }
-        Small {
-            screen: pane.screen
-            visible: !dev.modelData.paired && !dev.modelData.pairing
-            link: true
-            text: "pair"
-            onPressed: {
-                dev.wanted = true;
-                dev.modelData.pair();
+        Row {
+            width: pane.actWidth
+            spacing: pane.gap
+            Small {
+                screen: pane.screen
+                lit: false
+                visible: text.length > 0
+                text: dev.modelData.pairing ? "pairing…" : dev.modelData.state === BluetoothDeviceState.Connecting ? "connecting…" : dev.modelData.state === BluetoothDeviceState.Disconnecting ? "…" : ""
             }
-        }
-        Small {
-            screen: pane.screen
-            visible: dev.modelData.pairing
-            link: true
-            text: "cancel"
-            onPressed: dev.modelData.cancelPair()
-        }
-        Small {
-            screen: pane.screen
-            visible: dev.modelData.paired && !dev.modelData.connected
-            link: true
-            text: dev.armed ? "really forget?" : "forget"
-            color: dev.armed ? Theme.signal : Theme.dim
-            onPressed: {
-                if (dev.armed)
-                    dev.modelData.forget();
-                else {
-                    dev.armed = true;
-                    disarm.restart();
+            Small {
+                screen: pane.screen
+                visible: dev.modelData.connected && !dev.busy
+                link: true
+                text: "disconnect"
+                onPressed: dev.modelData.disconnect()
+            }
+            Small {
+                screen: pane.screen
+                visible: dev.modelData.paired && !dev.modelData.connected && !dev.busy
+                link: true
+                text: "connect"
+                onPressed: dev.modelData.connect()
+            }
+            Small {
+                screen: pane.screen
+                visible: !dev.modelData.paired && !dev.busy
+                link: true
+                text: "pair"
+                onPressed: {
+                    dev.wanted = true;
+                    dev.modelData.pair();
+                }
+            }
+            Small {
+                screen: pane.screen
+                visible: dev.modelData.pairing
+                link: true
+                text: "cancel"
+                onPressed: dev.modelData.cancelPair()
+            }
+            Small {
+                screen: pane.screen
+                visible: dev.modelData.paired && !dev.modelData.connected && !dev.busy
+                link: true
+                text: dev.armed ? "really forget?" : "forget"
+                color: dev.armed ? Theme.signal : Theme.dim
+                onPressed: {
+                    if (dev.armed)
+                        dev.modelData.forget();
+                    else {
+                        dev.armed = true;
+                        disarm.restart();
+                    }
                 }
             }
         }
