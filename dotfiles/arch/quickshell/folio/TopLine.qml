@@ -68,13 +68,12 @@ PanelWindow {
             visible: text.length > 0
             text: who.words[0]
         }
-        Marquee {
+        Small {
             screen: line.screen
             lit: false
             visible: text.length > 0
             width: Math.max(0, Math.min(implicitWidth, line.width * 0.14, status.x - 2 * deskRow.gap - deskRow.width - who.x - appWord.width - who.spacing))
-            gap: 40 * line.u
-            speed: 36 * line.u
+            elide: Text.ElideRight
             text: who.words[1]
         }
     }
@@ -201,13 +200,12 @@ PanelWindow {
                     color: Theme.fg
                 }
             }
-            Marquee {
+            Small {
                 anchors.baseline: playWord.baseline
                 screen: line.screen
                 link: true
                 width: Math.min(implicitWidth, 160 * line.u)
-                gap: 40 * line.u
-                speed: 36 * line.u
+                elide: Text.ElideRight
                 text: line.player?.trackTitle || line.player?.identity || ""
                 onPressed: event => {
                     if (event.button === Qt.RightButton)
