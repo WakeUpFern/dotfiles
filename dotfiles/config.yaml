@@ -96,6 +96,9 @@ dotfiles:
   f_sway_arch_fragment:
     src: arch/sway/conf.d/50-arch.conf
     dst: ~/.config/sway/conf.d/50-arch.conf
+  f_xdg_desktop_portal:
+    src: arch/xdg-desktop-portal/portals.conf
+    dst: ~/.config/xdg-desktop-portal/portals.conf
   f_teams_desktop:
     src: arch/applications/teams-for-linux.desktop
     dst: ~/.local/share/applications/teams-for-linux.desktop
@@ -173,6 +176,7 @@ profiles:
       - f_sway_arch_fragment
       - f_systemd_sway_session_target
       - f_systemd_desktop_shell
+      - f_xdg_desktop_portal
       - d_folio
       - d_fonts
       - f_kitty_desktop
