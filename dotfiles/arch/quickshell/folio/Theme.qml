@@ -16,8 +16,8 @@ QtObject {
     readonly property string serif: "Newsreader"
     readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")
     readonly property string stateHome: Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")
-    // Folio's chrome is drawn at a fixed 125% of seg6's 1440p design, on any screen.
-    readonly property real uiScale: 1.25
+    // Folio's chrome is drawn at seg6's 1440p design size (100%), on any screen.
+    readonly property real uiScale: 1.0
     function unit(screen): real {
         return uiScale;
     }

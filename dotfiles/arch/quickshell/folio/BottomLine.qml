@@ -165,36 +165,43 @@ PanelWindow {
             id: noteHover
         }
         Small {
+            id: noteMark
             screen: line.screen
             color: Theme.signal
             text: "↳"
         }
+        // The text takes what is left between the clock/date/layout row and this row's mark and
+        // buttons (both plates plus a gap), capped at 40% of the bar, and is cut with "…" past that.
         Small {
             screen: line.screen
-            width: Math.min(implicitWidth, line.width * 0.4)
+            width: Math.max(0, Math.min(implicitWidth, line.width * 0.4, line.width - 36 * line.u - where.x - where.width - 2 * 14 * line.u - 24 * line.u - noteMark.width - noteTail.width - 2 * arrived.spacing))
             elide: Text.ElideRight
             text: line.note ? (line.note.appName || "notice") + ": " + line.note.summary + (line.note.body ? " — " + line.note.body.replace(/\s+/g, " ") : "") : ""
         }
-        Repeater {
-            model: line.note ? line.note.actions : []
-            Small {
-                required property var modelData
-                screen: line.screen
-                link: true
-                text: modelData.text
-                onPressed: {
-                    modelData.invoke();
-                    if (line.note && !line.note.resident)
-                        line.note.dismiss();
+        Row {
+            id: noteTail
+            spacing: arrived.spacing
+            Repeater {
+                model: line.note ? line.note.actions : []
+                Small {
+                    required property var modelData
+                    screen: line.screen
+                    link: true
+                    text: modelData.text
+                    onPressed: {
+                        modelData.invoke();
+                        if (line.note && !line.note.resident)
+                            line.note.dismiss();
+                    }
                 }
             }
-        }
-        Small {
-            screen: line.screen
-            link: true
-            lit: false
-            text: line.notes.length > 1 ? "later (+" + (line.notes.length - 1) + ")" : "later"
-            onPressed: line.note.dismiss()
+            Small {
+                screen: line.screen
+                link: true
+                lit: false
+                text: line.notes.length > 1 ? "later (+" + (line.notes.length - 1) + ")" : "later"
+                onPressed: line.note.dismiss()
+            }
         }
     }
     Row {
