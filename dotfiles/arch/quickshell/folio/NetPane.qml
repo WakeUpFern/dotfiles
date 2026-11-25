@@ -26,6 +26,7 @@ Pane {
     readonly property real core: sigWidth + gap + nameWidth + gap + wordWidth
     onOpenChanged: {
         Net.scan(open);
+        Vpn.watching = open;
         if (!open) {
             asking = null;
             fresh = null;
@@ -248,18 +249,104 @@ Pane {
         }
         Small {
             screen: pane.screen
+            topPadding: 6 * pane.u
+            lit: Vpn.tsOn || Vpn.tunnels.some(t => t.active)
+            text: "vpn"
+        }
+        Row {
+            visible: Vpn.tsState !== "missing"
+            spacing: pane.gap
+            Small {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                width: pane.portWidth > 0 ? Math.max(pane.portWidth, Theme.wide("tailscale")) : Theme.wide("tailscale")
+                lit: Vpn.tsOn
+                text: "tailscale"
+            }
+            Toggle {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                on: Vpn.tsOn
+                busy: Vpn.tsBusy
+                onFlipped: Vpn.tailscale(!Vpn.tsOn)
+            }
+            Small {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                link: Vpn.tsState === "NeedsLogin"
+                lit: Vpn.tsState === "NeedsLogin"
+                text: Vpn.tsWord
+                onPressed: Vpn.tailscale(true)
+            }
+        }
+        Repeater {
+            model: Vpn.tunnels
+            Row {
+                id: tunnel
+                required property var modelData
+                readonly property bool working: Vpn.busy[modelData.uuid] === true
+                spacing: pane.gap
+                Small {
+                    screen: pane.screen
+                    width: Math.min(implicitWidth, pane.nameCap)
+                    elide: Text.ElideRight
+                    link: true
+                    lit: tunnel.modelData.active
+                    text: (tunnel.modelData.active ? "→ " : "") + tunnel.modelData.name
+                    onPressed: Vpn.toggle(tunnel.modelData)
+                }
+                Small {
+                    screen: pane.screen
+                    lit: false
+                    text: tunnel.modelData.kind
+                }
+                Small {
+                    screen: pane.screen
+                    link: !tunnel.working
+                    lit: tunnel.working || !tunnel.modelData.active
+                    text: tunnel.working ? "…" : tunnel.modelData.active ? "leave" : "connect"
+                    onPressed: Vpn.toggle(tunnel.modelData)
+                }
+            }
+        }
+        Small {
+            screen: pane.screen
+            visible: Vpn.tsState === "missing" && Vpn.tunnels.length === 0
+            lit: false
+            text: "no tunnels yet"
+        }
+        Small {
+            screen: pane.screen
+            visible: Vpn.trouble.length > 0
+            color: Theme.signal
+            width: Math.min(implicitWidth, Math.max(pane.core, Theme.wide("M".repeat(20))))
+            wrapMode: Text.WordWrap
+            text: Vpn.trouble
+        }
+        Small {
+            screen: pane.screen
             visible: pane.trouble.length > 0
             color: Theme.signal
             width: Math.min(implicitWidth, Math.max(pane.core, Theme.wide("M".repeat(20))))
             wrapMode: Text.WordWrap
             text: pane.trouble
         }
-        Small {
-            screen: pane.screen
-            link: true
-            lit: false
-            text: "more settings…"
-            onPressed: Net.settings()
+        Row {
+            spacing: 38 * pane.u
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "add vpn…"
+                onPressed: Vpn.add()
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "more settings…"
+                onPressed: Net.settings()
+            }
         }
     }
 }

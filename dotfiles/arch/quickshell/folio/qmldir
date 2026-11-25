@@ -19,6 +19,7 @@ TrayMenu 1.0 TrayMenu.qml
 KeySheet 1.0 KeySheet.qml
 Lock 1.0 Lock.qml
 singleton Net 1.0 Net.qml
+singleton Vpn 1.0 Vpn.qml
 singleton Blue 1.0 Blue.qml
 Toggle 1.0 Toggle.qml
 Hold 1.0 Hold.qml
