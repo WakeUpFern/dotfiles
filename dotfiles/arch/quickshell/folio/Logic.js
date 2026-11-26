@@ -171,7 +171,7 @@ function facts(now, all, here, waiting, more) {
         } else if (h.awake && h.apps.length > 0) {
             var apps = h.apps.map(function(a) { return link("stream:" + h.uuid + ":" + encodeURIComponent(a.name), a.name.toLowerCase()); });
             var choice = apps.length === 1 ? apps[0] : apps.slice(0, -1).join(", ") + " or " + apps[apps.length - 1];
-            rows.push({ label: "remote", text: escape(h.name) + " is awake, " + h.ms + " ms away — " + choice + "." });
+            rows.push({ label: "within reach", text: escape(h.name) + " is awake, " + h.ms + " ms away — " + choice + "." });
         }
     });
     if (more.missed > 0) {
