@@ -167,7 +167,7 @@ function facts(now, all, here, waiting, more) {
     }
     (more.remote || []).forEach(function(h) {
         if (h.streaming) {
-            rows.push({ label: "streaming", text: escape(h.name) + "’s " + escape(h.running.toLowerCase()) + ", " + h.ms + " ms away — " + link("leave:" + h.uuid, "leave") + "." });
+            rows.push({ label: "somewhere not here", text: "On " + escape(h.name) + "’s " + escape(h.running.toLowerCase()) + ", " + h.ms + " ms away — " + link("leave:" + h.uuid, "come back") + "." });
         } else if (h.awake && h.apps.length > 0) {
             var apps = h.apps.map(function(a) { return link("stream:" + h.uuid + ":" + encodeURIComponent(a.name), a.name.toLowerCase()); });
             var choice = apps.length === 1 ? apps[0] : apps.slice(0, -1).join(", ") + " or " + apps[apps.length - 1];
