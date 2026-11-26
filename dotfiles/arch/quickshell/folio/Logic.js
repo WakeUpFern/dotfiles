@@ -165,6 +165,15 @@ function facts(now, all, here, waiting, more) {
     if (more.playing && more.playing.title) {
         rows.push({ label: "playing", text: '<a href="pause"><i>' + escape(more.playing.title) + "</i></a>" + (more.playing.artist ? " by " + escape(more.playing.artist) : "") + "." });
     }
+    (more.remote || []).forEach(function(h) {
+        if (h.streaming) {
+            rows.push({ label: "streaming", text: escape(h.name) + "’s " + escape(h.running.toLowerCase()) + ", " + h.ms + " ms away — " + link("leave:" + h.uuid, "leave") + "." });
+        } else if (h.awake && h.apps.length > 0) {
+            var apps = h.apps.map(function(a) { return link("stream:" + h.uuid + ":" + encodeURIComponent(a.name), a.name.toLowerCase()); });
+            var choice = apps.length === 1 ? apps[0] : apps.slice(0, -1).join(", ") + " or " + apps[apps.length - 1];
+            rows.push({ label: "remote", text: escape(h.name) + " is awake, " + h.ms + " ms away — " + choice + "." });
+        }
+    });
     if (more.missed > 0) {
         rows.push({ label: "missed", text: capital(link("missed", count(more.missed) + (more.missed === 1 ? " notification" : " notifications"))) + "." });
     }
@@ -300,6 +309,16 @@ function ask(query, sources, now, limit) {
         var detail = String(a.genericName || a.comment || "").toLowerCase();
         rows.push({ kind: "app", verb: "Open", name: a.name, detail: detail, app: a,
             score: score([a.name, detail + " " + (a.keywords || []).join(" ")]) + 6 - (sources.used && sources.used[a.id] ? 3 : 0) });
+    });
+    (sources.remote || []).forEach(function(h) {
+        var away = h.awake ? h.ms + " ms" + (h.tailscale ? " over tailscale" : " at home") : "not answering";
+        if (h.streaming)
+            rows.push({ kind: "remote", verb: "Leave", name: h.name, detail: "streaming " + h.running.toLowerCase(), uuid: h.uuid, leave: true,
+                score: score([h.name, "leave quit stop end remote stream moonlight"]) + 2 });
+        h.apps.forEach(function(a, i) {
+            rows.push({ kind: "remote", verb: "Stream", name: h.name + " " + a.name.toLowerCase(), detail: away, uuid: h.uuid, app: a.name,
+                score: score([h.name + " " + a.name, "remote stream moonlight sunshine pc computer"]) + 5 + i * 0.5 + (h.awake ? 0 : 20) });
+        });
     });
     commands.forEach(function(c) {
         rows.push({ kind: "command", verb: c.verb, name: c.name, detail: "", command: c.id, confirm: !!c.confirm, score: score([c.words]) + 8 });

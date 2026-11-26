@@ -27,7 +27,8 @@ PanelWindow {
         windows: Desktop.windows,
         recent: Desktop.recent,
         apps: DesktopEntries.applications.values,
-        used: used
+        used: used,
+        remote: Remote.hosts
     }, new Date(), 7)
     readonly property var first: results[chosen] ?? null
     function run(result): void {
@@ -69,6 +70,11 @@ PanelWindow {
             next[result.app.id] = Date.now();
             used = next;
             usedFile.setText(JSON.stringify(used));
+        } else if (result.kind === "remote") {
+            if (result.leave)
+                Remote.leave(result.uuid);
+            else
+                Remote.stream(result.uuid, result.app);
         } else if (result.kind === "sum") {
             Quickshell.execDetached(["wl-copy", "--", result.value]);
         } else if (result.kind === "command" && result.command.startsWith("view-")) {
@@ -328,6 +334,7 @@ PanelWindow {
                     project: "project",
                     app: "app",
                     command: "do",
+                    remote: "remote",
                     sum: "sum",
                     clip: "copied"
                 })

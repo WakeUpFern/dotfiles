@@ -22,7 +22,8 @@ PanelWindow {
             title: player.trackTitle,
             artist: player.trackArtist
         } : null,
-        missed: Notices.missed
+        missed: Notices.missed,
+        remote: Remote.hosts
     })
     function follow(link: string): void {
         if (link.startsWith("desk:"))
@@ -31,7 +32,16 @@ PanelWindow {
             player?.togglePlaying();
         else if (link === "missed")
             ShellState.showMissed(screen);
+        else if (link.startsWith("stream:")) {
+            const parts = link.split(":");
+            Remote.stream(parts[1], decodeURIComponent(parts.slice(2).join(":")));
+        } else if (link.startsWith("leave:"))
+            Remote.leave(link.slice(6));
     }
+    // The page only asks the remote hosts while its words are on show.
+    onWordedChanged: Remote.watch("page-" + screen.name, worded)
+    Component.onCompleted: Remote.watch("page-" + screen.name, worded)
+    Component.onDestruction: Remote.watch("page-" + screen.name, false)
     property int stamp: 0
     readonly property string view: wind.GraphicsInfo.api === GraphicsInfo.Software ? "words" : ShellState.view
     readonly property bool worded: bare && view === "words"

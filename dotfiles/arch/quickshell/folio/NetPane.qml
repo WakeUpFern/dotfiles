@@ -6,6 +6,8 @@ Pane {
     id: pane
     name: "net"
     property var asking: null
+    property bool pairAsk: false
+    readonly property real hostWidth: Math.max(Theme.wide("tailscale"), ...Remote.hosts.map(h => Theme.wide("→ " + h.name)))
     property var fresh: null
     property string trouble: ""
     readonly property var shown: Net.radio ? Net.nearby.slice(0, 10) : []
@@ -29,6 +31,7 @@ Pane {
         Vpn.watching = open;
         if (!open) {
             asking = null;
+            pairAsk = false;
             fresh = null;
             trouble = "";
         }
@@ -332,6 +335,134 @@ Pane {
         }
         Small {
             screen: pane.screen
+            topPadding: 6 * pane.u
+            lit: Remote.streaming
+            text: "remote"
+        }
+        Repeater {
+            model: Remote.hosts
+            Row {
+                id: pc
+                required property var modelData
+                spacing: pane.gap
+                Small {
+                    screen: pane.screen
+                    width: pane.hostWidth
+                    elide: Text.ElideRight
+                    link: !pc.modelData.streaming && pc.modelData.busy.length === 0
+                    lit: pc.modelData.streaming || pc.modelData.awake
+                    text: (pc.modelData.streaming ? "→ " : "") + pc.modelData.name
+                    onPressed: Remote.stream(pc.modelData.uuid, "Desktop")
+                }
+                Small {
+                    screen: pane.screen
+                    lit: false
+                    text: Remote.word(pc.modelData)
+                }
+                Small {
+                    screen: pane.screen
+                    visible: pc.modelData.busy.length === 0 && (pc.modelData.streaming || pc.modelData.awake)
+                    link: true
+                    text: pc.modelData.streaming ? "leave" : "connect"
+                    onPressed: pc.modelData.streaming ? Remote.leave(pc.modelData.uuid) : Remote.stream(pc.modelData.uuid, "Desktop")
+                }
+            }
+        }
+        Small {
+            screen: pane.screen
+            visible: Remote.hosts.length === 0 && Remote.pairing === null && !pane.pairAsk
+            lit: false
+            text: "no paired pcs yet"
+        }
+        Row {
+            visible: Remote.pairing !== null
+            spacing: pane.gap
+            Small {
+                screen: pane.screen
+                color: Theme.signal
+                text: Remote.pairing ? "pin " + Remote.pairing.pin : ""
+            }
+            Small {
+                screen: pane.screen
+                lit: false
+                text: Remote.pairing ? "type it in sunshine on " + Remote.pairing.address : ""
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "cancel"
+                onPressed: Remote.cancelPair()
+            }
+        }
+        Row {
+            visible: pane.pairAsk && Remote.pairing === null
+            spacing: 18 * pane.u
+            Item {
+                width: Theme.wide("M".repeat(16))
+                height: where.implicitHeight
+                TextInput {
+                    id: where
+                    width: parent.width
+                    color: Theme.fg
+                    selectionColor: Theme.fg
+                    selectedTextColor: Theme.bg
+                    font.family: Theme.mono
+                    font.pixelSize: Theme.small(pane.screen)
+                    cursorDelegate: Rectangle {
+                        width: Math.max(2, 3 * pane.u)
+                        color: Theme.signal
+                        visible: where.activeFocus
+                    }
+                    onVisibleChanged: if (visible) {
+                        text = "";
+                        forceActiveFocus();
+                    }
+                    onAccepted: {
+                        Remote.pair(text);
+                        if (Remote.pairing !== null)
+                            pane.pairAsk = false;
+                    }
+                    Keys.onEscapePressed: pane.pairAsk = false
+                }
+                Small {
+                    screen: pane.screen
+                    visible: where.text.length === 0
+                    lit: false
+                    text: "address or name"
+                }
+                Rectangle {
+                    anchors.top: parent.bottom
+                    anchors.topMargin: -2 * pane.u
+                    width: parent.width
+                    height: 1
+                    color: Theme.fg
+                }
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                text: "pair"
+                onPressed: where.accepted()
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "cancel"
+                onPressed: pane.pairAsk = false
+            }
+        }
+        Small {
+            screen: pane.screen
+            visible: Remote.trouble.length > 0
+            color: Theme.signal
+            width: Math.min(implicitWidth, Math.max(pane.core, Theme.wide("M".repeat(20))))
+            wrapMode: Text.WordWrap
+            text: Remote.trouble
+        }
+        Small {
+            screen: pane.screen
             visible: Vpn.trouble.length > 0
             color: Theme.signal
             width: Math.min(implicitWidth, Math.max(pane.core, Theme.wide("M".repeat(20))))
@@ -354,6 +485,20 @@ Pane {
                 lit: false
                 text: "add vpn…"
                 onPressed: Vpn.add()
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "add pc…"
+                onPressed: pane.pairAsk = true
+            }
+            Small {
+                screen: pane.screen
+                link: true
+                lit: false
+                text: "moonlight…"
+                onPressed: Remote.open()
             }
             Small {
                 screen: pane.screen

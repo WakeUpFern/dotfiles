@@ -26,3 +26,4 @@ Hold 1.0 Hold.qml
 Pane 1.0 Pane.qml
 NetPane 1.0 NetPane.qml
 BluePane 1.0 BluePane.qml
+singleton Remote 1.0 Remote.qml
