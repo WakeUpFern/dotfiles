@@ -368,6 +368,30 @@ Pane {
                 }
             }
         }
+        Row {
+            visible: Remote.mouse !== "missing"
+            spacing: pane.gap
+            Small {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                width: pane.hostWidth
+                lit: Remote.mouseShared
+                text: "mouse"
+            }
+            Toggle {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                on: Remote.mouseShared
+                busy: Remote.mouseBusy
+                onFlipped: Remote.lend(!Remote.mouseShared)
+            }
+            Small {
+                anchors.verticalCenter: parent.verticalCenter
+                screen: pane.screen
+                lit: Remote.mouse === "lent"
+                text: Remote.mouseWord
+            }
+        }
         Small {
             screen: pane.screen
             visible: Remote.hosts.length === 0 && Remote.pairing === null && !pane.pairAsk

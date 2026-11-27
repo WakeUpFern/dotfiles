@@ -165,6 +165,11 @@ case $(uname -s) in
         if profile_exists "$DOTFILES_DIR/dotfiles/config-root.yaml" "$profile"; then
             install_system_profile "$profile"
         fi
+        # VirtualHere has no client auth on the free server: reachable over Tailscale only.
+        if command -v ufw >/dev/null 2>&1 && command -v vhusbd >/dev/null 2>&1; then
+            sudo systemctl daemon-reload
+            sudo ufw allow in on tailscale0 to any port 7575 proto tcp comment virtualhere
+        fi
         set_default_browser firefox.desktop
         # The theme tool generates this icon theme below ~/.config; GTK and Qt look here.
         icon_dir=${XDG_DATA_HOME:-$TARGET_HOME/.local/share}/icons

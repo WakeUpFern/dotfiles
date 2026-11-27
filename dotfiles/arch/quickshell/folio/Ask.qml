@@ -28,7 +28,8 @@ PanelWindow {
         recent: Desktop.recent,
         apps: DesktopEntries.applications.values,
         used: used,
-        remote: Remote.hosts
+        remote: Remote.hosts,
+        mouse: Remote.mouse
     }, new Date(), 7)
     readonly property var first: results[chosen] ?? null
     function run(result): void {
@@ -71,7 +72,9 @@ PanelWindow {
             used = next;
             usedFile.setText(JSON.stringify(used));
         } else if (result.kind === "remote") {
-            if (result.leave)
+            if (result.mouse !== undefined)
+                Remote.lend(result.mouse);
+            else if (result.leave)
                 Remote.leave(result.uuid);
             else
                 Remote.stream(result.uuid, result.app);

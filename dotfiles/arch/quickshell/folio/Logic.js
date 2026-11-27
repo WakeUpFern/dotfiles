@@ -320,6 +320,11 @@ function ask(query, sources, now, limit) {
                 score: score([h.name + " " + a.name, "remote stream moonlight sunshine pc computer"]) + 5 + i * 0.5 + (h.awake ? 0 : 20) });
         });
     });
+    if (sources.mouse && sources.mouse !== "missing") {
+        var lent = sources.mouse !== "off";
+        rows.push({ kind: "remote", verb: lent ? "Take" : "Lend", name: lent ? "the mouse back" : "the mouse", detail: "over virtualhere", mouse: !lent,
+            score: score([lent ? "take mouse back" : "lend mouse", "mouse virtualhere usb share remote lol game"]) + 6 });
+    }
     commands.forEach(function(c) {
         rows.push({ kind: "command", verb: c.verb, name: c.name, detail: "", command: c.id, confirm: !!c.confirm, score: score([c.words]) + 8 });
     });

@@ -14,8 +14,25 @@ dotfiles:
     src: workstation/sway-nvidia.desktop
     dst: /usr/share/wayland-sessions/sway-nvidia.desktop
     chmod: '644'
+  f_virtualhere_mouse:
+    src: arch/virtualhere-mouse.ini
+    dst: /etc/virtualhere/mouse.ini
+    chmod: '644'
+  f_virtualhere_unit:
+    src: arch/virtualhere-folio.conf
+    dst: /etc/systemd/system/virtualhere.service.d/folio.conf
+    chmod: '644'
+  f_virtualhere_polkit:
+    src: arch/50-folio-virtualhere.rules
+    dst: /etc/polkit-1/rules.d/50-folio-virtualhere.rules
+    chmod: '644'
 
 profiles:
   workstation:
     dotfiles:
       - f_sway_nvidia_session
+  arch:
+    dotfiles:
+      - f_virtualhere_mouse
+      - f_virtualhere_unit
+      - f_virtualhere_polkit

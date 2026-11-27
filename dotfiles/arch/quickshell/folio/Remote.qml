@@ -132,6 +132,61 @@ QtObject {
             clientQuery.running = true;
         if (!peerQuery.running)
             peerQuery.running = true;
+        if (!mouseQuery.running && !mouseSwitch.running)
+            mouseQuery.running = true;
+    }
+
+    // The mouse lent over VirtualHere: its server (virtualhere.service, started on demand,
+    // allowed by a polkit rule) shares the one device in /etc/virtualhere/mouse.ini, and a
+    // client that set "auto-use" takes it. While a client has it, the kernel's usbhid lets go.
+    // "missing" (no server installed) | "off" | "waiting" (shared, no one took it) |
+    // "lent" (a client has it) | "unplugged" (shared, but the mouse is not here)
+    property string mouse: "missing"
+    property bool mouseBusy: false
+    readonly property bool mouseShared: mouse === "waiting" || mouse === "lent" || mouse === "unplugged"
+    readonly property string mouseWord: mouseBusy ? "…" : mouse === "off" ? "here" : mouse === "waiting" ? "shared · waiting for a pc" : mouse === "lent" ? "with " + (hosts.find(h => h.awake)?.name ?? "the other pc") : mouse === "unplugged" ? "shared · not plugged in" : ""
+    property string mouseId: ""
+    property FileView mouseConfig: FileView {
+        path: "/etc/virtualhere/mouse.ini"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            const m = text().match(/^\s*AllowedDevices\s*=\s*([0-9a-fA-F]+)\/([0-9a-fA-F]+)/mi);
+            remote.mouseId = m ? m[1].toLowerCase().padStart(4, "0") + ":" + m[2].toLowerCase().padStart(4, "0") : "";
+        }
+    }
+    readonly property string mouseScript: 'load=$(systemctl show -p LoadState --value virtualhere.service); [ "$load" = loaded ] || { echo missing; exit 0; }; systemctl -q is-active virtualhere.service || { echo off; exit 0; }; [ -n "$1" ] || { echo waiting; exit 0; }; dev=unplugged; for d in /sys/bus/usb/devices/*; do [ "$(cat "$d/idVendor" 2>/dev/null):$(cat "$d/idProduct" 2>/dev/null)" = "$1" ] || continue; dev=lent; for i in "$d"/*:*/driver; do [ "$(basename "$(readlink "$i")")" = usbhid ] && dev=waiting; done; done; echo $dev'
+    property Process mouseQuery: Process {
+        command: ["sh", "-c", remote.mouseScript, "folio-mouse", remote.mouseId]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const s = text.trim();
+                if (s.length > 0)
+                    remote.mouse = s;
+            }
+        }
+    }
+    property Process mouseSwitch: Process {
+        stderr: StdioCollector {
+            id: mouseSaid
+        }
+        onExited: code => {
+            const msg = mouseSaid.text.trim().split("\n").pop() || "";
+            if (code !== 0)
+                remote.trouble = /auth|polkit|access denied/i.test(msg) ? "the mouse needs the folio polkit rule (run the system profile)" : "mouse: " + (msg.length > 0 ? msg.toLowerCase() : "could not switch");
+            remote.mouseBusy = false;
+            remote.refresh();
+        }
+    }
+    // Stopping the server hands the mouse back here even if a client still holds it.
+    function lend(on: bool): void {
+        if (mouseSwitch.running || mouse === "missing")
+            return;
+        trouble = "";
+        mouseBusy = true;
+        mouseSwitch.command = ["systemctl", "--no-ask-password", on ? "start" : "stop", "virtualhere.service"];
+        mouseSwitch.running = true;
     }
     onWatchingChanged: {
         if (pairing === null)
